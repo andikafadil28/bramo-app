@@ -23,4 +23,38 @@
 - **Battery Charging:** Animasi *power boost* khusus saat laptop dicolok charger.
 
 ### 4. 🧠 Human-Centric Care & Active Work Tracker
-- **Proof-of-Work Active Tracker:** EXP waktu aktif cuma bertambah saat lu bener-bener produkt
+- **Proof-of-Work Active Tracker:** EXP waktu aktif cuma bertambah saat lu bener-bener produktif ngetik/gerakkin kursor (Anti-AFK auto-pause setelah 2 menit).
+- **Human Bio-Rhythm Reminders:** Notifikasi alami waktu Sarapan, 10 AM Coffee Break, Lunch Time, Micro-Hydration (tiap 1.5–2 jam aktif), 4 PM Snack Slump, dan Makan Malam.
+- **Prayer & Overwork Alerts:** Countdown waktu sholat + *auto-pause* media, serta *overwork warning* (peringatan peregangan/encok) setelah 5+ jam aktif.
+- **Smart Anti-Spam:** *Smart Snooze* 2–3 jam, *AFK Lunch Auto-Detection*, dan *Fullscreen/Gaming DND Mode*.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Engine:** [Tauri v2](https://tauri.app/) (Rust Backend + HTML/CSS/JS Frontend)
+- **Frontend:** Vanilla HTML5, CSS3 (CSS Variables), Modular Modern JS (ES6+)
+- **Audio:** Web Audio API (8-bit Synthesizer/SFX)
+- **Target OS:** Windows 10/11 (Frameless, Transparent, Always-on-Top)
+- **RAM Footprint:** Super ringan (Target 30MB – 50MB)
+
+---
+
+## 🚀 Getting Started (Development Setup)
+
+### Prerequisites
+1. Install [Node.js](https://nodejs.org/) (v18+)
+2. Install [Rust](https://www.rust-lang.org/tools/install) & Cargo
+3. Cek panduan [Tauri Prerequisites for Windows](https://tauri.app/v1/guides/getting-started/prerequisites#windows)
+
+### Run Locally
+```bash
+# Clone repository
+git clone [https://github.com/USERNAME_GITHUB_LU/bramo-app.git](https://github.com/USERNAME_GITHUB_LU/bramo-app.git)
+cd bramo-app
+
+# Install dependencies
+npm install
+
+# Run in Development Mode
+npm run tauri dev
