@@ -10,8 +10,8 @@
   <div class="capsule-wrapper">
     <div class="bramo-container" id="bramoContainer">
       
-      <!-- Slot Topi Koboi (Stabil menempel di atas kapsul) -->
-      <div class="accessory-slot" id="accessorySlot">
+      <!-- Slot Topi Koboi (Trigger Double-Click Auto-Snap ke Tengah Atas) -->
+      <div class="accessory-slot interactive" id="hatTrigger">
         <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
           <path fill="#2d1500" d="M7 2h10v1H7zM5 3h14v1H5zM5 4h14v1H5zM3 5h18v1H3zM1 6h22v1H1zM0 7h24v2H0z"/>
           <path fill="#d97706" d="M8 3h8v1H8zM6 4h12v1H6zM6 5h12v1H6z"/>
@@ -22,7 +22,7 @@
         </svg>
       </div>
 
-      <!-- Kapsul Utama BRAMO (Seluruh area muka menjadi area drag) -->
+      <!-- Kapsul Utama BRAMO (Area Drag & Wiggle) -->
       <div class="bramo-capsule" id="bramoCapsule">
         
         <!-- Visor Muka (Ekspresi LED & Gaze Engine) -->
@@ -51,25 +51,27 @@
 
       </div>
 
-      <!-- Dropdown Island Panel -->
+      <!-- Dropdown Island Panel (Menggunakan CSS Max-Height Murni) -->
       <div class="dropdown-panel" id="dropdownPanel">
-        <div class="widget-card music-widget interactive">
-          <div class="song-title">Midnight City - M83</div>
-          <div class="media-controls">
-            <button class="btn-media">⏮</button>
-            <button class="btn-media play-btn">⏸</button>
-            <button class="btn-media">⏭</button>
-          </div>
-        </div>
-
-        <div class="widget-row">
-          <div class="widget-card drop-widget interactive">
-            <span class="drop-label">Drop File</span>
-            <div class="folder-icon">📁</div>
+        <div class="dropdown-content-wrapper">
+          <div class="widget-card music-widget interactive">
+            <div class="song-title">Midnight City - M83</div>
+            <div class="media-controls">
+              <button class="btn-media">⏮</button>
+              <button class="btn-media play-btn">⏸</button>
+              <button class="btn-media">⏭</button>
+            </div>
           </div>
 
-          <div class="power-widget interactive">
-            <span class="bolt-icon">⚡</span>
+          <div class="widget-row">
+            <div class="widget-card drop-widget interactive">
+              <span class="drop-label">Drop File</span>
+              <div class="folder-icon">📁</div>
+            </div>
+
+            <div class="power-widget interactive">
+              <span class="bolt-icon">⚡</span>
+            </div>
           </div>
         </div>
       </div>

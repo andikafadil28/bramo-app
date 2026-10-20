@@ -1,15 +1,16 @@
-// BRAMO - Visor Engine, Throttled rAnimationFrame Custom Drag with Position Lock (Anti-Teleport)
+// BRAMO - Visor Engine, Custom Drag, Anti-Teleport, CSS Dropdown (No Resize), Hat Double-Click Snap
 
 const bramoContainer = document.getElementById('bramoContainer');
 const bramoCapsule = document.getElementById('bramoCapsule');
 const dropdownToggle = document.getElementById('dropdownToggle');
+const hatTrigger = document.getElementById('hatTrigger');
 const visorScreen = document.getElementById('visorScreen');
 const leftEye = document.getElementById('leftEye');
 const rightEye = document.getElementById('rightEye');
 const ledMouth = document.getElementById('ledMouth');
 
 let isActivelyDragging = false;
-let isPositionReady = false; // <-- Kunci pengaman anti-teleport
+let isPositionReady = false;
 let startScreenX = 0;
 let startScreenY = 0;
 let windowStartX = 0;
@@ -24,7 +25,7 @@ bramoCapsule.addEventListener('mousedown', async (e) => {
       if (e.target.closest('#dropdownToggle') || e.target.closest('.dropdown-panel')) return;
 
       isActivelyDragging = true;
-      isPositionReady = false; // Kunci dulu sampai posisi awal selesai diambil
+      isPositionReady = false;
       startScreenX = e.screenX;
       startScreenY = e.screenY;
 
@@ -40,7 +41,7 @@ bramoCapsule.addEventListener('mousedown', async (e) => {
                   const pos = await win.outerPosition();
                   windowStartX = pos.x;
                   windowStartY = pos.y;
-                  isPositionReady = true; // Buka kunci setelah posisi siap!
+                  isPositionReady = true;
             } catch (err) {
                   console.warn("Pos error:", err);
                   isActivelyDragging = false;
@@ -50,9 +51,9 @@ bramoCapsule.addEventListener('mousedown', async (e) => {
       }
 });
 
-// --- 2. MOUSE MOVE (CEK POSISI SIAP SEBELUM GESER) ---
+// --- 2. MOUSE MOVE (THROTTLED R-ANIMATION FRAME & ANTI-TELEPORT) ---
 window.addEventListener('mousemove', (e) => {
-      if (!isActivelyDragging || !isPositionReady) return; // Jangan geser kalau posisi belum siap!
+      if (!isActivelyDragging || !isPositionReady) return;
       latestMouseEvent = e;
 
       if (!isTicking) {
@@ -111,14 +112,54 @@ function handleDragRelease() {
 window.addEventListener('mouseup', handleDragRelease);
 window.addEventListener('blur', handleDragRelease);
 
-// --- 4. PULL-TAB BAWAH: Murni untuk Klik Buka/Tutup Dropdown ---
+// --- 4. DOUBLE-CLICK PADA TOPI (FIXED: MURNI JS SCREEN WIDTH, TANPA PERLU WIN.CENTER) ---
+if (hatTrigger) {
+      let lastHatClickTime = 0;
+
+      hatTrigger.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const currentTime = new Date().getTime();
+
+            if (currentTime - lastHatClickTime < 300) {
+                  triggerHappyMouth();
+
+                  if (window.__TAURI__?.window) {
+                        try {
+                              const win = window.__TAURI__.window.getCurrentWindow();
+
+                              // Ambil lebar layar monitor via JavaScript webview secara langsung
+                              const screenWidth = window.screen.width;
+                              const windowWidth = 240; // Sesuaikan dengan width window BRAMO lo di tauri.conf.json
+
+                              // Hitung posisi X persis di tengah layar
+                              const targetX = Math.round((screenWidth - windowWidth) / 2);
+                              const targetY = 20; // 20px dari atas layar
+
+                              await win.setPosition({
+                                    type: 'Physical',
+                                    x: targetX,
+                                    y: targetY
+                              });
+
+                              bramoContainer.classList.remove('expanded');
+                        } catch (err) {
+                              console.warn("Auto-snap error:", err);
+                        }
+                  }
+            }
+
+            lastHatClickTime = currentTime;
+      });
+}
+
+// --- 5. PULL-TAB BAWAH: Buka/Tutup Dropdown (Murni CSS Max-Height, Tanpa Resize Window) ---
 dropdownToggle.addEventListener('click', (e) => {
       e.stopPropagation();
       bramoContainer.classList.toggle('expanded');
       triggerHappyMouth();
 });
 
-// --- 5. ANIMATED MOUTH ENGINE ---
+// --- 6. ANIMATED MOUTH ENGINE ---
 let isMouthBusy = false;
 
 function setMouthState(stateClass) {
@@ -149,7 +190,7 @@ function switchMouthIdle() {
 
 switchMouthIdle();
 
-// --- 6. RANDOM GAZE ENGINE (MATA ISENG) ---
+// --- 7. RANDOM GAZE ENGINE (MATA ISENG) ---
 const MAX_OFFSET = 3;
 let gazeState = 'FORWARD';
 let mousePos = { x: 0, y: 0 };
@@ -208,7 +249,7 @@ function updateEyeFrame() {
 switchGazeState();
 requestAnimationFrame(updateEyeFrame);
 
-// --- 7. AUTO-BLINK ---
+// --- 8. AUTO-BLINK ---
 function triggerBlink() {
       if (!isActivelyDragging) {
             visorScreen.classList.add('blinking');

@@ -14,6 +14,7 @@
       box-sizing: border-box;
 }
 
+/* Body transparan total & click-through di luar area interaktif */
 html,
 body {
       width: 100%;
@@ -22,14 +23,21 @@ body {
       overflow: hidden;
       user-select: none;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      pointer-events: none;
+}
+
+/* Hanya elemen BRAMO & widget yang bisa diklik */
+.interactive,
+.bramo-container {
+      pointer-events: auto;
 }
 
 .capsule-wrapper {
       width: 100%;
       height: 100%;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
       padding-top: 18px;
 }
 
@@ -40,7 +48,7 @@ body {
       position: relative;
 }
 
-/* Kapsul Utama (Area Drag Native Tauri + Wiggle Animation) */
+/* Kapsul Utama */
 .bramo-capsule {
       width: 122px;
       height: 54px;
@@ -57,10 +65,6 @@ body {
       position: relative;
       z-index: 10;
       cursor: grab;
-
-      /* PENTING: Ini bikin OS nanganin drag window secara native & mulus */
-      -webkit-app-region: drag !important;
-
       transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -68,11 +72,15 @@ body {
       cursor: grabbing;
 }
 
-/* PULL-TAB BAWAH & PANEL (Wajib no-drag agar klik dropdown aman) */
-.dropdown-handle-bar,
-.dropdown-panel,
-.visor-screen {
-      -webkit-app-region: no-drag !important;
+/* Pull-Tab Dropdown Trigger di Bawah Muka */
+.dropdown-handle-bar {
+      width: 100%;
+      height: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 25;
 }
 
 .tab-indicator {
@@ -90,20 +98,23 @@ body {
       box-shadow: 0 0 8px var(--led-cyan);
 }
 
-/* Slot Topi (Stabil di atas kapsul) */
+/* Slot Topi Koboi (Wajib pointer-events auto agar dblclick terbaca) */
 .accessory-slot {
       position: absolute;
       top: -14px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 15;
-      pointer-events: none;
+      cursor: pointer;
+      pointer-events: auto !important;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
 }
 
 .pixel-hat {
       image-rendering: pixelated;
       shape-rendering: crispEdges;
+      pointer-events: none;
+      /* PENTING: Supaya klik tembus ke wrapper div-nya */
 }
 
 /* Visor Screen Sleek */
@@ -223,29 +234,34 @@ body {
       opacity: 0.85;
 }
 
-/* Dropdown Panel */
+/* Dropdown Panel (Max-Height Animation Tanpa Resize Window OS) */
 .dropdown-panel {
       width: 200px;
       background: var(--bg-panel);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(14px);
+      margin-top: 5px;
+      overflow: hidden;
+
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            opacity 0.2s ease;
+}
+
+.dropdown-content-wrapper {
       padding: 8px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(14px);
-      margin-top: 5px;
-
-      opacity: 0;
-      transform: translateY(-10px) scale(0.95);
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .bramo-container.expanded .dropdown-panel {
+      max-height: 250px;
       opacity: 1;
-      transform: translateY(0) scale(1);
       pointer-events: auto;
 }
 
@@ -320,26 +336,13 @@ body {
       text-shadow: 0 0 6px var(--led-cyan);
 }
 
-/* =========================================================
-   ANIMASI WIGGLE (DRAG) & LANDING BOUNCE (DROP)
-   ========================================================= */
-
+/* Animasi Wiggle & Landing Bounce */
 .bramo-container.is-dragging .bramo-capsule {
-      animation: holdWiggle 0.18s ease-in-out infinite alternate !important;
       box-shadow: 0 18px 45px rgba(0, 240, 255, 0.45), 0 0 25px rgba(0, 0, 0, 0.8) !important;
 }
 
-@keyframes holdWiggle {
-      0% {
-            transform: scale(1.06) translateY(-3px) rotate(-4deg);
-      }
-
-      100% {
-            transform: scale(1.06) translateY(-7px) rotate(4deg);
-      }
-}
-
 .bramo-container.just-landed .bramo-capsule {
+      transition: transform 0.15s ease !important;
       animation: landingBounce 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
 }
 
@@ -365,22 +368,6 @@ body {
       }
 }
 
-/* Topi ikut goyang ngikutin bodi pas di-drag */
-.bramo-container.is-dragging .accessory-slot {
-      animation: hatWiggle 0.18s ease-in-out infinite alternate !important;
-}
-
-@keyframes hatWiggle {
-      0% {
-            transform: translateX(-50%) translateY(-3px) rotate(-4deg);
-      }
-
-      100% {
-            transform: translateX(-50%) translateY(-7px) rotate(4deg);
-      }
-}
-
-/* Mata melotot kaget saat di-drag */
 .bramo-container.is-dragging .led-eye {
       width: 14px !important;
       height: 14px !important;

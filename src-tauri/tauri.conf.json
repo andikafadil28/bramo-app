@@ -13,10 +13,10 @@
     "windows": [
       {
         "title": "BRAMO",
-        "width": 300,
-        "height": 145,
-        "decorations": false,
+        "width": 240,
+        "height": 300,
         "transparent": true,
+        "decorations": false,
         "alwaysOnTop": true,
         "resizable": false,
         "shadow": false,
