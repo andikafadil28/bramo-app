@@ -7,25 +7,38 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="capsule-wrapper">
+  <div class="capsule-wrapper" id="capsuleWrapper">
     <div class="bramo-container" id="bramoContainer">
       
-      <!-- Slot Topi Koboi (Trigger Double-Click Auto-Snap ke Tengah Atas) -->
-      <div class="accessory-slot interactive" id="hatTrigger">
-        <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
-          <path fill="#2d1500" d="M7 2h10v1H7zM5 3h14v1H5zM5 4h14v1H5zM3 5h18v1H3zM1 6h22v1H1zM0 7h24v2H0z"/>
-          <path fill="#d97706" d="M8 3h8v1H8zM6 4h12v1H6zM6 5h12v1H6z"/>
-          <path fill="#f59e0b" d="M9 3h6v1H9zM7 4h10v1H7z"/>
-          <path fill="#78350f" d="M6 6h12v1H6z"/>
-          <path fill="#fbbf24" d="M10 5h4v1h-4z"/>
-          <path fill="#b45309" d="M2 7h20v1H2z"/>
-        </svg>
+      <!-- Zona Topi & Chat Bubble Komik -->
+      <div class="hat-and-bubble-zone">
+        <div class="speech-bubble" id="speechBubble">
+          <span id="speechText">System online, Bro! 🚀</span>
+        </div>
+        <div class="accessory-slot interactive" id="hatTrigger">
+          <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
+            <path fill="#2d1500" d="M7 2h10v1H7zM5 3h14v1H5zM5 4h14v1H5zM3 5h18v1H3zM1 6h22v1H1zM0 7h24v2H0z"/>
+            <path fill="#d97706" d="M8 3h8v1H8zM6 4h12v1H6zM6 5h12v1H6z"/>
+            <path fill="#f59e0b" d="M9 3h6v1H9zM7 4h10v1H7z"/>
+            <path fill="#78350f" d="M6 6h12v1H6z"/>
+            <path fill="#fbbf24" d="M10 5h4v1h-4z"/>
+            <path fill="#b45309" d="M2 7h20v1H2z"/>
+          </svg>
+          <svg class="pixel-peci" viewBox="0 0 40 28" width="46" height="30" aria-label="Peci">
+            <path fill="#9ca3af" d="M8 19V7h24v12z"/>
+            <path fill="#d1d5db" d="M10 7h20v3H10z"/>
+            <path fill="#4b5563" d="M6 17h28v7H6z"/>
+            <path fill="#1f2937" d="M8 17h24v3H8z"/>
+            <path fill="#00f0ff" d="M9 20h22v1H9z"/>
+            <path fill="#6b7280" d="M10 24h20v2H10z"/>
+          </svg>
+        </div>
       </div>
 
       <!-- Kapsul Utama BRAMO (Area Drag & Wiggle) -->
       <div class="bramo-capsule" id="bramoCapsule">
         
-        <!-- Visor Muka (Ekspresi LED & Gaze Engine) -->
+        <!-- Visor Muka -->
         <div class="visor-wrapper">
           <div class="visor-screen" id="visorScreen">
             <div class="scanlines"></div>
@@ -44,41 +57,148 @@
           </div>
         </div>
 
-        <!-- PULL-TAB / DROPDOWN TRIGGER DI BAWAH MUKA -->
+        <!-- PULL-TAB / DROPDOWN TRIGGER -->
         <div class="dropdown-handle-bar interactive" id="dropdownToggle">
           <div class="tab-indicator"></div>
         </div>
 
       </div>
 
-      <!-- Dropdown Island Panel (Menggunakan CSS Max-Height Murni) -->
+      <!-- Dropdown Island Panel -->
       <div class="dropdown-panel" id="dropdownPanel">
         <div class="dropdown-content-wrapper">
-          <div class="widget-card music-widget interactive">
-            <div class="song-title">Midnight City - M83</div>
+          <div class="utility-tabs" role="tablist">
+            <button class="utility-tab active" data-panel="musicPanel" type="button">♫</button>
+            <button class="utility-tab" data-panel="statsPanel" type="button">▥</button>
+            <button class="utility-tab" data-panel="filePanel" type="button">▣</button>
+            <button class="utility-tab" data-panel="powerPanel" type="button">⚡</button>
+            <button class="utility-tab" data-panel="prayerPanel" type="button">☪</button>
+            <button class="utility-tab" data-panel="pomodoroPanel" type="button">⏱</button>
+          </div>
+
+          <div class="utility-panel active" id="musicPanel">
+            <div class="song-title" id="musicStatus">System media controls</div>
             <div class="media-controls">
-              <button class="btn-media">⏮</button>
-              <button class="btn-media play-btn">⏸</button>
-              <button class="btn-media">⏭</button>
+              <button class="btn-media" data-media-action="previous" aria-label="Previous track">⏮</button>
+              <button class="btn-media play-btn" data-media-action="play-pause" aria-label="Play or pause">⏸</button>
+              <button class="btn-media" data-media-action="next" aria-label="Next track">⏭</button>
             </div>
           </div>
 
-          <div class="widget-row">
-            <div class="widget-card drop-widget interactive">
+          <div class="utility-panel" id="statsPanel">
+            <div class="stats-grid">
+              <span>CPU</span><strong id="cpuValue">--%</strong>
+              <span>RAM</span><strong id="memoryValue">--%</strong>
+              <span>BAT</span><strong id="batteryValue">--%</strong>
+            </div>
+          </div>
+
+          <div class="utility-panel" id="filePanel">
+            <div class="drop-widget interactive" id="fileDropZone">
               <span class="drop-label">Drop File</span>
               <div class="folder-icon">📁</div>
             </div>
+            <div class="drop-status" id="dropStatus">Belum ada file</div>
+            <div class="drop-actions" id="dropActions" hidden>
+              <button class="drop-action interactive" id="openDroppedFile" type="button">Open</button>
+              <button class="drop-action interactive" id="revealDroppedFile" type="button">Show in Folder</button>
+            </div>
+            <div class="drop-history" id="dropHistory"></div>
+            <label class="clipboard-toggle">
+              <input type="checkbox" id="clipboardToggle" />
+              <span>Clipboard Watcher</span>
+            </label>
+            <label class="clipboard-toggle">
+              <input type="checkbox" id="typingToggle" />
+              <span>Typing Curiosity</span>
+            </label>
+          </div>
 
-            <div class="power-widget interactive">
-              <span class="bolt-icon">⚡</span>
+          <div class="utility-panel" id="powerPanel">
+            <div class="power-actions">
+              <button class="power-action interactive" id="sleepBramo" type="button">Sleep</button>
+              <button class="power-action interactive" id="quitBramo" type="button">Quit</button>
+            </div>
+            <div class="theme-title">VISOR THEME</div>
+            <div class="theme-picker" id="themePicker" role="group" aria-label="Visor theme">
+              <button class="theme-swatch theme-cyan interactive" data-theme="cyan" type="button" aria-label="Cyberpunk Cyan"></button>
+              <button class="theme-swatch theme-matrix interactive" data-theme="matrix" type="button" aria-label="Matrix Green"></button>
+              <button class="theme-swatch theme-pink interactive" data-theme="pink" type="button" aria-label="Neon Pink"></button>
+              <button class="theme-swatch theme-amber interactive" data-theme="amber" type="button" aria-label="Amber Orange"></button>
+            </div>
+          </div>
+
+          <div class="utility-panel" id="pomodoroPanel">
+            <div class="pomodoro-card" id="pomodoroCard">
+              <div class="pomodoro-title">POMODORO</div>
+              <div class="pomodoro-mode" id="pomodoroMode">FOCUS SESSION</div>
+              <div class="pomodoro-time" id="pomodoroTime">25:00</div>
+              <div class="pomodoro-progress"><span id="pomodoroProgress"></span></div>
+              <div class="pomodoro-actions">
+                <button class="power-action interactive" id="pomodoroStart" type="button">Start</button>
+                <button class="power-action interactive" id="pomodoroReset" type="button">Reset</button>
+              </div>
+              <div class="pomodoro-settings">
+                <label>Focus
+                  <select id="pomodoroFocusSetting">
+                    <option value="15">15m</option><option value="25" selected>25m</option><option value="45">45m</option><option value="60">60m</option>
+                  </select>
+                </label>
+                <label>Break
+                  <select id="pomodoroBreakSetting">
+                    <option value="5" selected>5m</option><option value="10">10m</option><option value="15">15m</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="utility-panel" id="prayerPanel">
+            <div class="prayer-title">PRAYER REMINDER</div>
+            <div class="prayer-next" id="prayerNext">Memuat jadwal...</div>
+            <div class="prayer-location" id="prayerLocation">Lokasi: Jakarta (fallback)</div>
+            <div class="prayer-controls">
+              <label class="prayer-toggle">
+                <input type="checkbox" id="prayerToggle" checked />
+                <span>Reminder ON</span>
+              </label>
+              <button class="prayer-test interactive" id="prayerTest" type="button">Test Reminder</button>
+            </div>
+            <div class="audio-controls">
+              <label class="prayer-toggle">
+                <input type="checkbox" id="audioToggle" checked />
+                <span>Audio ON</span>
+              </label>
+              <button class="prayer-mute interactive" id="prayerMute" type="button">Mute Audio</button>
             </div>
           </div>
         </div>
       </div>
 
+      <div class="now-playing-bar interactive" id="nowPlayingBar" aria-live="polite">
+        <div class="now-playing-copy">
+          <div class="now-playing-title" id="nowPlayingTitle">No media</div>
+          <div class="now-playing-artist" id="nowPlayingArtist"></div>
+        </div>
+        <div class="now-playing-controls">
+          <button class="btn-media" data-media-action="previous" aria-label="Previous track">⏮</button>
+          <button class="btn-media" data-media-action="play-pause" aria-label="Play or pause">▶</button>
+          <button class="btn-media" data-media-action="next" aria-label="Next track">⏭</button>
+        </div>
+      </div>
+
+      <div class="pomodoro-mini-bar interactive" id="pomodoroMiniBar" aria-live="polite">
+        <div>
+          <span class="pomodoro-mini-label" id="pomodoroMiniMode">FOCUS</span>
+          <strong id="pomodoroMiniTime">25:00</strong>
+        </div>
+        <button class="pomodoro-mini-button interactive" id="pomodoroMiniToggle" type="button">Start</button>
+      </div>
+
     </div>
   </div>
 
+  <audio id="adhanAudio" src="assets/Adzan.wav" preload="none"></audio>
   <script src="main.js"></script>
 </body>
 </html>

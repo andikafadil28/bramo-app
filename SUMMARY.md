@@ -1,45 +1,16 @@
-# BRAMO — Project Status & Progress Summary
+# BRAMO - Interactive Cyberpunk Desktop Companion
 
-## 📌 Project Overview
-**BRAMO** is an interactive desktop top bar companion for Windows and Linux featuring a retro-cyberpunk LED visor robot. BRAMO lives floating at the top of your screen, reacting to your mouse, keeping track of active working hours, providing biological care reminders, quick utilities, gamified PC maintenance, and retro 8-bit audio feedback.
+BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Linux, powered by **Tauri v2**. Designed with an LED visor capsule aesthetic, BRAMO combines system utilities, productivity tracking, health bio-rhythm reminders, and expressive AI mascot interactions.
 
-- **Repository:** `bramo-app`
-- **Tech Stack:** Tauri v2 (Rust Backend + HTML/CSS/JS Frontend)
-- **Target Output:** Windows `.exe`/`.msi` & Linux `.AppImage`/`.deb`
-- **Current Status:** Phase 2 (Step 1 & UI Polish Completed)
+## Key Features & Capabilities
+- **Cyber-Retro LED Visor:** Dynamic LED eyes with gaze-tracking, auto-blinking, and reactive mouth animations.
+- **Robust Drag & Snap Mechanics:** Smooth custom `rAnimationFrame` dragging with wiggle physics, landing bounce, and a cowboy hat double-click auto-snap to the top-center of the screen.
+- **Expandable Dropdown Island:** Clean CSS-powered dropdown panel for media controls, drop zones, and quick utilities without window clipping.
+- **Productivity & Health Companion:** Built-in bio-rhythm tracking, prayer/sholat reminders, and activity logs.
+- **Productivity Tools:** Configurable Pomodoro focus/break timer with a floating mini-timer.
+- **Customization:** Persistent visor themes (Cyan, Matrix, Pink, Amber).
+- **Desktop Integration:** File drop actions, clipboard/typing feedback, media controls, and mascot Sleep Mode.
 
----
-
-## ✅ Completed Milestones & Feature Implementations
-
-### Phase 1: Tauri v2 Framework & Window Setup
-- [x] Initialized Tauri v2 project structure (`src-tauri` & `src`).
-- [x] Configured `tauri.conf.json`: frameless, transparent background, always-on-top, custom window dimensions (`300x145`), and non-centered top position (`y: 6`).
-- [x] Configured Tauri Capabilities (`src-tauri/capabilities/default.json`) with `"core:window:allow-start-dragging"`.
-- [x] Enabled `"withGlobalTauri": true` for seamless frontend window API access.
-
-### Phase 2 — Step 1: Sleek Visor LED UI & Core Behavioral Engines
-- [x] **Ultra-Sleek Top Bar (Compact Mode):** Compact 122x48px capsule that sits neatly at the top of the screen without obscuring browser tabs.
-- [x] **Dropdown Island Panel (Expanded Mode):** Vertical drop-down tray (200px width) containing the Universal Media Controller, Drop File slot, and Power quick action button.
-- [x] **Pixel Cowboy Hat Accessory System:** Modular `<div class="accessory-slot">` positioning the pixel hat precisely overlapping the top border line without clipping (`overflow: visible`).
-- [x] **Proportional LED Visor Screen:** Dark visor with CRT scanlines, cyan LED eyes, glowing pink blush, and smooth auto-blink.
-- [x] **Random Gaze Engine:** BRAMO dynamically switches between staring forward at the user, following the mouse cursor, and glancing around curiously.
-- [x] **Animated Mouth Engine:** Morphing mouth states (`u` smile, `o` whistle, `-` mumble, and `:D` happy open on click).
-- [x] **Native Window Dragging:** Smooth, zero-lag window dragging using `-webkit-app-region: drag` and interactive exclusion zones.
-
----
-
-## 🎯 Next Steps & Roadmap
-
-- [ ] **Phase 2 — Step 2: Interactive Mouse Gestures**
-  - Implement *Petting Love* (rubbing top of head triggers heart eyes & blush intensity).
-  - Implement *Shake Dizzy* (shaking window quickly triggers spiral/swirl eyes & dizzy state).
-  - Implement *Poking Sneeze* (rapid double-clicking nose/face triggers sneeze animation & glitch).
-- [ ] **Phase 2 — Step 3: Retro 8-Bit Audio & SFX Engine**
-  - Web Audio API synthesizer for retro chiptune beeps, chirps, and hums without external audio assets.
-- [ ] **Phase 3: Digital Feeding & PC Maintenance**
-  - Battery/Power level meter, RAM Soda (cache cleaner animation), Junk File Snack (`%TEMP%` cleaner).
-- [ ] **Phase 4: Active Work Tracker & Biological Care**
-  - Active time tracking (anti-AFK, auto-pause after 2 mins idle), water/posture reminders, prayer time notifications, smart snooze/DND mode.
-- [ ] **Phase 5: Gamification & Utilities**
-  - Active Work EXP, Leveling & Wardrobe Unlocks, Clipboard History (5 items), Quick To-Do, Smart Alarm (`+15m`/`+30m`).
+## Tech Stack
+- **Backend:** Rust (Tauri v2 Core)
+- **Frontend:** HTML5, Modern CSS3 (Grid/Flexbox, custom variables, cubic-bezier animations), Vanilla JavaScript (ES6+).
