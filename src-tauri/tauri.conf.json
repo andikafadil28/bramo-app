@@ -9,17 +9,19 @@
     "beforeBuildCommand": ""
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "BRAMO",
-        "width": 350,
-        "height": 60,
+        "width": 300,
+        "height": 145,
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
         "resizable": false,
         "shadow": false,
-        "center": false
+        "center": false,
+        "y": 6
       }
     ],
     "security": {

@@ -1,93 +1,77 @@
-# AGENTS.md — BRAMO System Context & Coding Guidelines
+# AGENTS.md — Technical Architecture & Agent Guidelines for BRAMO
 
-## 🤖 Project Overview
-- **Name:** BRAMO (Brader Visor / Tech Buddy)
-- **Tagline:** Interactive Cyber Visor & Tech Buddy for Windows Top Bar
-- **Description:** A lightweight, interactive cyberpunk/retro LED visor top bar widget for Windows 10/11. Serves as a productivity assistant, health/break reminder (tailored to human bio-rhythms), active time EXP tracker, digital pet (Tamagotchi-style feeding), and system utility container.
-- **Target OS:** Windows 10/11 (Frameless, Transparent, Always-on-Top Floating Window)
+Welcome to the **BRAMO** core documentation. This document serves as the absolute source of truth for AI agents and developers working on the BRAMO application.
 
 ---
 
-## 🛠️ Tech Stack & Architecture Requirements
-- **Framework:** Tauri v2 (Rust Backend + HTML/CSS/JS Frontend)
-- **Frontend Architecture:**
-  - Standard HTML5 / CSS3 / Modern Vanilla JS (ES6+) for maximum performance & zero overhead.
-  - CSS Variables for all LED theme parameters (`--led-cyan`, `--led-matrix`, `--led-purple`, `--led-amber`, `--led-red`, etc.).
-  - Modular Component Pattern without bloated JavaScript frameworks.
-  - Target RAM Footprint: **30MB – 50MB**.
-- **Audio / SFX Engine:**
-  - Lightweight Web Audio API / HTML5 Audio for retro 8-bit sound effects (Feeding crunch, Task chime, Water drop, Alarm bell, Prayer chime).
-  - Configurable master volume & global mute toggle saved in `%APPDATA%/Bramo/config.json`.
-- **State Machine Architecture:**
-  - Reactive Event-Driven State Machine (Single Source of Truth).
-  - Priority State Queue: `EMERGENCY/ALERT` > `ACTION TRIGGER (File Hover/Click)` > `APP CONTEXT (VSCode/Game/Music)` > `IDLE/AFK`.
-- **Data Persistence:**
-  - Store configuration, level, EXP, wardrobe inventory, task list, SFX settings, and stats in `%APPDATA%/Bramo/config.json`.
+## 1. Project Overview & Identity
+
+* **Name:** BRAMO
+* **Repository:** `bramo-app`
+* **Target OS:** Windows (Primary `.exe`/`.msi`), Linux (`.AppImage`/`.deb`)
+* **Tech Stack:**
+  * **Core Engine:** Tauri v2 (Rust Backend + Lightweight Native Webview)
+  * **Frontend Stack:** HTML5, Modern CSS3, Vanilla JavaScript (ES6+)
+* **Performance Budget:** 
+  * RAM Target: **30MB – 50MB**
+  * CPU Target: **< 1%** during idle state
+* **Window Specifications:**
+  * Frameless & Transparent background
+  * Always-on-Top (`alwaysOnTop: true`)
+  * Native Tauri window dragging (`-webkit-app-region: drag` + `startDragging()`)
 
 ---
 
-## 📜 AI Developer Guidelines & Persona
-1. **Tech Buddy Persona:** Act as a clear, direct, pragmatic tech partner.
-2. **Anti-Overengineering:** Keep code simple, modular, and performant. Avoid unnecessarily complex libraries or abstractions.
-3. **Copy-Paste Ready Output:** When providing code snippets, deliver complete, well-formatted, ready-to-use code blocks.
-4. **Clean Separation:** Strictly separate Tauri IPC commands (Rust) from Frontend UI rendering (JS).
-5. **Human-Centric UX:** Ensure all notifications respect human rest/work rhythms with strict anti-spam logic.
+## 2. Core Operating Rules & Architecture Guidelines
+
+1. **Keep it Lightweight & Modular:**
+   * Pure Vanilla JS + CSS3 for maximum performance and minimum memory footprint.
+   * Do not introduce heavy frontend frameworks (React/Vue/Svelte) unless strictly necessary.
+2. **Strict Design & UI Consistency:**
+   * **Compact Top Bar First:** Default state is ultra-sleek (`122px x 48px`).
+   * **Dynamic Dropdown Island Panel:** Expanding down (`200px x 140px`) on user click rather than widening horizontally to preserve screen proportion on any screen alignment.
+   * **Wardrobe Slot Architecture:** Accessories (like the **Pixel Cowboy Hat**) must sit on an overlaying absolute slot (`.accessory-slot`) above the capsule border so unlockable items can be swapped dynamically.
+3. **Human-Centric Care Logic:**
+   * Non-intrusive biological reminders (hydration, posture, break rhythm).
+   * Smart DND / Anti-Overwork detection logic.
 
 ---
 
-## 🎨 Complete Eye Animation & Gesture State Machine
+## 3. Visor LED Engine & Expression Matrix
 
-Every animation state MUST be mapped to specific CSS classes/SVG states in the JS State Machine:
+BRAMO's face operates on a dynamic state machine driving the LED matrix visor (`.visor-screen`), eye pupils (`.led-eye`), and animated LED mouth (`.led-mouth`).
 
-### 1. Idle & Base States
-- `State: IDLE_TRACKING` — Default state. Pupils follow cursor position smoothly.
-- `State: AUTO_BLINK` — Triggers every 3–5s for 0.1s (`[ -  - ]`).
-- `State: DIGITAL_GLITCH` — Random 0.2s LED flicker (`[ %  # ]`) every few minutes.
-- `State: AFK_SLEEP` — Triggered after 2 minutes of user inactivity. Closed eyes (`[ ∪  ∪ ]`) with floating `z Z z` text particles.
-- `State: WAKE_UP` — Triggered on mouse movement after AFK. Surprised eyes (`[ 👁️ 👁️ ! ]`) before returning to IDLE.
+### 3.1 Random Gaze Engine (Mata Iseng Logic)
+Rather than locking onto the mouse cursor permanently, BRAMO cycles between gaze behavior modes every 2.5s - 5s:
+* `FORWARD`: Looks directly forward at the user (`translate(0, 0)`).
+* `TRACKING`: Follows the user's cursor dynamically with bounded offsets (`MAX_OFFSET = 3px`).
+* `GLANCE`: Looks randomly in a specific direction (Left, Right, Up, Top-Right) for a brief duration.
 
-### 2. Direct Interaction Gestures
-- `State: PETTING_LOVE` — Triggered on gentle cursor drag/rubbing over eyes. Love shape (`[ ♥  ♥ ]`) or curved smile (`[ ^  ^ ]`) + red LED blush cheeks.
-- `State: POKING_SNEEZE` — Triggered on repeated fast clicks/hovers. Eyes squeeze bergetar (`[ >  < ]`) -> Digital Sneeze (`[ > o < ]`) + capsule bounce.
-- `State: SHAKE_DIZZY` — Triggered when user drags and shakes the capsule violently. Swirling eyes (`[ @  @ ]` / `[ 🌀  🌀 ]`) -> dizzy tilt -> annoyed pout (`[ ಠ ╭╮ ಠ ]`).
+### 3.2 Eye & Mouth Expression Matrix
 
-### 3. Utility & Context-Aware States
-- `State: HOVER_DRAG_FILE` — Triggered when a file is dragged over the top bar. Open mouth/excited (`[ ⊙ 口 ⊙ ]`).
-- `State: NOM_NOM_EATING` — Triggered when file is dropped into shelf. Alternating blink + mini loading bar loop.
-- `State: MUSIC_EQUALIZER` — Active during music playback (Spotify/YouTube). Jumping audio bars (`[ ♫  ♫ ]` / `[ ||  || ]`) reacting to audio beat.
-- `State: TASK_COMPLETED` — Triggered on checking a to-do task. Happy wink (`[ ^ ᴗ ^ ]`) + mini LED fireworks or "Deal With It" sunglasses (`[ 😎 ]`).
-- `State: ALARM_RINGING` — Triggered on timer/alarm end. Flashing yellow/red bells (`[ 🔔  🔔 ]`) + vibrating capsule UI.
-- `State: SHOLAT_ADZAN` — Triggered on prayer times. Calming green LED + serene eyes (`[ 🕌  🕌 ]`).
-
-### 4. Feeding & System Health States
-- `State: FEEDING_CHARGING` — Triggered on plugging charger (Laptop). Sparkling eyes (`[ ⚡  ⚡ ]`) + light-flow effect on capsule border.
-- `State: JUS_RAM_REFRESH` — Triggered on feeding RAM Soda (PC). Fresh glitch (`[ ✨  ✨ ]`) as cache memory is cleaned.
-- `State: JUNK_FILE_CLEAN` — Triggered on feeding Junk Snack. Popcorn icon animation -> chewing -> `%TEMP%` folder cleaned.
-- `State: CPU_OVERHEAT` — Triggered on CPU usage >90%. Dizzy/hot eyes (`[ @_@ ]`) + Red Alert LED theme.
-- `State: STARVING_LOW_BATTERY` — Triggered when power/energy <15%. Weak/dimmed eyes (`[ ~  ~ ]` or `[ - _ - ]`).
+| State / Event | Left Eye (`#leftEye`) | Right Eye (`#rightEye`) | Mouth Class (`#ledMouth`) | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Idle Normal** | Rounded Cyan (`13x10px`) | Rounded Cyan (`13x10px`) | `default` (`u`) | Cute, content default expression |
+| **Blinking** | Slit line (`height: 2px`) | Slit line (`height: 2px`) | Unchanged | Triggers every 2.5s – 5.5s randomly |
+| **Whistling / Singing** | Normal / Glance | Normal / Glance | `whistle` (`o`) | Small glowing circle, idle singing |
+| **Mumbling** | Normal / Forward | Normal / Forward | `mumble` (`-`) | Flat line, quiet self-talking |
+| **Click / Happy** | Normal / Wide | Normal / Wide | `happy-open` (`:D`) | Fully filled semi-circle smile on click/pet |
+| **Petting (Love)** | Heart / Arc (`^ ^`) | Heart / Arc (`^ ^`) | `happy-open` (`:D`) | Triggered by rapid mouse hovering on head |
+| **Shake (Dizzy)** | Spiral / Cross (`x x`) | Spiral / Cross (`x x`) | `mumble` (`o`) | Triggered by rapid window movement/drag |
+| **Poking (Sneeze)** | Closed Squeeze (`> <`) | Closed Squeeze (`> <`) | `whistle` (`o`) | Triggered by repeated fast clicks |
 
 ---
 
-## ⚙️ Logic Rules for Care, Work Tracking & Progression
+## 4. Feature Blueprint & Component Structure
 
-### Active Work Tracker (Proof of Work Logic)
-- **Active Window:** Requires mouse or keyboard input within 60-second intervals.
-- **AFK Threshold:** 2 minutes without input automatically pauses work timer and enters `AFK_SLEEP`.
-- **EXP Calculation:**
-  - `+25 EXP` per 15 minutes of verified active time.
-  - `+150 EXP` bonus for completing a 1-hour continuous active focus streak.
-  - `+50 EXP` per completed task item.
-  - `+20 EXP` per feeding action (Jus RAM, Junk Clean, Charger).
-  - `+30 EXP` for daily first login.
-  - `+40 EXP` for taking timely breaks/prayer breaks.
-
-### Smart Bio-Rhythm & Anti-Spam Care Logic
-- **Smart Snooze:** Clicking "Bentar lagi / Focus" mutes the specific reminder for 2–3 hours.
-- **AFK Lunch Detection:** If user is AFK during lunch hours (12:00–12:45), bypass lunch nag upon return and display welcome back message.
-- **DND / Fullscreen Mode:** Mute non-critical popups and audio automatically during fullscreen gaming, videos, or presentation mode.
-
----
-
-### Audio & Sound Effects (SFX) Rules
-- **Volume & Mute Controls:** Master volume slider (0–100%) and global Mute SFX toggle in Settings.
-- **Context Auto-Mute:** Automatically silent during AFK Sleep Mode and Fullscreen DND Mode.
+### 4.1 UI Layout Hierarchy
+```text
+src/
+├── index.html        # Main DOM structure (Capsule + Dropdown Panel)
+├── style.css         # LED styling, Scanlines effect, Glassmorphism & Animations
+└── main.js           # Visor State Machine, Gaze Engine, Dragging & Interactions
+src-tauri/
+├── capabilities/
+│   └── default.json  # Tauri permissions (core:window:allow-start-dragging)
+├── tauri.conf.json   # App window geometry & transparent config
+└── Cargo.toml        # Rust backend dependencies
