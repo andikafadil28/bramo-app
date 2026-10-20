@@ -8,47 +8,51 @@
 </head>
 <body>
   <div class="capsule-wrapper">
-    <!-- Container Utama -->
     <div class="bramo-container" id="bramoContainer">
       
-      <!-- Top Bar: Kapsul Sleek BRAMO -->
-      <div class="bramo-capsule" id="visorToggle">
+      <!-- Slot Topi Koboi (Stabil menempel di atas kapsul) -->
+      <div class="accessory-slot" id="accessorySlot">
+        <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
+          <path fill="#2d1500" d="M7 2h10v1H7zM5 3h14v1H5zM5 4h14v1H5zM3 5h18v1H3zM1 6h22v1H1zM0 7h24v2H0z"/>
+          <path fill="#d97706" d="M8 3h8v1H8zM6 4h12v1H6zM6 5h12v1H6z"/>
+          <path fill="#f59e0b" d="M9 3h6v1H9zM7 4h10v1H7z"/>
+          <path fill="#78350f" d="M6 6h12v1H6z"/>
+          <path fill="#fbbf24" d="M10 5h4v1h-4z"/>
+          <path fill="#b45309" d="M2 7h20v1H2z"/>
+        </svg>
+      </div>
+
+      <!-- Kapsul Utama BRAMO (Seluruh area muka menjadi area drag) -->
+      <div class="bramo-capsule" id="bramoCapsule">
         
-        <!-- Slot Aksesoris Topi Koboi -->
-        <div class="accessory-slot" id="accessorySlot">
-          <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
-            <path fill="#2d1500" d="M7 2h10v1H7zM5 3h14v1H5zM5 4h14v1H5zM3 5h18v1H3zM1 6h22v1H1zM0 7h24v2H0z"/>
-            <path fill="#d97706" d="M8 3h8v1H8zM6 4h12v1H6zM6 5h12v1H6z"/>
-            <path fill="#f59e0b" d="M9 3h6v1H9zM7 4h10v1H7z"/>
-            <path fill="#78350f" d="M6 6h12v1H6z"/>
-            <path fill="#fbbf24" d="M10 5h4v1h-4z"/>
-            <path fill="#b45309" d="M2 7h20v1H2z"/>
-          </svg>
+        <!-- Visor Muka (Ekspresi LED & Gaze Engine) -->
+        <div class="visor-wrapper">
+          <div class="visor-screen" id="visorScreen">
+            <div class="scanlines"></div>
+            
+            <div class="face-container">
+              <div class="led-blush left-blush"></div>
+              <div class="eye-socket"><div class="led-eye" id="leftEye"></div></div>
+              
+              <div class="led-mouth-wrapper">
+                <div class="led-mouth" id="ledMouth"></div>
+              </div>
+
+              <div class="eye-socket"><div class="led-eye" id="rightEye"></div></div>
+              <div class="led-blush right-blush"></div>
+            </div>
+          </div>
         </div>
 
-        <!-- Visor Screen Sleek -->
-        <div class="visor-screen" id="visorScreen">
-          <div class="scanlines"></div>
-          
-          <div class="face-container">
-            <div class="led-blush left-blush"></div>
-            <div class="eye-socket"><div class="led-eye" id="leftEye"></div></div>
-            
-            <!-- LED Animated Mouth Component -->
-            <div class="led-mouth-wrapper">
-              <div class="led-mouth" id="ledMouth"></div>
-            </div>
-
-            <div class="eye-socket"><div class="led-eye" id="rightEye"></div></div>
-            <div class="led-blush right-blush"></div>
-          </div>
+        <!-- PULL-TAB / DROPDOWN TRIGGER DI BAWAH MUKA -->
+        <div class="dropdown-handle-bar interactive" id="dropdownToggle">
+          <div class="tab-indicator"></div>
         </div>
 
       </div>
 
-      <!-- Compact Dropdown Island Panel -->
+      <!-- Dropdown Island Panel -->
       <div class="dropdown-panel" id="dropdownPanel">
-        <!-- Media Controller -->
         <div class="widget-card music-widget interactive">
           <div class="song-title">Midnight City - M83</div>
           <div class="media-controls">
@@ -58,7 +62,6 @@
           </div>
         </div>
 
-        <!-- Action Row -->
         <div class="widget-row">
           <div class="widget-card drop-widget interactive">
             <span class="drop-label">Drop File</span>

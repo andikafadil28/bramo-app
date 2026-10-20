@@ -31,7 +31,6 @@ body {
       justify-content: center;
       align-items: flex-start;
       padding-top: 18px;
-      /* Margin atas slim */
 }
 
 .bramo-container {
@@ -41,34 +40,60 @@ body {
       position: relative;
 }
 
-/* Kapsul Top Bar Ultra-Sleek (Tinggi hanya 48px) */
+/* Kapsul Utama (Area Drag Native Tauri + Wiggle Animation) */
 .bramo-capsule {
       width: 122px;
-      height: 48px;
+      height: 54px;
       background: var(--bg-capsule);
       border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 24px;
+      border-radius: 26px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 3px 4px;
+      justify-content: space-between;
+      padding: 5px 4px 3px 4px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 1px rgba(255, 255, 255, 0.2) inset;
       backdrop-filter: blur(12px);
       position: relative;
       z-index: 10;
       cursor: grab;
-      transition: transform 0.15s ease;
+
+      /* PENTING: Ini bikin OS nanganin drag window secara native & mulus */
+      -webkit-app-region: drag !important;
+
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .bramo-capsule:active {
       cursor: grabbing;
-      transform: scale(0.98);
 }
 
-/* Slot Topi Koboi Nangkring Presisi */
+/* PULL-TAB BAWAH & PANEL (Wajib no-drag agar klik dropdown aman) */
+.dropdown-handle-bar,
+.dropdown-panel,
+.visor-screen {
+      -webkit-app-region: no-drag !important;
+}
+
+.tab-indicator {
+      width: 24px;
+      height: 3px;
+      background: rgba(0, 240, 255, 0.4);
+      border-radius: 2px;
+      box-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+      transition: background 0.2s ease, width 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropdown-handle-bar:hover .tab-indicator {
+      background: var(--led-cyan);
+      width: 32px;
+      box-shadow: 0 0 8px var(--led-cyan);
+}
+
+/* Slot Topi (Stabil di atas kapsul) */
 .accessory-slot {
       position: absolute;
-      top: -15px;
+      top: -14px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 15;
@@ -116,6 +141,7 @@ body {
       gap: 7px;
       position: relative;
       z-index: 2;
+      pointer-events: none;
 }
 
 .eye-socket {
@@ -132,7 +158,7 @@ body {
       background: var(--led-cyan);
       border-radius: 7px 7px 3px 3px;
       box-shadow: 0 0 8px var(--led-cyan), 0 0 14px var(--led-cyan);
-      transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.1s ease;
+      transition: transform 0.12s ease, height 0.1s ease;
 }
 
 .visor-screen.blinking .led-eye {
@@ -140,7 +166,7 @@ body {
       border-radius: 1px;
 }
 
-/* --- ANIMATED LED MOUTH ENGINE --- */
+/* Animated Mouth */
 .led-mouth-wrapper {
       width: 10px;
       height: 8px;
@@ -149,7 +175,6 @@ body {
       justify-content: center;
 }
 
-/* State Default: Senyum Imut 'u' */
 .led-mouth {
       width: 8px;
       height: 4px;
@@ -162,7 +187,6 @@ body {
       margin-top: 2px;
 }
 
-/* State Mulut 1: Bersiul / Nyanyi 'o' */
 .led-mouth.whistle {
       width: 5px;
       height: 5px;
@@ -172,7 +196,6 @@ body {
       margin-top: 0;
 }
 
-/* State Mulut 2: Ngomong / Mumble '-' */
 .led-mouth.mumble {
       width: 7px;
       height: 0;
@@ -182,7 +205,6 @@ body {
       margin-top: 2px;
 }
 
-/* State Mulut 3: Senang Terbuka Lebar ':D' */
 .led-mouth.happy-open {
       width: 9px;
       height: 6px;
@@ -192,7 +214,6 @@ body {
       margin-top: 1px;
 }
 
-/* Pipi Pink Blush */
 .led-blush {
       width: 8px;
       height: 5px;
@@ -202,7 +223,7 @@ body {
       opacity: 0.85;
 }
 
-/* --- DROPDOWN PANEL (SLEEK & RINGKAS) --- */
+/* Dropdown Panel */
 .dropdown-panel {
       width: 200px;
       background: var(--bg-panel);
@@ -299,15 +320,70 @@ body {
       text-shadow: 0 0 6px var(--led-cyan);
 }
 
-/* NATIVE TAURI DRAGGING */
-.bramo-container,
-.bramo-capsule,
-.visor-screen,
-.face-container {
-      -webkit-app-region: drag !important;
+/* =========================================================
+   ANIMASI WIGGLE (DRAG) & LANDING BOUNCE (DROP)
+   ========================================================= */
+
+.bramo-container.is-dragging .bramo-capsule {
+      animation: holdWiggle 0.18s ease-in-out infinite alternate !important;
+      box-shadow: 0 18px 45px rgba(0, 240, 255, 0.45), 0 0 25px rgba(0, 0, 0, 0.8) !important;
 }
 
-.interactive,
-button {
-      -webkit-app-region: no-drag !important;
+@keyframes holdWiggle {
+      0% {
+            transform: scale(1.06) translateY(-3px) rotate(-4deg);
+      }
+
+      100% {
+            transform: scale(1.06) translateY(-7px) rotate(4deg);
+      }
+}
+
+.bramo-container.just-landed .bramo-capsule {
+      animation: landingBounce 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
+}
+
+@keyframes landingBounce {
+      0% {
+            transform: scale(1) rotate(0deg);
+      }
+
+      30% {
+            transform: scale(1.14, 0.80) rotate(3deg);
+      }
+
+      60% {
+            transform: scale(0.92, 1.08) rotate(-2deg);
+      }
+
+      80% {
+            transform: scale(1.03, 0.97) rotate(1deg);
+      }
+
+      100% {
+            transform: scale(1) rotate(0deg);
+      }
+}
+
+/* Topi ikut goyang ngikutin bodi pas di-drag */
+.bramo-container.is-dragging .accessory-slot {
+      animation: hatWiggle 0.18s ease-in-out infinite alternate !important;
+}
+
+@keyframes hatWiggle {
+      0% {
+            transform: translateX(-50%) translateY(-3px) rotate(-4deg);
+      }
+
+      100% {
+            transform: translateX(-50%) translateY(-7px) rotate(4deg);
+      }
+}
+
+/* Mata melotot kaget saat di-drag */
+.bramo-container.is-dragging .led-eye {
+      width: 14px !important;
+      height: 14px !important;
+      border-radius: 50% !important;
+      box-shadow: 0 0 12px var(--led-cyan), 0 0 22px var(--led-cyan) !important;
 }
