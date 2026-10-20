@@ -86,6 +86,8 @@ Every animation state MUST be mapped to specific CSS classes/SVG states in the J
 - **AFK Lunch Detection:** If user is AFK during lunch hours (12:00–12:45), bypass lunch nag upon return and display welcome back message.
 - **DND / Fullscreen Mode:** Mute non-critical popups and audio automatically during fullscreen gaming, videos, or presentation mode.
 
+---
+
 ### Audio & Sound Effects (SFX) Rules
 - **Volume & Mute Controls:** Master volume slider (0–100%) and global Mute SFX toggle in Settings.
 - **Context Auto-Mute:** Automatically silent during AFK Sleep Mode and Fullscreen DND Mode.

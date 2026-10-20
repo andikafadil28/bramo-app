@@ -82,6 +82,7 @@ BRAMO is an open-source interactive desktop top bar widget for Windows. It combi
 - [ ] Compile Release Build (`.exe` installer) & publish GitHub release documentation.
 
 ---
+---
 
 ## 📊 Current Status
 - **Current Phase:** Phase 1 (Project Setup)
