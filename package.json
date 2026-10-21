@@ -1,10 +1,12 @@
 {
   "name": "bramo-app",
   "version": "1.0.0",
-  "description": "> **BRAMO** (Brader Visor / Tech Buddy) adalah aplikasi desktop *floating top bar widget* interaktif untuk Windows 10/11. Menggabungkan utilitas produktivitas, pemantau kesehatan berbasis *human bio-rhythm*, sistem *active-time gamification*, dan *digital pet companion* berwajah LED Visor Robot.",
-  "main": "index.js",
+  "description": "BRAMO (Brader Visor / Tech Buddy) - interaktif cyberpunk LED visor desktop companion untuk Windows/Linux/macOS via Tauri v2.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "check": "node --check src/main.js"
   },
   "repository": {
     "type": "git",

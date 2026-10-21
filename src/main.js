@@ -11,6 +11,9 @@ const rightEye = document.getElementById('rightEye');
 const ledMouth = document.getElementById('ledMouth');
 const speechBubble = document.getElementById('speechBubble');
 const speechText = document.getElementById('speechText');
+const bioBubbleActions = document.getElementById('bioBubbleActions');
+const bioBubbleDone = document.getElementById('bioBubbleDone');
+const bioBubbleSnooze = document.getElementById('bioBubbleSnooze');
 const cpuValue = document.getElementById('cpuValue');
 const memoryValue = document.getElementById('memoryValue');
 const batteryValue = document.getElementById('batteryValue');
@@ -56,27 +59,54 @@ const pomodoroMiniBar = document.getElementById('pomodoroMiniBar');
 const pomodoroMiniMode = document.getElementById('pomodoroMiniMode');
 const pomodoroMiniTime = document.getElementById('pomodoroMiniTime');
 const pomodoroMiniToggle = document.getElementById('pomodoroMiniToggle');
+const autostartToggle = document.getElementById('autostartToggle');
+const bioRhythmToggle = document.getElementById('bioRhythmToggle');
+const bioRhythmInterval = document.getElementById('bioRhythmInterval');
+const bioRhythmStatus = document.getElementById('bioRhythmStatus');
+const bioRhythmReset = document.getElementById('bioRhythmReset');
+const bioRhythmTest = document.getElementById('bioRhythmTest');
+const bioRhythmFollowup = document.getElementById('bioRhythmFollowup');
+const bioRhythmDone = document.getElementById('bioRhythmDone');
+const bioRhythmSnooze = document.getElementById('bioRhythmSnooze');
+const bramoLevel = document.getElementById('bramoLevel');
+const bramoXp = document.getElementById('bramoXp');
+const bramoNextLevel = document.getElementById('bramoNextLevel');
+const bramoXpBar = document.getElementById('bramoXpBar');
+const bramoAccessory = document.getElementById('bramoAccessory');
+const bramoAccessoryIcon = document.getElementById('bramoAccessoryIcon');
+const xpPopup = document.getElementById('xpPopup');
+const journeyHistory = document.getElementById('journeyHistory');
+const journeyTabs = document.querySelectorAll('.journey-tab');
+const journeyViews = document.querySelectorAll('.journey-view');
+const cosmeticGroups = document.getElementById('cosmeticGroups');
+const collectionSummary = document.getElementById('collectionSummary');
 
 let isActivelyDragging = false;
-let isPositionReady = false;
-let startScreenX = 0;
-let startScreenY = 0;
-let windowStartX = 0;
-let windowStartY = 0;
-
-let isTicking = false;
-let latestMouseEvent = null;
+let isDragCandidate = false;
+let dragStartClientX = 0;
+let dragStartClientY = 0;
+let nativeDragPromise = Promise.resolve();
+let nativeDragMode = false;
 let statsTimer = null;
 let batteryManager = null;
 let prayerSchedule = null;
 let prayerReminderTimer = null;
 let lastPrayerAlert = '';
-let isAdhanPlaying = false;
 let isMusicVibing = false;
 let suppressMediaUntil = 0;
+let adhanSessionActive = false;
+let mediaPausedByAdhan = false;
+let adhanResumeTimer = null;
+const ADHAN_SUPPRESS_MS = 5 * 60 * 1000;
+let lastMediaState = { active: false, playing: false };
+let quitArmed = false;
+let quitArmTimer = null;
 let testPrayerIndex = 0;
 let typingCuriousTimeout = null;
 let typingEyeTarget = null;
+let lastBramoInteractionAt = Date.now();
+let idleAnimationTimeout = null;
+let idleAnimationResetTimer = null;
 let clipboardTimer = null;
 let lastClipboardSignature = null;
 let clipboardWatcherEnabled = localStorage.getItem('bramo.clipboard.watcher') === 'true';
@@ -87,10 +117,247 @@ let hideInFullscreen = localStorage.getItem('bramo.hide.fullscreen') === 'true';
 let fullscreenMonitorTimer = null;
 let hiddenByFullscreen = false;
 let launcherItems = JSON.parse(localStorage.getItem('bramo.launcher.items') || '[]');
+let bioRhythmEnabled = localStorage.getItem('bramo.bio.enabled') === 'true';
+let bioRhythmMinutes = [30, 45, 60, 90].includes(Number(localStorage.getItem('bramo.bio.interval')))
+  ? Number(localStorage.getItem('bramo.bio.interval'))
+  : 60;
+let bioRhythmNextAt = Number(localStorage.getItem('bramo.bio.nextAt')) || 0;
+let bioRhythmDue = localStorage.getItem('bramo.bio.due') === 'true';
+let bioRhythmTimer = null;
+
+// Local gamification: reward varied, intentional use and cap repeat farming.
+const BRAMO_LEVEL_XP = [0, 100, 250, 450, 700, 1000];
+const COSMETICS = [
+  { id: 'head-cowboy', category: 'head', name: 'Topi Koboi', icon: '🤠', xp: 0 },
+  { id: 'eye-classic', category: 'eyes', name: 'Mata Klasik', icon: '◉', xp: 0 },
+  { id: 'mouth-smile', category: 'mouth', name: 'Senyum LED', icon: '⌣', xp: 0 },
+  { id: 'glow-cyan', category: 'glow', name: 'Cyan', icon: '🔹', xp: 0 },
+  { id: 'theme-cyan', category: 'theme', name: 'Cyberpunk Cyan', icon: '🟦', xp: 0 },
+  { id: 'head-peci', category: 'head', name: 'Peci Cyber', icon: '🧢', xp: 100 },
+  { id: 'eye-star', category: 'eyes', name: 'Mata Bintang', icon: '✦', xp: 100 },
+  { id: 'glow-green', category: 'glow', name: 'Matrix Green', icon: '🟩', xp: 100 },
+  { id: 'theme-matrix', category: 'theme', name: 'Matrix Green', icon: '🟩', xp: 150 },
+  { id: 'mouth-pixel', category: 'mouth', name: 'Pixel Grin', icon: '▰', xp: 180 },
+  { id: 'head-halo', category: 'head', name: 'Halo Neon', icon: '😇', xp: 250 },
+  { id: 'eye-sharp', category: 'eyes', name: 'Mata Fokus', icon: '◢', xp: 250 },
+  { id: 'glow-pink', category: 'glow', name: 'Neon Pink', icon: '🩷', xp: 250 },
+  { id: 'theme-pink', category: 'theme', name: 'Neon Pink', icon: '🩷', xp: 350 },
+  { id: 'mouth-fang', category: 'mouth', name: 'Taring Pixel', icon: '牙', xp: 400 },
+  { id: 'head-crown', category: 'head', name: 'Mahkota Pixel', icon: '👑', xp: 450 },
+  { id: 'eye-sleepy', category: 'eyes', name: 'Mata Santai', icon: '﹏', xp: 450 },
+  { id: 'glow-amber', category: 'glow', name: 'Amber Orange', icon: '🟠', xp: 450 },
+  { id: 'theme-amber', category: 'theme', name: 'Amber Orange', icon: '🟠', xp: 600 }
+];
+const COSMETIC_CATEGORIES = { head: 'Aksesori kepala', eyes: 'Bentuk mata', mouth: 'Bentuk mulut', glow: 'Warna glow', theme: 'Tema visor' };
+let bramoProgress = (() => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('bramo.progress') || '{}');
+    return {
+      xp: Math.max(0, Number(parsed.xp) || 0),
+      lastAward: parsed.lastAward && typeof parsed.lastAward === 'object' ? parsed.lastAward : {},
+      milestones: parsed.milestones && typeof parsed.milestones === 'object' ? parsed.milestones : {},
+      history: Array.isArray(parsed.history) ? parsed.history.slice(0, 8) : []
+    };
+  } catch { return { xp: 0, lastAward: {}, milestones: {}, history: [] }; }
+})();
+let equippedCosmetics = (() => {
+  try { return JSON.parse(localStorage.getItem('bramo.cosmetics') || '{}'); }
+  catch { return {}; }
+})();
+// Normalize IDs from the first collection draft (`eyes-*`) to CSS style IDs (`eye-*`).
+if (equippedCosmetics.eyes?.startsWith('eyes-')) {
+  equippedCosmetics.eyes = equippedCosmetics.eyes.replace(/^eyes-/, 'eye-');
+}
+const categoryDefaults = { head: 'head-cowboy', eyes: 'eye-classic', mouth: 'mouth-smile', glow: 'glow-cyan', theme: 'theme-cyan' };
+
+function currentBramoLevel(xp = bramoProgress.xp) {
+  let level = 1;
+  BRAMO_LEVEL_XP.forEach((threshold, index) => { if (xp >= threshold) level = index + 1; });
+  if (xp >= BRAMO_LEVEL_XP.at(-1)) level += Math.floor((xp - BRAMO_LEVEL_XP.at(-1)) / 300);
+  return level;
+}
+
+function bramoLevelThreshold(level) {
+  if (level <= BRAMO_LEVEL_XP.length) return BRAMO_LEVEL_XP[level - 1] || 0;
+  return BRAMO_LEVEL_XP.at(-1) + (level - BRAMO_LEVEL_XP.length) * 300;
+}
+
+function renderBramoProgress() {
+  if (!bramoLevel) return;
+  const level = currentBramoLevel();
+  const currentThreshold = bramoLevelThreshold(level);
+  const nextThreshold = bramoLevelThreshold(level + 1);
+  const progress = Math.min(100, ((bramoProgress.xp - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
+  bramoLevel.textContent = `LV ${level}`;
+  bramoXp.textContent = `${bramoProgress.xp} XP`;
+  bramoNextLevel.textContent = `${Math.max(0, nextThreshold - bramoProgress.xp)} XP ke LV ${level + 1}`;
+  bramoXpBar.style.width = `${progress}%`;
+  const equippedHead = COSMETICS.find(item => item.id === equippedCosmetics.head) || COSMETICS[0];
+  bramoAccessory.textContent = equippedHead.name;
+  if (bramoAccessoryIcon) bramoAccessoryIcon.textContent = equippedHead.icon;
+  const unlockedCount = COSMETICS.filter(item => bramoProgress.xp >= item.xp).length;
+  collectionSummary.textContent = `${unlockedCount} / ${COSMETICS.length} kosmetik terbuka`;
+  journeyHistory.innerHTML = bramoProgress.history.length
+    ? bramoProgress.history.slice(0, 4).map(item => `<div class="history-entry"><span>${item.label}</span><strong>+${item.amount} XP</strong></div>`).join('')
+    : '<span>Belum ada XP terkumpul</span>';
+  renderCosmeticCollection();
+  applyEquippedCosmetics();
+}
+
+function renderCosmeticCollection() {
+  if (!cosmeticGroups) return;
+  cosmeticGroups.innerHTML = Object.entries(COSMETIC_CATEGORIES).map(([category, title]) => {
+    const items = COSMETICS.filter(item => item.category === category);
+    return `<section class="cosmetic-group"><h3>${title}</h3><div class="cosmetic-grid">${items.map(item => {
+      const unlocked = bramoProgress.xp >= item.xp;
+      const selected = equippedCosmetics[category] === item.id;
+      return `<button class="cosmetic-item interactive${unlocked ? '' : ' locked'}${selected ? ' selected' : ''}" data-cosmetic-id="${item.id}" type="button" ${unlocked ? '' : 'disabled'} aria-label="${item.name}${unlocked ? '' : `, terkunci, perlu ${item.xp} XP`}"><span>${unlocked ? item.icon : '🔒'}</span><small>${item.name}</small><em>${unlocked ? (selected ? 'Dipakai' : 'Pilih') : `${item.xp} XP`}</em></button>`;
+    }).join('')}</div></section>`;
+  }).join('');
+}
+
+function applyEquippedCosmetics() {
+  const head = equippedCosmetics.head || categoryDefaults.head;
+  const eyes = equippedCosmetics.eyes || categoryDefaults.eyes;
+  const mouth = equippedCosmetics.mouth || categoryDefaults.mouth;
+  const glow = equippedCosmetics.glow || categoryDefaults.glow;
+  const theme = equippedCosmetics.theme || categoryDefaults.theme;
+  hatTrigger?.classList.toggle('accessory-peci', head === 'head-peci');
+  hatTrigger?.classList.toggle('accessory-halo', head === 'head-halo');
+  hatTrigger?.classList.toggle('accessory-crown', head === 'head-crown');
+  bramoContainer.dataset.eyeStyle = eyes.replace('eye-', '');
+  bramoContainer.dataset.mouthStyle = mouth.replace('mouth-', '');
+  bramoContainer.dataset.glowStyle = glow.replace('glow-', '');
+  const themeName = theme.replace('theme-', '');
+  bramoContainer.dataset.theme = themeName;
+  const glowColors = { cyan: '#00f0ff', green: '#65ff9a', pink: '#ff5aa5', amber: '#ffbd59' };
+  bramoContainer.style.setProperty('--cosmetic-glow', glowColors[glow.replace('glow-', '')] || glowColors.cyan);
+  localStorage.setItem('bramo.theme', themeName);
+  themePicker?.querySelectorAll('[data-theme]').forEach(button => {
+    const unlocked = bramoProgress.xp >= (COSMETICS.find(item => item.id === `theme-${button.dataset.theme}`)?.xp ?? Infinity);
+    button.disabled = !unlocked;
+    button.classList.toggle('locked', !unlocked);
+    button.classList.toggle('selected', button.dataset.theme === themeName);
+  });
+}
+
+cosmeticGroups?.addEventListener('click', event => {
+  const button = event.target.closest('[data-cosmetic-id]');
+  if (!button || button.disabled) return;
+  const item = COSMETICS.find(cosmetic => cosmetic.id === button.dataset.cosmeticId);
+  if (!item) return;
+  equippedCosmetics[item.category] = item.id;
+  localStorage.setItem('bramo.cosmetics', JSON.stringify(equippedCosmetics));
+  renderBramoProgress();
+});
+
+journeyTabs.forEach(tab => tab.addEventListener('click', () => {
+  const view = tab.dataset.journeyView;
+  journeyTabs.forEach(item => item.classList.toggle('active', item === tab));
+  journeyViews.forEach(section => {
+    const active = section.id === (view === 'collection' ? 'collectionView' : 'journeyView');
+    section.classList.toggle('active', active);
+    section.hidden = !active;
+  });
+}));
+
+const buddyDailyKey = 'bramo.buddy.daily.v1';
+function readBuddyDaily() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(buddyDailyKey) || '{}');
+    const today = new Date().toLocaleDateString('en-CA');
+    return saved.date === today ? saved : { date: today, focusSessions: 0, claimedTargets: {} };
+  } catch { return { date: new Date().toLocaleDateString('en-CA'), focusSessions: 0, claimedTargets: {} }; }
+}
+let buddyDaily = readBuddyDaily();
+function saveBuddyDaily() { localStorage.setItem(buddyDailyKey, JSON.stringify(buddyDaily)); }
+function awardBramoXp(action, amount, cooldownMs = 0, label = action) {
+  amount = Math.max(0, Math.round(amount));
+  if (!amount) return false;
+  const now = Date.now();
+  if (cooldownMs && now - (bramoProgress.lastAward[action] || 0) < cooldownMs) return false;
+  const oldLevel = currentBramoLevel();
+  bramoProgress.xp += amount;
+  bramoProgress.lastAward[action] = now;
+  bramoProgress.history.unshift({ label, amount, at: now });
+  bramoProgress.history = bramoProgress.history.slice(0, 8);
+  const unlockedNow = COSMETICS.filter(item => item.xp > 0 && item.xp > bramoProgress.xp - amount && item.xp <= bramoProgress.xp);
+  unlockedNow.forEach(item => { equippedCosmetics[item.category] = item.id; });
+  if (unlockedNow.length) localStorage.setItem('bramo.cosmetics', JSON.stringify(equippedCosmetics));
+  localStorage.setItem('bramo.progress', JSON.stringify(bramoProgress));
+  renderBramoProgress();
+  showXpPopup(amount);
+  const leveledUp = currentBramoLevel() > oldLevel;
+  if (leveledUp) triggerBramoReaction('level-up', 1700);
+  else if (amount >= 5) triggerBramoReaction('xp', 900);
+  if (unlockedNow.length || leveledUp) {
+    const reward = unlockedNow[unlockedNow.length - 1];
+    triggerHappyMouth();
+    const rewardText = reward ? `${reward.icon} ${reward.name} terbuka dan langsung dipakai!` : '';
+    const levelText = leveledUp ? `Level ${currentBramoLevel()}!` : '';
+    showBramoMessage([rewardText, levelText].filter(Boolean).join(' '), 3500);
+  }
+  return true;
+}
+
+const buddyReactionTimers = new Map();
+function triggerBramoReaction(name, duration = 1200) {
+  const className = `reaction-${name}`;
+  const previous = buddyReactionTimers.get(className);
+  if (previous) clearTimeout(previous);
+  bramoContainer.classList.remove(className);
+  void bramoContainer.offsetWidth;
+  bramoContainer.classList.add(className);
+  buddyReactionTimers.set(className, setTimeout(() => {
+    bramoContainer.classList.remove(className);
+    buddyReactionTimers.delete(className);
+  }, duration));
+}
+
+function awardFeatureMilestone(feature, label = feature) {
+  if (bramoProgress.milestones[feature]) return;
+  bramoProgress.milestones[feature] = true;
+  localStorage.setItem('bramo.progress', JSON.stringify(bramoProgress));
+  awardBramoXp(`milestone-${feature}`, 12, 0, `Pertama kali: ${label}`);
+}
+
+const xpPopupQueue = [];
+let xpPopupBusy = false;
+
+function showXpPopup(amount) {
+  if (!xpPopup) return;
+  xpPopupQueue.push(amount);
+  if (xpPopupBusy) return;
+  xpPopupBusy = true;
+  const displayNext = () => {
+    const next = xpPopupQueue.shift();
+    if (next === undefined) { xpPopupBusy = false; return; }
+    xpPopup.textContent = `+${next} XP`;
+    xpPopup.classList.remove('show');
+    void xpPopup.offsetWidth;
+    xpPopup.classList.add('show');
+    setTimeout(() => {
+      xpPopup.classList.remove('show');
+      setTimeout(displayNext, 120);
+    }, 1250);
+  };
+  displayNext();
+}
+
+Object.entries(categoryDefaults).forEach(([category, id]) => {
+  if (!equippedCosmetics[category]) equippedCosmetics[category] = id;
+  const selected = COSMETICS.find(item => item.id === equippedCosmetics[category]);
+  if (!selected || selected.category !== category || selected.xp > bramoProgress.xp) equippedCosmetics[category] = id;
+});
+localStorage.setItem('bramo.cosmetics', JSON.stringify(equippedCosmetics));
+
+renderBramoProgress();
 
 async function launchTarget(target) {
   try {
     await window.__TAURI__?.core?.invoke('open_launcher_target', { target });
+    awardFeatureMilestone('launcher-open', 'membuka shortcut');
+    triggerBramoReaction('success', 950);
     showBramoMessage('Membuka shortcut 🚀', 1800);
   } catch (error) {
     console.warn('Launcher error:', error);
@@ -123,6 +390,7 @@ launcherAdd?.addEventListener('click', () => {
   const target = launcherTarget.value.trim();
   if (!name || !target) return;
   launcherItems = [...launcherItems, { name, target }].slice(-8);
+  awardFeatureMilestone('launcher-add', 'menambahkan shortcut');
   localStorage.setItem('bramo.launcher.items', JSON.stringify(launcherItems));
   launcherName.value = '';
   launcherTarget.value = '';
@@ -132,15 +400,19 @@ launcherAdd?.addEventListener('click', () => {
 renderLauncher();
 let mediaCandidate = null;
 let mediaCandidateCount = 0;
-let pomodoroLayoutSyncing = false;
 let isBramoSleeping = false;
+let blinkTimeout = null;
 let nativeResizeQueue = Promise.resolve();
 const POSITION_STORAGE_KEY = 'bramo.window.position.v1';
+let windowPositionRevision = 0;
 const COMPACT_WINDOW_SIZE = { width: 220, height: 90 };
 const MEDIA_WINDOW_SIZE = { width: 220, height: 162 };
-const EXPANDED_WINDOW_SIZE = { width: 280, height: 360 };
+const EXPANDED_WINDOW_SIZE = { width: 280, height: 470 };
 let mediaWindowActive = false;
 let bubbleBasePosition = null;
+let shakeSamples = [];
+let dizzyUntil = 0;
+let dizzyResetTimer = null;
 let pomodoroTimer = null;
 const savedFocusMinutes = Number(localStorage.getItem('bramo.pomodoro.focus')) || 25;
 const savedBreakMinutes = Number(localStorage.getItem('bramo.pomodoro.break')) || 5;
@@ -165,17 +437,25 @@ function renderPomodoro() {
   const pomodoroVisible = pomodoroTimer || pomodoroSeconds !== pomodoroDuration;
   pomodoroMiniBar.classList.toggle('visible', pomodoroVisible);
   bramoContainer.classList.toggle('pomodoro-active', pomodoroVisible);
-  syncPomodoroLayout(pomodoroVisible);
+  applyWindowLayout();
 }
 
 function finishPomodoroSession() {
   if (pomodoroTimer) clearInterval(pomodoroTimer);
   pomodoroTimer = null;
+  if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
+  focusEncouragementTimer = null;
+  const completedFocus = pomodoroFocusMode;
+  const completedMinutes = Math.round(pomodoroDuration / 60);
+  const earnedXp = completedFocus ? completedMinutes : Math.round(completedMinutes * 0.3);
+  awardBramoXp('pomodoro', earnedXp, 0, `${completedFocus ? 'Fokus' : 'Istirahat'} ${completedMinutes} menit`);
+  awardFeatureMilestone('pomodoro-complete', 'menyelesaikan Pomodoro');
   pomodoroFocusMode = !pomodoroFocusMode;
   const minutes = pomodoroFocusMode ? Number(pomodoroFocusSetting.value) : Number(pomodoroBreakSetting.value);
   pomodoroDuration = minutes * 60;
   pomodoroSeconds = pomodoroDuration;
   renderPomodoro();
+  triggerBramoReaction(completedFocus ? 'agree' : (pomodoroFocusMode ? 'focus' : 'break'), 2200);
   showBramoMessage(pomodoroFocusMode ? 'Waktu fokus dimulai! Semangat 🔥' : 'Saatnya istirahat sebentar ☕', 4000);
   triggerHappyMouth();
 }
@@ -184,6 +464,8 @@ function togglePomodoro() {
   if (pomodoroTimer) {
     clearInterval(pomodoroTimer);
     pomodoroTimer = null;
+    if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
+    focusEncouragementTimer = null;
     renderPomodoro();
     return;
   }
@@ -193,13 +475,64 @@ function togglePomodoro() {
     else renderPomodoro();
   }, 1000);
   renderPomodoro();
+  scheduleFocusEncouragement();
+  triggerBramoReaction('think', 1600);
+  triggerBramoReaction(pomodoroFocusMode ? 'focus' : 'break', 1800);
   showBramoMessage(pomodoroFocusMode ? 'Fokus dimulai. BRAMO jagain 😎' : 'Break dimulai, tarik napas dulu ☕', 3000);
 }
 
 pomodoroStart?.addEventListener('click', togglePomodoro);
 pomodoroMiniToggle?.addEventListener('click', togglePomodoro);
+let focusEncouragementTimer = null;
+function scheduleFocusEncouragement() {
+  if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
+  focusEncouragementTimer = setTimeout(() => {
+    focusEncouragementTimer = null;
+    if (pomodoroTimer && pomodoroFocusMode && !isBramoSleeping && !document.hidden) {
+      triggerBramoReaction('cheer', 1500);
+      showBramoMessage('Kamu fokus, aku temenin ya ✨', 2200);
+    }
+    if (pomodoroTimer && pomodoroFocusMode) scheduleFocusEncouragement();
+  }, 8 * 60_000);
+}
+
+let moodResetTimer = null;
+function setBuddyMood(mood) {
+  bramoContainer.dataset.mood = mood;
+}
+function setUpbeatMood() {
+  setBuddyMood('upbeat');
+  if (moodResetTimer) clearTimeout(moodResetTimer);
+  moodResetTimer = setTimeout(() => setBuddyMood('calm'), 90_000);
+}
+function updateBuddyMoodFromIdle() {
+  const idleFor = Date.now() - lastBramoInteractionAt;
+  setBuddyMood(idleFor >= 180_000 ? 'sleepy' : idleFor >= 90_000 ? 'calm' : 'upbeat');
+  if (idleFor < 90_000 && !moodResetTimer) {
+    moodResetTimer = setTimeout(() => { moodResetTimer = null; updateBuddyMoodFromIdle(); }, 90_000 - idleFor);
+  } else if (idleFor >= 90_000) moodResetTimer = null;
+}
+
+function greetByTimeOfDay() {
+  const now = new Date();
+  const hour = now.getHours();
+  const part = hour < 11 ? 'morning' : hour >= 19 ? 'night' : null;
+  const key = `bramo.buddy.greeting.${now.toLocaleDateString('en-CA')}`;
+  if (!part || localStorage.getItem(key)) return;
+  localStorage.setItem(key, part);
+  setTimeout(() => {
+    if (isBramoSleeping || document.hidden) return;
+    triggerBramoReaction('greet', 1000);
+    showBramoMessage(part === 'morning' ? 'Pagi! Semoga harimu lancar ☀️' : 'Sudah malam, jangan lupa istirahat 🌙', 3000);
+  }, 3500);
+}
+
+setInterval(updateBuddyMoodFromIdle, 30_000);
+greetByTimeOfDay();
 pomodoroReset?.addEventListener('click', () => {
   if (pomodoroTimer) clearInterval(pomodoroTimer);
+  if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
+  focusEncouragementTimer = null;
   pomodoroTimer = null;
   pomodoroFocusMode = true;
   pomodoroDuration = Number(pomodoroFocusSetting.value) * 60;
@@ -225,6 +558,7 @@ async function wakeBramo() {
   if (!isBramoSleeping) return;
   isBramoSleeping = false;
   bramoContainer.classList.remove('sleeping');
+  scheduleNextBlink(500);
   if (window.__TAURI__?.window) {
     try {
       const win = window.__TAURI__.window.getCurrentWindow();
@@ -232,38 +566,52 @@ async function wakeBramo() {
       // Pertahankan anchor posisi mini-window saat wake agar tidak ada
       // loncatan vertikal sebelum event drag mengambil alih.
       const restore = { x: pos.x, y: pos.y };
-      const restoreSize = bramoContainer.classList.contains('pomodoro-active')
-        ? (mediaWindowActive ? { width: 220, height: 210 } : { width: 220, height: 140 })
-        : (mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE);
-      await resizeNativeWindow(win, restoreSize);
-      await win.setPosition({ type: 'Physical', x: restore.x, y: restore.y });
+      await applyWindowLayout({ anchor: restore });
       sleepRestorePosition = null;
       await updateAdaptivePositioning();
     } catch (error) {
       console.warn('Wake BRAMO error:', error);
     }
   }
+  triggerBramoReaction('wake', 1600);
   showBramoMessage('Bangun lagi! ⚡', 1800);
 }
 
-sleepBramo?.addEventListener('click', async () => {
+async function enterSleepMode() {
   if (isBramoSleeping) return;
   isBramoSleeping = true;
-  if (bramoContainer.classList.contains('expanded')) dropdownToggle.click();
+  visorScreen.classList.remove('blinking');
+  if (blinkTimeout) {
+    clearTimeout(blinkTimeout);
+    blinkTimeout = null;
+  }
+  if (bramoContainer.classList.contains('expanded')) {
+    // Tutup dropdown langsung (bukan lewat click) supaya tidak ada resize
+    // asynchronous yang berebut dengan layout tidur.
+    bramoContainer.classList.remove('expanded');
+    capsuleWrapper.classList.remove('is-expanded');
+    if (dropdownIdleTimer) {
+      clearTimeout(dropdownIdleTimer);
+      dropdownIdleTimer = null;
+    }
+    stopStatsPolling();
+  }
   if (window.__TAURI__?.window) {
     try {
       const win = window.__TAURI__.window.getCurrentWindow();
       const [pos, size] = await Promise.all([win.outerPosition(), win.outerSize()]);
       // Lebar tetap agar mini-player tidak ikut mengecil; tinggi dipadatkan
       // untuk memberi ruang kapsul mini dan player yang tetap normal.
-      const sleepHeight = bramoContainer.classList.contains('media-playing-layout')
-        ? (bramoContainer.classList.contains('pomodoro-active') ? 150 : 110)
-        : (bramoContainer.classList.contains('pomodoro-active') ? 105 : 76);
-      const sleepSize = { width: 220, height: sleepHeight };
-      sleepRestorePosition = { x: pos.x, y: pos.y + size.height - sleepSize.height };
+      const sleepSize = computeSleepWindowSize();
+      // Keep the top edge fixed when sleeping near the top; preserve the bottom
+      // edge only for the bottom-docked layout.
+      const keepBottom = capsuleWrapper.classList.contains('align-bottom');
+      sleepRestorePosition = {
+        x: pos.x,
+        y: keepBottom ? pos.y + size.height - sleepSize.height : pos.y
+      };
       bramoContainer.classList.add('sleeping');
-      await resizeNativeWindow(win, sleepSize);
-      await win.setPosition({ type: 'Physical', x: sleepRestorePosition.x, y: sleepRestorePosition.y });
+      await applyWindowLayout({ anchor: sleepRestorePosition });
     } catch (error) {
       isBramoSleeping = false;
       console.warn('Sleep BRAMO error:', error);
@@ -272,21 +620,48 @@ sleepBramo?.addEventListener('click', async () => {
     bramoContainer.classList.add('sleeping');
   }
   dropStatus && (dropStatus.textContent = 'BRAMO sedang tidur • goyang untuk bangun');
-});
+}
 
-quitBramo?.addEventListener('click', async () => {
-  if (!window.confirm('Tutup BRAMO sekarang?')) return;
+sleepBramo?.addEventListener('click', enterSleepMode);
+
+function resetQuitArm() {
+  quitArmed = false;
+  if (quitArmTimer) {
+    clearTimeout(quitArmTimer);
+    quitArmTimer = null;
+  }
+}
+
+async function confirmQuit() {
+  if (!quitArmed) {
+    quitArmed = true;
+    showBramoMessage('Klik Quit lagi untuk menutup BRAMO ✋', 3000);
+    if (quitBramo) quitBramo.textContent = 'Confirm?';
+    quitArmTimer = setTimeout(() => {
+      resetQuitArm();
+      if (quitBramo) quitBramo.textContent = 'Quit';
+    }, 3000);
+    return;
+  }
+  resetQuitArm();
+  if (quitBramo) quitBramo.textContent = 'Quit';
   try {
     await window.__TAURI__?.core?.invoke('quit_bramo');
   } catch (error) {
     console.warn('Quit BRAMO error:', error);
   }
-});
+}
+
+quitBramo?.addEventListener('click', confirmQuit);
 const savedTheme = localStorage.getItem('bramo.theme') || 'cyan';
 
 function applyTheme(theme) {
   const validThemes = ['cyan', 'matrix', 'pink', 'amber'];
   const nextTheme = validThemes.includes(theme) ? theme : 'cyan';
+  const themeCosmetic = COSMETICS.find(item => item.id === `theme-${nextTheme}`);
+  if (themeCosmetic && bramoProgress.xp < themeCosmetic.xp) return;
+  equippedCosmetics.theme = `theme-${nextTheme}`;
+  localStorage.setItem('bramo.cosmetics', JSON.stringify(equippedCosmetics));
   bramoContainer.dataset.theme = nextTheme;
   localStorage.setItem('bramo.theme', nextTheme);
   themePicker?.querySelectorAll('[data-theme]').forEach(button => {
@@ -295,9 +670,13 @@ function applyTheme(theme) {
 }
 
 applyTheme(savedTheme);
+renderBramoProgress();
 themePicker?.addEventListener('click', event => {
   const button = event.target.closest('[data-theme]');
-  if (button) applyTheme(button.dataset.theme);
+  if (button) {
+    applyTheme(button.dataset.theme);
+    renderBramoProgress();
+  }
 });
 
 fullscreenToggle.checked = hideInFullscreen;
@@ -317,7 +696,39 @@ fullscreenToggle.addEventListener('change', () => {
   hideInFullscreen = fullscreenToggle.checked;
   localStorage.setItem('bramo.hide.fullscreen', String(hideInFullscreen));
   syncFullscreenVisibility();
-  updateFullscreenMonitor();
+updateFullscreenMonitor();
+
+const autostartPreference = localStorage.getItem('bramo.autostart.enabled') === 'true';
+
+async function syncAutostartState() {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke || !autostartToggle) return;
+  try {
+    const enabled = await invoke('plugin:autostart|is_enabled');
+    autostartToggle.checked = Boolean(enabled);
+  } catch (error) {
+    console.warn('Autostart state error:', error);
+    autostartToggle.checked = autostartPreference;
+  }
+}
+
+autostartToggle?.addEventListener('change', async () => {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) return;
+  const enabled = autostartToggle.checked;
+  try {
+    await invoke(enabled ? 'plugin:autostart|enable' : 'plugin:autostart|disable');
+    localStorage.setItem('bramo.autostart.enabled', String(enabled));
+    showBramoMessage(enabled ? 'Auto-start aktif ✅' : 'Auto-start mati', 2200);
+  } catch (error) {
+    console.warn('Autostart toggle error:', error);
+    autostartToggle.checked = !enabled;
+    showBramoMessage('Gagal mengubah auto-start 😕', 2500);
+  }
+});
+
+syncAutostartState();
+
 });
 document.addEventListener('fullscreenchange', syncFullscreenVisibility);
 
@@ -427,58 +838,69 @@ function clearMusicMode() {
   nowPlayingBar?.classList.remove('media-active');
 }
 
-async function updateMediaInfo() {
-  const invoke = window.__TAURI__?.core?.invoke;
-  if (!invoke || !musicPanel) return;
-  if (isAdhanPlaying || Date.now() < suppressMediaUntil) {
+async function applyMediaSnapshot(media) {
+  if (!media || !musicPanel) return;
+
+  lastMediaState = { active: Boolean(media.active), playing: Boolean(media.playing) };
+
+  if (adhanSessionActive || Date.now() < suppressMediaUntil) {
     clearMusicMode();
     return;
   }
+
+  const sessionLabel = `${media.title || ''} ${media.artist || ''}`;
+  const adhanSession = /adhan|adzan|azan/i.test(sessionLabel);
+  const bramoSession = /^bramo$/i.test((media.title || '').trim());
+  if (adhanSession || bramoSession) {
+    clearMusicMode();
+    return;
+  }
+
+  applyMusicVibe(media);
+  const nextVibingState = Boolean(media.active && media.playing);
+  if (nextVibingState && !isMusicVibing) {
+    const trackLabel = media.title || 'lagu ini';
+    showBramoMessage(`Lagi vibing: ${trackLabel} 🎵`, 4500);
+  }
+  isMusicVibing = nextVibingState;
+
+  const stateStable = setStableMediaState(media.active);
+  if (stateStable) {
+    const stateChanged = mediaWindowActive !== media.active;
+    mediaWindowActive = media.active;
+    await applyWindowLayout();
+    if (stateChanged && speechBubble.classList.contains('show')) await syncBubbleWindow(true);
+  }
+
+  musicPanel.classList.toggle('media-active', mediaWindowActive);
+  nowPlayingBar.classList.toggle('media-active', mediaWindowActive);
+  bramoContainer.classList.toggle('media-playing-layout', mediaWindowActive);
+
+  if (!mediaWindowActive) {
+    musicStatus.textContent = 'No media active';
+    nowPlayingTitle.textContent = 'No media';
+    nowPlayingArtist.textContent = '';
+    return;
+  }
+
+  const title = media.title || 'Media aktif';
+  musicStatus.textContent = media.artist ? `${title} — ${media.artist}` : title;
+  nowPlayingTitle.textContent = title;
+  nowPlayingArtist.textContent = media.artist || media.source || '';
+  document.querySelectorAll('[data-media-action="play-pause"]').forEach(button => {
+    button.textContent = media.playing ? '⏸' : '▶';
+  });
+}
+
+async function updateMediaInfo() {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke || !musicPanel) return;
+
   try {
     const media = await invoke('get_media_info');
-    const sessionLabel = `${media.title || ''} ${media.artist || ''}`;
-    const adhanSession = /adhan|adzan|azan/i.test(sessionLabel);
-    const bramoSession = /^bramo$/i.test((media.title || '').trim());
-    if (adhanSession || bramoSession) {
-      clearMusicMode();
-      return;
-    }
-    applyMusicVibe(media);
-    const nextVibingState = Boolean(media.active && media.playing);
-    if (nextVibingState && !isMusicVibing) {
-      const trackLabel = media.title || 'lagu ini';
-      showBramoMessage(`Lagi vibing: ${trackLabel} 🎵`, 4500);
-    }
-    isMusicVibing = nextVibingState;
-    const stateStable = setStableMediaState(media.active);
-    if (stateStable) {
-      const stateChanged = mediaWindowActive !== media.active;
-      mediaWindowActive = media.active;
-      if (bramoContainer.classList.contains('pomodoro-active')) {
-        await syncPomodoroLayout(true);
-      } else {
-        await syncMediaWindow(media.active);
-      }
-      if (stateChanged && speechBubble.classList.contains('show')) await syncBubbleWindow(true);
-    }
-    musicPanel.classList.toggle('media-active', mediaWindowActive);
-    nowPlayingBar.classList.toggle('media-active', mediaWindowActive);
-    bramoContainer.classList.toggle('media-playing-layout', mediaWindowActive);
-    if (!mediaWindowActive) {
-      musicStatus.textContent = 'No media active';
-      nowPlayingTitle.textContent = 'No media';
-      nowPlayingArtist.textContent = '';
-      return;
-    }
-    const title = media.title || 'Media aktif';
-    musicStatus.textContent = media.artist ? `${title} — ${media.artist}` : title;
-    nowPlayingTitle.textContent = title;
-    nowPlayingArtist.textContent = media.artist || media.source || '';
-    document.querySelectorAll('[data-media-action="play-pause"]').forEach(button => {
-      button.textContent = media.playing ? '⏸' : '▶';
-    });
+    await applyMediaSnapshot(media);
   } catch (error) {
-    // Jangan langsung menyembunyikan mini-player hanya karena satu polling
+    // Jangan langsung menyembunyikan mini-player hanya karena satu refresh
     // gagal; Windows Media Session kadang menjawab sementara saat track berubah.
     musicPanel.classList.toggle('media-active', mediaWindowActive);
     nowPlayingBar.classList.toggle('media-active', mediaWindowActive);
@@ -487,7 +909,6 @@ async function updateMediaInfo() {
   }
 }
 
-setInterval(updateMediaInfo, 2500);
 updateMediaInfo();
 
 mediaButtons.forEach(button => {
@@ -498,6 +919,7 @@ mediaButtons.forEach(button => {
 
     try {
       await invoke('control_media', { action });
+      awardFeatureMilestone('media-control', 'mengontrol musik');
       const labels = {
         previous: 'Previous track',
         'play-pause': 'Play / Pause',
@@ -529,6 +951,7 @@ prayerToggle.addEventListener('change', () => {
 });
 
 prayerTest.addEventListener('click', () => {
+  awardFeatureMilestone('prayer-test', 'mencoba Prayer Reminder');
   const testPrayers = prayerSchedule?.prayers || [
     { name: 'Subuh' },
     { name: 'Zuhur' },
@@ -538,8 +961,7 @@ prayerTest.addEventListener('click', () => {
   ];
   const prayer = testPrayers[testPrayerIndex % testPrayers.length];
   testPrayerIndex += 1;
-  showBramoMessage(`Saatnya menunaikan sholat ${prayer.name} 🤲`, audioEnabled ? null : 9000, true);
-  playAdhan();
+  beginAdhanSession(prayer.name, audioEnabled);
 });
 
 audioToggle.addEventListener('change', () => {
@@ -556,6 +978,7 @@ prayerMute.addEventListener('click', () => {
 });
 
 clipboardToggle.addEventListener('change', () => {
+  awardFeatureMilestone('clipboard-watcher', 'mengaktifkan Clipboard Watcher');
   clipboardWatcherEnabled = clipboardToggle.checked;
   localStorage.setItem('bramo.clipboard.watcher', String(clipboardWatcherEnabled));
   if (clipboardWatcherEnabled) startClipboardWatcher();
@@ -563,8 +986,11 @@ clipboardToggle.addEventListener('change', () => {
 });
 
 typingToggle.addEventListener('change', () => {
+  awardFeatureMilestone('typing-curiosity', 'mengaktifkan Typing Curiosity');
   typingCuriosityEnabled = typingToggle.checked;
   localStorage.setItem('bramo.typing.curiosity', String(typingCuriosityEnabled));
+  window.__TAURI__?.core?.invoke('set_typing_watcher', { enabled: typingCuriosityEnabled })
+    .catch(err => console.warn('Typing watcher error:', err));
 });
 
 function playAdhan() {
@@ -572,7 +998,7 @@ function playAdhan() {
   adhanAudio.currentTime = 0;
   adhanAudio.play().catch(err => {
     console.warn('Adhan playback blocked:', err);
-    hideBramoMessage();
+    endAdhanSession();
   });
 }
 
@@ -580,32 +1006,109 @@ function stopAdhan() {
   if (!adhanAudio) return;
   adhanAudio.pause();
   adhanAudio.currentTime = 0;
-  suppressMediaUntil = Date.now() + 8000;
-  clearMusicMode();
 }
 
 function setAdhanVisualMode(active) {
-  isAdhanPlaying = active;
-  if (active) clearMusicMode();
   bramoContainer.classList.toggle('adhan-speaking', active);
   hatTrigger.classList.toggle('adhan-mode', active);
+}
+
+async function pauseMediaForAdhan() {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) return;
+  try {
+    const media = await invoke('get_media_info');
+    if (media?.active && media.playing) {
+      await invoke('control_media', { action: 'play-pause' });
+      mediaPausedByAdhan = true;
+    }
+  } catch (error) {
+    console.warn('Pause media for adhan error:', error);
+    // Fallback: kalau status media tidak terbaca, pakai state terakhir dari
+    // event media Rust (atau state vibe frontend).
+    if ((lastMediaState.active && lastMediaState.playing) || isMusicVibing) {
+      try {
+        await invoke('control_media', { action: 'play-pause' });
+        mediaPausedByAdhan = true;
+      } catch (fallbackError) {
+        console.warn('Fallback pause media error:', fallbackError);
+      }
+    }
+  }
+}
+
+async function resumeMediaAfterAdhan() {
+  if (!mediaPausedByAdhan) return;
+  mediaPausedByAdhan = false;
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) return;
+  try {
+    const media = await invoke('get_media_info');
+    if (media?.active && !media.playing) {
+      await invoke('control_media', { action: 'play-pause' });
+    }
+  } catch (error) {
+    console.warn('Resume media after adhan error:', error);
+  }
+}
+
+async function beginAdhanSession(prayerName, withAudio) {
+  if (adhanSessionActive) return;
+  adhanSessionActive = true;
+  if (adhanResumeTimer) {
+    clearTimeout(adhanResumeTimer);
+    adhanResumeTimer = null;
+  }
+  clearMusicMode();
+  await pauseMediaForAdhan();
+  suppressMediaUntil = Date.now() + ADHAN_SUPPRESS_MS;
+  showBramoMessage(`Saatnya menunaikan sholat ${prayerName} 🤲`, null, true);
+  if (withAudio) playAdhan();
+  else adhanResumeTimer = setTimeout(endAdhanSession, 15000);
+}
+
+async function endAdhanSession() {
+  if (!adhanSessionActive) return;
+  adhanSessionActive = false;
+  if (adhanResumeTimer) {
+    clearTimeout(adhanResumeTimer);
+    adhanResumeTimer = null;
+  }
+  await resumeMediaAfterAdhan();
+  suppressMediaUntil = Date.now() + 3000;
+  hideBramoMessage();
 }
 
 adhanAudio.addEventListener('play', () => setAdhanVisualMode(true));
 adhanAudio.addEventListener('pause', () => {
   setAdhanVisualMode(false);
-  hideBramoMessage();
+  endAdhanSession();
 });
 adhanAudio.addEventListener('ended', () => {
   setAdhanVisualMode(false);
-  hideBramoMessage();
+  endAdhanSession();
 });
 
+let recentPanelSwitches = [];
 utilityTabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const panelId = tab.dataset.panel;
     utilityTabs.forEach(item => item.classList.toggle('active', item === tab));
+    const now = Date.now();
+    recentPanelSwitches = recentPanelSwitches.filter(item => now - item.at < 45_000);
+    recentPanelSwitches.push({ id: panelId, at: now });
+    if (new Set(recentPanelSwitches.map(item => item.id)).size >= 4) {
+      recentPanelSwitches = [];
+      triggerBramoReaction('busy', 1100);
+    }
     utilityPanels.forEach(panel => panel.classList.toggle('active', panel.id === panelId));
+    awardBramoXp('panel', 3, 20_000);
+    const featureNames = {
+      musicPanel: 'Music', statsPanel: 'System Stats', filePanel: 'File Drop',
+      powerPanel: 'Power dan tema', prayerPanel: 'Prayer Reminder',
+      pomodoroPanel: 'Pomodoro', bioRhythmPanel: 'Bio-rhythm Reminder', launcherPanel: 'Quick Launcher'
+    };
+    if (featureNames[panelId]) awardFeatureMilestone(panelId, featureNames[panelId]);
     if (panelId === 'statsPanel') updateSystemStats();
     if (panelId === 'prayerPanel') loadPrayerSchedule();
   });
@@ -683,8 +1186,7 @@ function updateNextPrayer() {
   const due = prayerSchedule.prayers.find(prayer => prayer.time === `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
   if (due && lastPrayerAlert !== currentKey) {
     lastPrayerAlert = currentKey;
-    showBramoMessage(`Saatnya menunaikan sholat ${due.name} 🤲`, audioEnabled ? null : 9000, true);
-    playAdhan();
+    beginAdhanSession(due.name, audioEnabled);
   }
 }
 
@@ -703,6 +1205,7 @@ async function registerFileDropHandler() {
 
   function celebrateFiles(fileNames) {
     if (!fileNames.length) return;
+    awardFeatureMilestone('file-drop', 'menerima file');
     dropStatus.textContent = fileNames.length === 1
       ? fileNames[0]
       : `${fileNames.length} item diterima`;
@@ -716,6 +1219,7 @@ async function registerFileDropHandler() {
     const files = Array.from(event.clipboardData?.files || []);
     const hasText = event.clipboardData?.types?.includes('text/plain');
     if (!files.length && !hasText) return;
+    awardFeatureMilestone('clipboard-paste', 'memakai clipboard');
     event.preventDefault();
     const pastedLabel = files.length === 1
       ? files[0].name
@@ -804,7 +1308,7 @@ function clipboardChecksum(value) {
 }
 
 async function pollClipboard() {
-  if (!clipboardWatcherEnabled || isAdhanPlaying) return;
+  if (!clipboardWatcherEnabled || adhanSessionActive) return;
   const signature = await readClipboardSignature();
   if (!signature) return;
   if (lastClipboardSignature === null) {
@@ -823,6 +1327,16 @@ async function pollClipboard() {
 
 function startClipboardWatcher() {
   stopClipboardWatcher();
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (invoke) {
+    // Rust jadi sumber tunggal deteksi clipboard; frontend hanya menampilkan
+    // isi clipboard yang dikirim Rust.
+    invoke('set_clipboard_watcher', { enabled: true }).catch(err => {
+      console.warn('Clipboard watcher enable error:', err);
+    });
+    return;
+  }
+  // Fallback untuk preview di browser (tanpa Tauri).
   lastClipboardSignature = null;
   pollClipboard();
   clipboardTimer = setInterval(pollClipboard, 1500);
@@ -832,16 +1346,64 @@ function stopClipboardWatcher() {
   if (clipboardTimer) clearInterval(clipboardTimer);
   clipboardTimer = null;
   lastClipboardSignature = null;
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (invoke) {
+    invoke('set_clipboard_watcher', { enabled: false }).catch(err => {
+      console.warn('Clipboard watcher disable error:', err);
+    });
+  }
 }
 
 if (clipboardWatcherEnabled) startClipboardWatcher();
+
+// Sinkronkan gate watcher Rust dengan preferensi tersimpan.
+window.__TAURI__?.core?.invoke('set_typing_watcher', { enabled: typingCuriosityEnabled })
+  .catch(err => console.warn('Typing watcher sync error:', err));
 
 async function registerNativeActivityListeners() {
   const listen = window.__TAURI__?.event?.listen;
   if (!listen) return;
 
+  const win = window.__TAURI__?.window?.getCurrentWindow();
+  if (win?.onMoved) {
+    await win.onMoved(({ payload }) => {
+      // Keep persisted coordinates in sync with OS-level moves too, including
+      // Win+Shift+Arrow. This prevents startup restore from resurrecting an
+      // old monitor position later.
+      windowPositionRevision += 1;
+      saveWindowPosition(payload);
+    });
+  }
+
+  await listen('bramo://media', async (event) => {
+    try {
+      await applyMediaSnapshot(event.payload);
+    } catch (error) {
+      console.warn('Media event error:', error);
+    }
+  });
+
+  await listen('bramo://tray-action', (event) => {
+    const action = event.payload;
+    if (action === 'sleep') enterSleepMode();
+    if (action === 'quit') {
+      // Buka panel Power supaya tombol Quit bisa diklik lagi untuk konfirmasi.
+      if (!bramoContainer.classList.contains('expanded')) dropdownToggle.click();
+      confirmQuit();
+    }
+  });
+
+  await listen('bramo://drag-ended', () => {
+    handleDragRelease();
+  });
+
+  await listen('bramo://drag-motion', (event) => {
+    registerDragShake(event.payload);
+  });
+
   await listen('bramo://typing', async (event) => {
-    if (!typingCuriosityEnabled || isAdhanPlaying) return;
+    noteBramoActivity();
+    if (!typingCuriosityEnabled || adhanSessionActive) return;
     if (typingCuriousTimeout) clearTimeout(typingCuriousTimeout);
     bramoContainer.classList.add('typing-curious');
     typingEyeTarget = event.payload || null;
@@ -850,14 +1412,14 @@ async function registerNativeActivityListeners() {
       bramoContainer.classList.remove('typing-curious');
       typingEyeTarget = null;
       typingCuriousTimeout = null;
-    }, 1800);
+    }, 5500);
   });
 
   await listen('bramo://clipboard-pasted', () => {
     // Ctrl+V adalah aksi eksplisit dari user, jadi tetap tampil walaupun
     // clipboard watcher sedang OFF. Toggle hanya mengatur deteksi clipboard
     // baru di background, bukan feedback untuk paste yang dilakukan user.
-    if (isAdhanPlaying) return;
+    if (adhanSessionActive) return;
     dropStatus.textContent = 'Clipboard telah di-paste';
     bramoContainer.classList.add('clipboard-paste-success');
     triggerHappyMouth();
@@ -865,12 +1427,14 @@ async function registerNativeActivityListeners() {
     setTimeout(() => bramoContainer.classList.remove('clipboard-paste-success'), 1400);
   });
 
-  await listen('bramo://clipboard-changed', () => {
-    if (!clipboardWatcherEnabled || isAdhanPlaying) return;
+  await listen('bramo://clipboard-changed', async (event) => {
+    if (!clipboardWatcherEnabled || adhanSessionActive) return;
+    const text = event.payload || await window.__TAURI__?.core?.invoke('get_clipboard_text');
     dropStatus.textContent = 'Clipboard baru terdeteksi';
     bramoContainer.classList.add('file-drop-success');
     triggerHappyMouth();
-    showBramoMessage('Clipboard diterima! 😋', 3500);
+    const preview = typeof text === 'string' ? text.trim() : '';
+    showBramoMessage(preview ? `Clipboard: ${preview.slice(0, 80)}` : 'Clipboard diterima! 😋', 3500);
     setTimeout(() => bramoContainer.classList.remove('file-drop-success'), 1200);
   });
 }
@@ -948,59 +1512,77 @@ async function resizeNativeWindow(win, size) {
   }
 }
 
-async function syncPomodoroLayout(isVisible = pomodoroTimer || pomodoroSeconds !== pomodoroDuration) {
-  if (!window.__TAURI__?.window || bramoContainer.classList.contains('expanded') || isBramoSleeping || pomodoroLayoutSyncing) return;
-  pomodoroLayoutSyncing = true;
-  try {
-    const win = window.__TAURI__.window.getCurrentWindow();
-    const target = isVisible
-      ? (mediaWindowActive ? { width: 220, height: 210 } : { width: 220, height: 140 })
-      : (mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE);
-    const current = await win.outerSize();
-    const scale = await win.scaleFactor();
-    const targetPhysical = { width: Math.round(target.width * scale), height: Math.round(target.height * scale) };
-    if (current.height !== targetPhysical.height || current.width !== targetPhysical.width) {
-      await resizeNativeWindow(win, target);
-      await updateAdaptivePositioning();
-    }
-  } catch (error) {
-    console.warn('Pomodoro layout error:', error);
-  } finally {
-    pomodoroLayoutSyncing = false;
-  }
+function isPomodoroVisible() {
+  return Boolean(pomodoroTimer || pomodoroSeconds !== pomodoroDuration);
 }
 
-async function syncMediaWindow(isVisible) {
-  if (!window.__TAURI__?.window || bramoContainer.classList.contains('expanded')) return;
-  if (bramoContainer.classList.contains('pomodoro-active')) {
-    await syncPomodoroLayout(true);
-    return;
-  }
+function computeSleepWindowSize() {
+  const hasMedia = bramoContainer.classList.contains('media-playing-layout');
+  const hasPomodoro = bramoContainer.classList.contains('pomodoro-active');
+  if (hasMedia && hasPomodoro) return { width: 220, height: 150 };
+  if (hasMedia) return { width: 220, height: 110 };
+  if (hasPomodoro) return { width: 220, height: 105 };
+  return { width: 220, height: 76 };
+}
+
+// Satu sumber ukuran window: expanded > media+pomodoro > media > pomodoro > compact.
+function computeTargetWindowSize(options = {}) {
+  if (!options.ignoreSleep && isBramoSleeping) return computeSleepWindowSize();
+  if (bramoContainer.classList.contains('expanded')) return { ...EXPANDED_WINDOW_SIZE };
+
+  const hasMedia = mediaWindowActive;
+  const hasPomodoro = isPomodoroVisible();
+  if (hasMedia && hasPomodoro) return { width: 220, height: 210 };
+  if (hasMedia) return { ...MEDIA_WINDOW_SIZE };
+  if (hasPomodoro) return { width: 220, height: 140 };
+  return { ...COMPACT_WINDOW_SIZE };
+}
+
+async function applyWindowLayout({ anchor, size } = {}) {
+  if (isActivelyDragging || isDragCandidate || !window.__TAURI__?.window) return;
   try {
     const win = window.__TAURI__.window.getCurrentWindow();
-    const targetSize = isVisible
-      ? (bramoContainer.classList.contains('pomodoro-active') ? { width: 220, height: 210 } : MEDIA_WINDOW_SIZE)
-      : (bramoContainer.classList.contains('pomodoro-active') ? { width: 220, height: 140 } : COMPACT_WINDOW_SIZE);
-    const currentSize = await win.outerSize();
+    const target = { ...(size || computeTargetWindowSize()) };
     const scale = await win.scaleFactor();
-    if (currentSize.height !== Math.round(targetSize.height * scale)) {
-      await resizeNativeWindow(win, targetSize);
-      await updateAdaptivePositioning();
+    const current = await win.outerSize();
+    // Layout refreshes (for example, each Pomodoro tick) must not collapse the
+    // native window while a persistent reminder bubble is still visible.
+    if (speechBubble.classList.contains('show') && !bramoContainer.classList.contains('expanded')) {
+      target.height = Math.max(target.height, Math.ceil(current.height / scale));
     }
+    const targetPhysical = {
+      width: Math.round(target.width * scale),
+      height: Math.round(target.height * scale)
+    };
+    const sizeChanged = current.width !== targetPhysical.width || current.height !== targetPhysical.height;
+    if (isActivelyDragging || isDragCandidate) return;
+
+    if (!sizeChanged && !anchor) return;
+
+    if (sizeChanged) await resizeNativeWindow(win, target);
+    if (isActivelyDragging || isDragCandidate) return;
+    if (anchor) {
+      await win.setPosition({ type: 'Physical', x: anchor.x, y: anchor.y });
+    }
+    await updateAdaptivePositioning();
   } catch (error) {
-    console.warn('Media window resize error:', error);
+    console.warn('Window layout error:', error);
   }
 }
 
 async function syncBubbleWindow(isVisible) {
-  if (!window.__TAURI__?.window || bramoContainer.classList.contains('expanded')) return;
+  // Speech-bubble timeouts can fire while dragging. Resizing or restoring the
+  // saved pre-drag anchor here would pull the widget back to its old monitor.
+  if (isActivelyDragging || isDragCandidate || !window.__TAURI__?.window || bramoContainer.classList.contains('expanded')) return;
 
   try {
     const win = window.__TAURI__.window.getCurrentWindow();
-    const pos = await win.outerPosition();
+    let pos = await win.outerPosition();
+    if (isActivelyDragging || isDragCandidate) return;
 
     if (!isVisible) {
-      await resizeNativeWindow(win, mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE);
+      await resizeNativeWindow(win, computeTargetWindowSize());
+      if (isActivelyDragging || isDragCandidate) return;
       if (bubbleBasePosition) {
         await win.setPosition({
           type: 'Physical',
@@ -1013,15 +1595,26 @@ async function syncBubbleWindow(isVisible) {
       return;
     }
 
-    bubbleBasePosition = { x: pos.x, y: pos.y };
+    // Keep the original compact anchor if a new message replaces a visible
+    // bubble. Replacing it with the expanded-window position makes each
+    // message shift the widget again and can clip the bubble intermittently.
+    if (!bubbleBasePosition) bubbleBasePosition = { x: pos.x, y: pos.y };
     await nextFrame();
+    if (isActivelyDragging || isDragCandidate) return;
+
+    // Measure after the scale-in finishes. Measuring on the first frame sees
+    // the bubble at 80% scale, so longer messages can outgrow the native window.
+    await new Promise(resolve => setTimeout(resolve, 340));
+    if (!speechBubble.classList.contains('show') || isActivelyDragging || isDragCandidate) return;
+    pos = { ...bubbleBasePosition };
+    const bubbleAbove = bramoContainer.classList.contains('flip-bubble');
 
     const elements = [bramoContainer, speechBubble, hatTrigger, mediaWindowActive ? nowPlayingBar : null]
       .filter(element => element && (element === bramoContainer || element.offsetParent !== null));
     const rects = elements.map(element => element.getBoundingClientRect());
     const minTop = Math.min(...rects.map(rect => rect.top));
     const maxBottom = Math.max(...rects.map(rect => rect.bottom));
-    const baseWindowSize = mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE;
+    const baseWindowSize = computeTargetWindowSize();
     const requiredHeight = Math.max(
       baseWindowSize.height,
       Math.ceil(maxBottom - minTop + 8)
@@ -1031,16 +1624,15 @@ async function syncBubbleWindow(isVisible) {
       width: COMPACT_WINDOW_SIZE.width,
       height: requiredHeight
     });
+    if (isActivelyDragging || isDragCandidate) return;
 
     // Keep the capsule anchored. If the bubble is above the capsule, grow the
     // native window upward by the added height instead of teleporting the base.
-    const bubbleAbove = bramoContainer.classList.contains('flip-bubble');
     const addedHeight = Math.max(0, requiredHeight - baseWindowSize.height);
     const targetY = bubbleAbove
       ? Math.round(pos.y - addedHeight)
       : pos.y;
     await win.setPosition({ type: 'Physical', x: pos.x, y: targetY });
-    await updateAdaptivePositioning();
   } catch (err) {
     console.warn('Bubble window resize error:', err);
   }
@@ -1068,6 +1660,7 @@ function loadWindowPosition() {
 async function restoreWindowPosition() {
   if (!window.__TAURI__?.window) return;
   const saved = loadWindowPosition();
+  const revisionAtStart = windowPositionRevision;
 
   try {
     const win = window.__TAURI__.window.getCurrentWindow();
@@ -1075,7 +1668,7 @@ async function restoreWindowPosition() {
     // aplikasi di belakang sebelum dropdown benar-benar dibuka.
     await resizeNativeWindow(win, COMPACT_WINDOW_SIZE);
     bramoContainer.classList.remove('expanded');
-    if (saved) {
+    if (saved && revisionAtStart === windowPositionRevision) {
       await win.setPosition({ type: 'Physical', x: saved.x, y: saved.y });
     }
     await updateAdaptivePositioning();
@@ -1128,7 +1721,9 @@ let bubbleTimeout = null;
 
 function showBramoMessage(text, duration = 3000, attention = false) {
   if (!speechBubble || !speechText) return;
-  if (isAdhanPlaying && !attention) return;
+  if (bioRhythmDue && !attention) return;
+  if (bramoContainer.classList.contains('dizzy') && !attention) return;
+  if (adhanSessionActive && !attention) return;
   
   speechText.textContent = text;
   bramoContainer.classList.toggle('attention-reminder', attention);
@@ -1141,7 +1736,8 @@ function showBramoMessage(text, duration = 3000, attention = false) {
   if (duration !== null) bubbleTimeout = setTimeout(hideBramoMessage, duration);
 }
 
-function hideBramoMessage() {
+function hideBramoMessage(force = false) {
+  if (bioRhythmDue && !force) return;
   if (bubbleTimeout) {
     clearTimeout(bubbleTimeout);
     bubbleTimeout = null;
@@ -1158,32 +1754,205 @@ function showContextualMessage(category, duration = 3000) {
   showBramoMessage(chosenQuote, duration);
 }
 
+function persistBioRhythmDeadline() {
+  if (bioRhythmNextAt) localStorage.setItem('bramo.bio.nextAt', String(bioRhythmNextAt));
+  else localStorage.removeItem('bramo.bio.nextAt');
+}
+
+function renderBioRhythmStatus() {
+  if (!bioRhythmStatus) return;
+  bioRhythmToggle.checked = bioRhythmEnabled;
+  bioRhythmInterval.value = String(bioRhythmMinutes);
+  bioRhythmInterval.disabled = !bioRhythmEnabled;
+  bioRhythmReset.disabled = !bioRhythmEnabled;
+  bioRhythmFollowup.hidden = !bioRhythmDue;
+  bioBubbleActions.hidden = !bioRhythmDue;
+  bioRhythmStatus.classList.toggle('is-due', bioRhythmDue && bioRhythmEnabled);
+  if (!bioRhythmEnabled) {
+    bioRhythmStatus.textContent = 'Pengingat mati';
+    return;
+  }
+  const remaining = Math.max(0, bioRhythmNextAt - Date.now());
+  const minutes = Math.ceil(remaining / 60_000);
+  bioRhythmStatus.textContent = bioRhythmDue
+    ? 'Waktunya jeda 🌿'
+    : remaining <= 0
+      ? 'Pengingat menunggu waktu yang pas…'
+    : `Jeda berikutnya sekitar ${minutes} menit lagi`;
+}
+
+function startBioRhythmReminder(resetDeadline = false) {
+  if (!bioRhythmEnabled) {
+    bioRhythmNextAt = 0;
+    bioRhythmDue = false;
+    localStorage.removeItem('bramo.bio.due');
+    persistBioRhythmDeadline();
+    renderBioRhythmStatus();
+    return;
+  }
+  if (resetDeadline || !bioRhythmNextAt) {
+    bioRhythmNextAt = Date.now() + bioRhythmMinutes * 60_000;
+    persistBioRhythmDeadline();
+  }
+  renderBioRhythmStatus();
+}
+
+function checkBioRhythmReminder() {
+  if (!bioRhythmEnabled || !bioRhythmNextAt) return;
+  if (Date.now() < bioRhythmNextAt) {
+    renderBioRhythmStatus();
+    return;
+  }
+  if (bioRhythmDue) {
+    renderBioRhythmStatus();
+    return;
+  }
+  const canRemind = !adhanSessionActive
+    && !isBramoSleeping
+    && !hiddenByFullscreen
+    && !document.hidden
+    && !bramoContainer.classList.contains('expanded')
+    && !speechBubble.classList.contains('show')
+    && !isActivelyDragging
+    && !isDragCandidate;
+  if (!canRemind) {
+    bioRhythmStatus.textContent = 'Pengingat menunggu waktu yang pas…';
+    return;
+  }
+  bioRhythmDue = true;
+  localStorage.setItem('bramo.bio.due', 'true');
+  showBramoMessage('Waktunya jeda sebentar 🌿 Regangkan badan, ya!', null, true);
+  persistBioRhythmDeadline();
+  renderBioRhythmStatus();
+}
+
+function completeBioRhythmBreak() {
+  bioRhythmDue = false;
+  localStorage.removeItem('bramo.bio.due');
+  startBioRhythmReminder(true);
+  hideBramoMessage(true);
+}
+
+function snoozeBioRhythmBreak() {
+  bioRhythmDue = false;
+  localStorage.removeItem('bramo.bio.due');
+  bioRhythmNextAt = Date.now() + 10 * 60_000;
+  persistBioRhythmDeadline();
+  renderBioRhythmStatus();
+  hideBramoMessage(true);
+}
+
+bioRhythmToggle.addEventListener('change', () => {
+  bioRhythmEnabled = bioRhythmToggle.checked;
+  localStorage.setItem('bramo.bio.enabled', String(bioRhythmEnabled));
+  if (bioRhythmEnabled) awardFeatureMilestone('bio-rhythm', 'mengaktifkan pengingat jeda');
+  startBioRhythmReminder(true);
+});
+
+bioRhythmInterval.addEventListener('change', () => {
+  bioRhythmMinutes = Number(bioRhythmInterval.value);
+  localStorage.setItem('bramo.bio.interval', String(bioRhythmMinutes));
+  startBioRhythmReminder(true);
+});
+
+bioRhythmReset.addEventListener('click', () => {
+  startBioRhythmReminder(true);
+  bioRhythmStatus.textContent = `Timer jeda diulang · ${bioRhythmMinutes} menit`;
+});
+
+bioRhythmTest.addEventListener('click', () => {
+  bioRhythmDue = true;
+  localStorage.setItem('bramo.bio.due', 'true');
+  showBramoMessage('Tes pengingat 🌿 Regangkan badan sebentar, ya!', null, true);
+  renderBioRhythmStatus();
+});
+
+bioRhythmDone.addEventListener('click', completeBioRhythmBreak);
+bioRhythmSnooze.addEventListener('click', snoozeBioRhythmBreak);
+bioBubbleDone.addEventListener('click', completeBioRhythmBreak);
+bioBubbleSnooze.addEventListener('click', snoozeBioRhythmBreak);
+
+startBioRhythmReminder();
+if (bioRhythmEnabled && bioRhythmDue) {
+  showBramoMessage('Waktunya jeda sebentar 🌿 Regangkan badan, ya!', null, true);
+}
+bioRhythmTimer = setInterval(checkBioRhythmReminder, 15_000);
+
+// Work area monitor yang paling relevan dengan posisi window (physical pixels).
+// Memilih dari seluruh monitor mencegah clamp memakai monitor sumber setelah drag.
+async function getWorkArea(win, position, size) {
+  let monitors = [];
+  if (position && size) {
+    try {
+      monitors = await win.availableMonitors();
+    } catch (err) {}
+  }
+  if (!monitors.length) {
+    try {
+      const monitor = await win.currentMonitor();
+      if (monitor) monitors = [monitor];
+    } catch (err) {}
+  }
+
+  const dpi = window.devicePixelRatio || 1;
+  const screenHeightCss = window.screen?.availHeight || window.screen?.height || 0;
+  if (!monitors.length) {
+    const width = Math.round((window.screen?.width || 0) * dpi);
+    return {
+      left: 0,
+      top: 0,
+      width,
+      height: Math.round(screenHeightCss * dpi)
+    };
+  }
+
+  const centerX = position && size ? position.x + size.width / 2 : null;
+  const centerY = position && size ? position.y + size.height / 2 : null;
+  const distanceToMonitor = monitor => {
+    if (centerX === null) return 0;
+    const left = monitor.position.x;
+    const top = monitor.position.y;
+    const right = left + monitor.size.width;
+    const bottom = top + monitor.size.height;
+    const dx = Math.max(left - centerX, 0, centerX - right);
+    const dy = Math.max(top - centerY, 0, centerY - bottom);
+    return dx * dx + dy * dy;
+  };
+  const monitor = [...monitors].sort((a, b) => distanceToMonitor(a) - distanceToMonitor(b))[0];
+  const scale = monitor.scaleFactor || dpi;
+  const taskbar = Math.max(0, Math.round(((window.screen?.height || screenHeightCss) - screenHeightCss) * scale));
+  return {
+    left: monitor.position.x,
+    top: monitor.position.y,
+    width: monitor.size.width,
+    height: Math.max(0, monitor.size.height - taskbar)
+  };
+}
+
 // --- SAFE DUAL-MODE ADAPTIVE POSITIONING ---
 async function updateAdaptivePositioning() {
-  if (!window.__TAURI__?.window) return;
+  if (isActivelyDragging || isDragCandidate || !window.__TAURI__?.window) return;
   try {
     const win = window.__TAURI__.window.getCurrentWindow();
     const pos = await win.outerPosition();
     const size = await win.outerSize();
-    // Tauri memakai physical pixels, sedangkan Screen API memakai CSS pixels.
-    const dpi = window.devicePixelRatio || 1;
-    const screenHeight = Math.round((window.screen.availHeight || window.screen.height) * dpi);
-    const screenWidth = Math.round(window.screen.width * dpi);
-    const currentWindowHeight = size.height;
+    if (isActivelyDragging || isDragCandidate) return;
+    const workArea = await getWorkArea(win, pos, size);
+    if (isActivelyDragging || isDragCandidate) return;
 
+    const maxY = Math.max(workArea.top, workArea.top + workArea.height - size.height);
     let newY = pos.y;
     let needsUpdate = false;
 
     // Top safety lock
-    if (newY < 0) {
-      newY = 0;
+    if (newY < workArea.top) {
+      newY = workArea.top;
       needsUpdate = true;
     }
 
     // Bottom safety lock (disesuaikan dengan tinggi window aktual agar tidak kelewatan taskbar)
-    const maxAllowedY = Math.max(0, screenHeight - currentWindowHeight);
-    if (newY > maxAllowedY) {
-      newY = maxAllowedY;
+    if (newY > maxY) {
+      newY = maxY;
       needsUpdate = true;
     }
 
@@ -1196,19 +1965,10 @@ async function updateAdaptivePositioning() {
     }
 
     // Flip UI states
-    if (newY > screenHeight * 0.45) {
-      bramoContainer.classList.add('flip-dropdown');
-      capsuleWrapper.classList.add('align-bottom');
-    } else {
-      bramoContainer.classList.remove('flip-dropdown');
-      capsuleWrapper.classList.remove('align-bottom');
-    }
-
-    if (newY > screenHeight * 0.45) {
-      bramoContainer.classList.add('flip-bubble');
-    } else {
-      bramoContainer.classList.remove('flip-bubble');
-    }
+    const isLow = newY > workArea.top + workArea.height * 0.45;
+    bramoContainer.classList.toggle('flip-dropdown', isLow);
+    capsuleWrapper.classList.toggle('align-bottom', isLow);
+    bramoContainer.classList.toggle('flip-bubble', isLow);
   } catch (err) {
     console.warn("Adaptive position error:", err);
   }
@@ -1216,7 +1976,15 @@ async function updateAdaptivePositioning() {
 
 // Random chat acak berkala
 function triggerRandomChat() {
-  if (!isActivelyDragging && !isAdhanPlaying) {
+  const canChat = !isActivelyDragging
+    && !isDragCandidate
+    && !adhanSessionActive
+    && !isBramoSleeping
+    && !bramoContainer.classList.contains('expanded')
+    && !speechBubble.classList.contains('show')
+    && !document.hidden;
+
+  if (canChat) {
     const musicQuotes = [
       'Beat-nya enak banget, Bro 🎵',
       'BRAMO ikut hanyut sama lagunya ✨',
@@ -1227,13 +1995,13 @@ function triggerRandomChat() {
     ];
     const quotePool = isMusicVibing ? musicQuotes : bramoQuotes;
     const randomQuote = quotePool[Math.floor(Math.random() * quotePool.length)];
-    showBramoMessage(randomQuote, 4000);
+    showBramoMessage(randomQuote, 3500);
   }
-  const nextChatInterval = Math.random() * 20000 + 20000;
+  const nextChatInterval = Math.random() * 60_000 + 60_000;
   setTimeout(triggerRandomChat, nextChatInterval);
 }
 
-setTimeout(triggerRandomChat, 5000);
+setTimeout(triggerRandomChat, 25_000);
 
 // Pulihkan posisi terakhir setelah window Tauri siap.
 setTimeout(restoreWindowPosition, 0);
@@ -1249,97 +2017,153 @@ bramoCapsule.addEventListener('mousedown', async (e) => {
     await wakeBramo();
   }
 
+  windowPositionRevision += 1;
+  isDragCandidate = true;
+  dragStartClientX = e.clientX;
+  dragStartClientY = e.clientY;
+});
+
+// --- 2. MOUSE MOVE ---
+function beginNativeDrag() {
+  if (!isDragCandidate) return;
+  isDragCandidate = false;
   isActivelyDragging = true;
+  if (dizzyResetTimer) {
+    clearTimeout(dizzyResetTimer);
+    dizzyResetTimer = null;
+  }
   draggedWhileExpanded = bramoContainer.classList.contains('expanded');
-  isPositionReady = false;
-  startScreenX = e.screenX;
-  startScreenY = e.screenY;
+  // The bubble anchor belongs to the old position and must not be restored
+  // after the widget has been moved.
+  bubbleBasePosition = null;
 
   bramoContainer.classList.add('is-dragging');
   bramoContainer.classList.remove('just-landed');
   setMouthState('whistle');
-
   if (Math.random() > 0.5) {
     const quotes = interactiveQuotes.drag_start;
     showBramoMessage(quotes[Math.floor(Math.random() * quotes.length)], 2000);
   }
 
-  if (window.__TAURI__?.window) {
-    try {
-      const win = window.__TAURI__.window.getCurrentWindow();
-      const pos = await win.outerPosition();
-      windowStartX = pos.x;
-      windowStartY = pos.y;
-      isPositionReady = true;
-    } catch (err) {
-      isActivelyDragging = false;
-    }
-  } else {
-    isPositionReady = true;
-  }
-});
-
-// --- 2. MOUSE MOVE ---
-window.addEventListener('mousemove', (e) => {
-  if (!isActivelyDragging || !isPositionReady) return;
-  latestMouseEvent = e;
-
-  if (!isTicking) {
-    window.requestAnimationFrame(async () => {
-      if (!isActivelyDragging || !isPositionReady || !latestMouseEvent) {
-        isTicking = false;
-        return;
-      }
-
-      const deltaX = latestMouseEvent.screenX - startScreenX;
-      const deltaY = latestMouseEvent.screenY - startScreenY;
-
-      const tiltAngle = Math.max(-16, Math.min(16, (latestMouseEvent.movementX || 0) * 3.5));
-      bramoCapsule.style.transform = `scale(1.08) translateY(-4px) rotate(${tiltAngle}deg)`;
-
-      if (window.__TAURI__?.window) {
-        try {
-          const win = window.__TAURI__.window.getCurrentWindow();
-          await win.setPosition({
-            type: 'Physical',
-            x: windowStartX + deltaX,
-            y: windowStartY + deltaY
-          });
-        } catch (err) {}
-      }
-
-      isTicking = false;
+  const win = window.__TAURI__?.window?.getCurrentWindow();
+  if (win && typeof win.startDragging === 'function') {
+    // Let the OS own the move loop so monitor transitions and mixed-DPI
+    // coordinate changes cannot race our JavaScript setPosition calls.
+    nativeDragMode = true;
+    const invoke = window.__TAURI__?.core?.invoke;
+    nativeDragPromise = (async () => {
+      if (invoke) await invoke('set_drag_watcher', { enabled: true });
+      await win.startDragging();
+    })().catch(error => {
+      nativeDragMode = false;
+      invoke?.('set_drag_watcher', { enabled: false }).catch(() => {});
+      console.warn('Native window drag failed:', error);
     });
+  }
+}
 
-    isTicking = true;
+function registerDragShake(position) {
+  if (adhanSessionActive || bioRhythmDue) {
+    shakeSamples = [];
+    return false;
+  }
+  if (!position || !Number.isFinite(position.x) || !Number.isFinite(position.y)) return false;
+  const now = Date.now();
+  shakeSamples = shakeSamples.filter(sample => now - sample.time < 2000);
+  const previous = shakeSamples.at(-1);
+  shakeSamples.push({ x: position.x, y: position.y, time: now });
+  if (shakeSamples.length > 32) shakeSamples.shift();
+  if (previous && bramoContainer.classList.contains('dizzy') && isActivelyDragging) {
+    const dx = position.x - previous.x;
+    const dy = position.y - previous.y;
+    const angle = Math.max(-18, Math.min(18, dx * 0.75));
+    const lift = Math.max(-4, Math.min(4, dy * 0.2));
+    visorScreen.style.setProperty('--dizzy-angle', `${angle}deg`);
+    visorScreen.style.setProperty('--dizzy-lift', `${lift}px`);
+  }
+  if (now < dizzyUntil || shakeSamples.length < 5) return false;
+
+  let reversals = 0;
+  let lastDirection = 0;
+  let travel = 0;
+  for (let index = 1; index < shakeSamples.length; index += 1) {
+    const dx = shakeSamples[index].x - shakeSamples[index - 1].x;
+    const dy = shakeSamples[index].y - shakeSamples[index - 1].y;
+    const delta = Math.abs(dx) >= Math.abs(dy) ? dx : dy;
+    if (Math.abs(delta) < 14) continue;
+    const direction = Math.sign(delta);
+    travel += Math.abs(delta);
+    if (lastDirection && direction !== lastDirection) reversals += 1;
+    lastDirection = direction;
+  }
+  if (reversals < 3 || travel < 260) return false;
+
+  shakeSamples = [];
+  dizzyUntil = now + 5000;
+  showBramoMessage('Aduh, pusing! Jangan goyang-goyangin aku terus 😵‍💫', null);
+  bramoContainer.classList.add('dizzy');
+  return true;
+}
+
+function scheduleDizzyRecovery() {
+  if (!bramoContainer.classList.contains('dizzy')) return;
+  if (dizzyResetTimer) clearTimeout(dizzyResetTimer);
+  dizzyResetTimer = setTimeout(() => {
+    dizzyResetTimer = null;
+    if (isActivelyDragging || isDragCandidate) return;
+    bramoContainer.classList.remove('dizzy');
+    visorScreen.style.removeProperty('--dizzy-angle');
+    visorScreen.style.removeProperty('--dizzy-lift');
+    hideBramoMessage();
+  }, 4200);
+}
+
+window.addEventListener('mousemove', (e) => {
+  if (isDragCandidate) {
+    const dx = e.clientX - dragStartClientX;
+    const dy = e.clientY - dragStartClientY;
+    if (Math.hypot(dx, dy) < 5) return;
+    beginNativeDrag();
   }
 });
 
 // --- 3. MOUSE UP ---
 async function handleDragRelease() {
+  if (isDragCandidate) {
+    isDragCandidate = false;
+    return;
+  }
   if (!isActivelyDragging) return;
   isActivelyDragging = false;
-  isPositionReady = false;
-  latestMouseEvent = null;
+  if (nativeDragMode) await nativeDragPromise;
+  nativeDragMode = false;
+  window.__TAURI__?.core?.invoke('set_drag_watcher', { enabled: false }).catch(() => {});
 
   bramoContainer.classList.remove('is-dragging');
-  bramoCapsule.style.transform = 'scale(1) translateY(0) rotate(0deg)';
+  bramoCapsule.style.removeProperty('transform');
+  if (bramoContainer.classList.contains('dizzy')) {
+    visorScreen.style.setProperty('--dizzy-angle', '0deg');
+    visorScreen.style.setProperty('--dizzy-lift', '0px');
+    scheduleDizzyRecovery();
+  }
 
   bramoContainer.classList.add('just-landed');
+  awardBramoXp('drag', 5, 30_000, 'Drag BRAMO');
   setMouthState('');
 
   await updateAdaptivePositioning();
+  await syncBubbleWindow(speechBubble.classList.contains('show'));
 
   if (window.__TAURI__?.window) {
     try {
       const win = window.__TAURI__.window.getCurrentWindow();
       const pos = await win.outerPosition();
+      const size = await win.outerSize();
+      const workArea = await getWorkArea(win, pos, size);
       saveWindowPosition(pos);
-      const screenWidth = Math.round(window.screen.width * (window.devicePixelRatio || 1));
-
-      if (pos.x < 100) {
+      if (pos.x < workArea.left + 100) {
         showContextualMessage('edge_left', 3000);
-      } else if (pos.x > screenWidth - 300) {
+      } else if (pos.x > workArea.left + workArea.width - 300) {
         showContextualMessage('edge_right', 3000);
       } else {
         if (Math.random() > 0.5) {
@@ -1361,14 +2185,19 @@ async function handleDragRelease() {
 }
 
 window.addEventListener('mouseup', handleDragRelease);
-window.addEventListener('blur', handleDragRelease);
+window.addEventListener('pointerup', handleDragRelease);
 
 // --- IDLE CLICK ---
 bramoCapsule.addEventListener('click', (e) => {
   if (isActivelyDragging) return;
   if (e.target.closest('.dropdown-panel') || e.target.closest('.dropdown-handle-bar')) return;
   
+  const idleFor = Date.now() - lastBramoInteractionAt;
   triggerHappyMouth();
+  if (idleFor >= 90_000) triggerBramoReaction('reunion', 1800);
+  else if (idleFor >= 15_000 && Math.random() < 0.35) triggerBramoReaction('surprise', 700);
+  else triggerBramoReaction('greet', 900);
+  awardBramoXp('click', 2, 60_000, 'Menyapa BRAMO');
   const quotes = interactiveQuotes.idle_click;
   showBramoMessage(quotes[Math.floor(Math.random() * quotes.length)], 2000);
 });
@@ -1387,15 +2216,29 @@ if (hatTrigger) {
       if (window.__TAURI__?.window) {
         try {
           const win = window.__TAURI__.window.getCurrentWindow();
-          const screenWidth = Math.round(window.screen.width * (window.devicePixelRatio || 1));
-          const windowWidth = 220;
-          
-          const targetX = Math.round((screenWidth - windowWidth) / 2);
-          const targetY = 20;
+          const [currentPos, currentSize] = await Promise.all([
+            win.outerPosition(),
+            win.outerSize()
+          ]);
+          let workArea;
+          const invoke = window.__TAURI__?.core?.invoke;
+          if (invoke) {
+            try {
+              // Minta Windows menentukan monitor dari HWND BRAMO yang aktual;
+              // ini menghindari pilihan monitor utama dari WebView/currentMonitor.
+              workArea = await invoke('get_current_monitor_work_area');
+            } catch (error) {
+              console.warn('Native monitor lookup failed, using window bounds:', error);
+            }
+          }
+          if (!workArea) workArea = await getWorkArea(win, currentPos, currentSize);
 
           bramoContainer.classList.remove('expanded');
           capsuleWrapper.classList.remove('is-expanded');
           await resizeNativeWindow(win, COMPACT_WINDOW_SIZE);
+          const compactSize = await win.outerSize();
+          const targetX = Math.round(workArea.left + (workArea.width - compactSize.width) / 2);
+          const targetY = Math.round(workArea.top + 20);
           await win.setPosition({ type: 'Physical', x: targetX, y: targetY });
           saveWindowPosition({ x: targetX, y: targetY });
           await updateAdaptivePositioning();
@@ -1445,10 +2288,12 @@ document.querySelectorAll('.dropdown-panel, .utility-tab, .dropdown-panel button
 
 dropdownToggle.addEventListener('click', async (e) => {
   e.stopPropagation();
+  if (isBramoSleeping) return;
 
   await updateAdaptivePositioning();
 
   const isExpanding = bramoContainer.classList.toggle('expanded');
+  if (isExpanding) awardBramoXp('dropdown', 3, 20_000);
   capsuleWrapper.classList.toggle('is-expanded', isExpanding);
   if (isExpanding) armDropdownIdleClose();
   else if (dropdownIdleTimer) {
@@ -1458,6 +2303,7 @@ dropdownToggle.addEventListener('click', async (e) => {
   if (isExpanding) startStatsPolling();
   else stopStatsPolling();
   triggerHappyMouth();
+  if (isExpanding) triggerBramoReaction('think', 1500);
 
   if (isExpanding) {
     showContextualMessage('dropdown_open', 2500);
@@ -1467,7 +2313,7 @@ dropdownToggle.addEventListener('click', async (e) => {
     try {
       const win = window.__TAURI__.window.getCurrentWindow();
       const pos = await win.outerPosition();
-      
+
       const COMPACT_H = COMPACT_WINDOW_SIZE.height;
       const EXPANDED_H = EXPANDED_WINDOW_SIZE.height;
       const scale = await win.scaleFactor();
@@ -1485,36 +2331,28 @@ dropdownToggle.addEventListener('click', async (e) => {
           targetY = pos.y - heightDiff + 8;
         }
 
-        await resizeNativeWindow(win, EXPANDED_WINDOW_SIZE);
         const targetX = Math.round(pos.x - widthDiff / 2);
-        await win.setPosition({
-          type: 'Physical',
-          x: targetX,
-          y: targetY
+        await applyWindowLayout({
+          size: { ...EXPANDED_WINDOW_SIZE },
+          anchor: { x: targetX, y: targetY }
         });
         saveWindowPosition({ x: targetX, y: targetY });
-        // Resize dapat membuat sisi bawah melewati work area, terutama pada DPI > 100%.
-        await updateAdaptivePositioning();
       } else {
         const currentFlip = bramoContainer.classList.contains('flip-dropdown');
         const restoreY = draggedWhileExpanded
           ? (currentFlip ? pos.y + heightDiff : pos.y - 20)
           : (savedCompactY !== null ? savedCompactY : (wasFlipped ? pos.y + heightDiff : pos.y - 20));
 
-        await resizeNativeWindow(win, mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE);
         const restoreX = Math.round(pos.x + widthDiff / 2);
-        await win.setPosition({
-          type: 'Physical',
-          x: restoreX,
-          y: restoreY
+        await applyWindowLayout({
+          size: computeTargetWindowSize({ ignoreSleep: true }),
+          anchor: { x: restoreX, y: restoreY }
         });
         saveWindowPosition({ x: restoreX, y: restoreY });
         if (speechBubble.classList.contains('show')) {
           await syncBubbleWindow(true);
-        } else {
-          await updateAdaptivePositioning();
         }
-        
+
         savedCompactY = null;
         draggedWhileExpanded = false;
       }
@@ -1562,13 +2400,28 @@ let mousePos = { x: 0, y: 0 };
 
 window.addEventListener('mousemove', (e) => {
   if (!isActivelyDragging) {
+    noteBramoActivity();
     mousePos.x = e.clientX;
     mousePos.y = e.clientY;
   }
 });
 
+window.addEventListener('pointerdown', noteBramoActivity);
+
+function noteBramoActivity() {
+  lastBramoInteractionAt = Date.now();
+  setUpbeatMood();
+  bramoContainer.classList.remove('idle-stretch', 'idle-peek', 'idle-sigh', 'idle-yawn');
+  if (idleAnimationResetTimer) {
+    clearTimeout(idleAnimationResetTimer);
+    idleAnimationResetTimer = null;
+  }
+}
+
 function switchGazeState() {
-  if (!isActivelyDragging) {
+  if (!isActivelyDragging
+    && !bramoContainer.classList.contains('typing-curious')
+    && !bramoContainer.classList.contains('idle-peek')) {
     const states = ['TRACKING', 'FORWARD', 'FORWARD', 'GLANCE'];
     gazeState = states[Math.floor(Math.random() * states.length)];
 
@@ -1615,7 +2468,10 @@ async function updateTypingEyeTarget() {
 }
 
 function updateEyeFrame() {
-  if (gazeState === 'TRACKING' && !isActivelyDragging) {
+  if (gazeState === 'TRACKING'
+    && !isActivelyDragging
+    && !bramoContainer.classList.contains('typing-curious')
+    && !bramoContainer.classList.contains('idle-peek')) {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
@@ -1633,9 +2489,62 @@ function updateEyeFrame() {
 switchGazeState();
 requestAnimationFrame(updateEyeFrame);
 
+function scheduleIdleAnimation() {
+  const delay = 15_000 + Math.random() * 10_000;
+  idleAnimationTimeout = setTimeout(() => {
+    const canAnimate = Date.now() - lastBramoInteractionAt >= 20_000
+      && !isActivelyDragging
+      && !isDragCandidate
+      && !isBramoSleeping
+      && !document.hidden
+      && !adhanSessionActive
+      && !bramoContainer.classList.contains('expanded')
+      && !bramoContainer.classList.contains('dizzy')
+      && !bramoContainer.classList.contains('typing-curious')
+      && !bramoContainer.classList.contains('idle-stretch')
+      && !bramoContainer.classList.contains('idle-peek')
+      && !visorScreen.classList.contains('blinking')
+      && !bramoContainer.classList.contains('music-vibing')
+      && !speechBubble.classList.contains('show');
+
+    if (canAnimate) {
+      const idleFor = Date.now() - lastBramoInteractionAt;
+      const idleRoll = Math.random();
+      const action = idleFor >= 90_000 && idleRoll < 0.24
+        ? 'idle-yawn'
+        : idleFor >= 60_000 && idleRoll < 0.48
+          ? 'idle-sigh'
+          : idleRoll < 0.72 ? 'idle-peek' : 'idle-stretch';
+      bramoContainer.classList.add(action);
+      if (action === 'idle-peek') {
+        applyEyePosition(Math.random() < 0.5 ? -2 : 2, -2);
+      }
+      idleAnimationResetTimer = setTimeout(() => {
+        bramoContainer.classList.remove('idle-peek', 'idle-stretch', 'idle-sigh', 'idle-yawn');
+        idleAnimationResetTimer = null;
+      }, action === 'idle-yawn' ? 1850 : 1500);
+    }
+    scheduleIdleAnimation();
+  }, delay);
+}
+
+scheduleIdleAnimation();
+
 // --- 8. AUTO-BLINK ---
+function scheduleNextBlink(delay = Math.random() * 3000 + 2500) {
+  if (blinkTimeout) clearTimeout(blinkTimeout);
+  blinkTimeout = setTimeout(triggerBlink, delay);
+}
+
 function triggerBlink() {
-  if (!isActivelyDragging) {
+  blinkTimeout = null;
+  if (isBramoSleeping) return;
+
+  if (!isActivelyDragging
+    && !bramoContainer.classList.contains('typing-curious')
+    && !bramoContainer.classList.contains('idle-stretch')
+    && !bramoContainer.classList.contains('idle-peek')
+    && !bramoContainer.classList.contains('idle-sigh')) {
     visorScreen.classList.add('blinking');
 
     setTimeout(() => {
@@ -1643,8 +2552,7 @@ function triggerBlink() {
     }, 150);
   }
 
-  const nextBlink = Math.random() * 3000 + 2500;
-  setTimeout(triggerBlink, nextBlink);
+  scheduleNextBlink();
 }
 
-setTimeout(triggerBlink, 2000);
+scheduleNextBlink(2000);

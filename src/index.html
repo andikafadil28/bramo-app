@@ -14,6 +14,10 @@
       <div class="hat-and-bubble-zone">
         <div class="speech-bubble" id="speechBubble">
           <span id="speechText">System online, Bro! 🚀</span>
+          <div class="speech-actions" id="bioBubbleActions" hidden>
+            <button class="speech-action interactive" id="bioBubbleDone" type="button">Sudah jeda</button>
+            <button class="speech-action interactive" id="bioBubbleSnooze" type="button">Tunda 10 menit</button>
+          </div>
         </div>
         <div class="accessory-slot interactive" id="hatTrigger">
           <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
@@ -33,6 +37,7 @@
             <path fill="#6b7280" d="M10 24h20v2H10z"/>
           </svg>
         </div>
+        <div class="xp-popup" id="xpPopup" aria-hidden="true"></div>
       </div>
 
       <!-- Kapsul Utama BRAMO (Area Drag & Wiggle) -->
@@ -74,7 +79,9 @@
             <button class="utility-tab" data-panel="powerPanel" type="button">⚡</button>
             <button class="utility-tab" data-panel="prayerPanel" type="button">☪</button>
             <button class="utility-tab" data-panel="pomodoroPanel" type="button">⏱</button>
+            <button class="utility-tab" data-panel="bioRhythmPanel" type="button" aria-label="Bio-rhythm reminder">🌿</button>
             <button class="utility-tab" data-panel="launcherPanel" type="button">⌁</button>
+            <button class="utility-tab" data-panel="bramoProgressPanel" type="button" aria-label="BRAMO gamification">🏆</button>
           </div>
 
           <div class="utility-panel active" id="musicPanel">
@@ -131,6 +138,10 @@
               <input type="checkbox" id="fullscreenToggle" />
               <span>Hide in Fullscreen</span>
             </label>
+            <label class="fullscreen-toggle">
+              <input type="checkbox" id="autostartToggle" />
+              <span>Start with Windows</span>
+            </label>
           </div>
 
           <div class="utility-panel" id="pomodoroPanel">
@@ -158,6 +169,33 @@
             </div>
           </div>
 
+          <div class="utility-panel" id="bioRhythmPanel">
+            <div class="bio-title">BIO-RHYTHM BREAK</div>
+            <div class="bio-description">Pengingat jeda ringan selama kamu memakai BRAMO.</div>
+            <label class="bio-toggle">
+              <input type="checkbox" id="bioRhythmToggle" />
+              <span>Pengingat istirahat</span>
+            </label>
+            <div class="bio-settings-row">
+              <label for="bioRhythmInterval">Ingatkan setiap</label>
+              <select id="bioRhythmInterval">
+                <option value="30">30 menit</option>
+                <option value="45">45 menit</option>
+                <option value="60" selected>60 menit</option>
+                <option value="90">90 menit</option>
+              </select>
+            </div>
+            <div class="bio-status" id="bioRhythmStatus">Pengingat mati</div>
+            <div class="bio-followup" id="bioRhythmFollowup" hidden>
+              <button class="bio-action interactive" id="bioRhythmDone" type="button">Sudah jeda</button>
+              <button class="bio-action interactive" id="bioRhythmSnooze" type="button">Tunda 10 menit</button>
+            </div>
+            <div class="bio-actions">
+              <button class="bio-action interactive" id="bioRhythmTest" type="button">Tes pengingat</button>
+              <button class="bio-action interactive" id="bioRhythmReset" type="button">Ulangi timer</button>
+            </div>
+          </div>
+
           <div class="utility-panel" id="launcherPanel">
             <div class="launcher-title">QUICK LAUNCHER</div>
             <div class="launcher-form">
@@ -166,6 +204,38 @@
               <button id="launcherAdd" class="power-action interactive" type="button">Add</button>
             </div>
             <div id="launcherList" class="launcher-list"></div>
+          </div>
+
+          <div class="utility-panel bramo-progress-panel" id="bramoProgressPanel">
+            <div class="progress-panel-title">BRAMO JOURNEY</div>
+            <div class="journey-tabs" role="tablist" aria-label="Gamifikasi BRAMO">
+              <button class="journey-tab active" data-journey-view="journey" type="button">Perjalanan</button>
+              <button class="journey-tab" data-journey-view="collection" type="button">Koleksi</button>
+            </div>
+            <section class="journey-view active" id="journeyView">
+            <section class="bramo-progress" id="bramoProgress" aria-label="BRAMO progress">
+              <div class="progress-heading">
+                <span>LEVEL</span>
+                <strong id="bramoLevel">LV 1</strong>
+              </div>
+              <div class="progress-xp-row">
+                <span id="bramoXp">0 XP</span>
+                <span id="bramoNextLevel">100 XP ke LV 2</span>
+              </div>
+              <div class="progress-track"><span id="bramoXpBar"></span></div>
+            </section>
+            <div class="accessory-unlock-card">
+              <span class="accessory-unlock-icon" id="bramoAccessoryIcon">🤠</span>
+              <div><small>AKSESORI AKTIF</small><strong id="bramoAccessory">Topi Koboi · default</strong></div>
+            </div>
+            <div class="journey-history-title">XP TERAKHIR</div>
+            <div class="journey-history" id="journeyHistory"><span>Belum ada XP terkumpul</span></div>
+            <div class="progress-hint">Pakai BRAMO untuk tumbuh bersama dan membuka kosmetik.</div>
+            </section>
+            <section class="journey-view collection-view" id="collectionView" hidden>
+              <div class="collection-summary" id="collectionSummary"></div>
+              <div class="cosmetic-groups" id="cosmeticGroups"></div>
+            </section>
           </div>
 
           <div class="utility-panel" id="prayerPanel">

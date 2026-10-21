@@ -1,23 +1,77 @@
 # BRAMO Project TODO List
 
-## Phase 1: Core Interaction & "Aliveness" (PRIORITY 🔥)
-- [ ] **Chat Bubble / Speech Dialog System:** Buat elemen balon teks (speech bubble) melayang di atas kepala BRAMO buat nampilin sapaan, status, atau komentar random.
-- [ ] **Interactive Expression Trigger:** Hubungkan aksi klik/drag/dropdown ke perubahan ekspresi LED visor yang lebih dinamis.
-- [ ] **Refine Gaze & Blink Engine:** Pastikan animasi mata iseng dan berkedip terlihat natural tidak kaku.
+> Rujukan eksekusi sprint aktif ada di `CONTEXT.md` Section 7 ("Rencana Sprint: Polish & Stabilisasi").
+> Checklist di bawah adalah versi ringkas — detail + lokasi file ada di `CONTEXT.md`.
+
+## Phase 1: Core Interaction & "Aliveness"
+- [x] **Chat Bubble / Speech Dialog System:** Elemen balon teks melayang di atas kepala BRAMO untuk sapaan, status, dan komentar acak.
+- [x] **Interactive Expression Trigger:** Aksi klik/drag/dropdown terhubung ke ekspresi LED visor (idle, siul, gumam, senang terbuka).
+- [x] **Refine Gaze & Blink Engine:** Kedip acak, mode tracking kursor, dan lirik acak sudah berjalan natural.
 
 ## Phase 2: Bio-Rhythm & Essential Utilities
-- [ ] **Prayer Reminder (Pengingat Sholat):** Integrasikan waktu sholat otomatis (mengikuti koordinat/lokasi sistem) dengan notifikasi visual pada LED visor BRAMO.
+- [x] **Prayer Reminder (Pengingat Sholat):** Jadwal Advan/Aladhan, attention bubble, azan audio, topi berubah jadi peci.
 - [x] **Temporary File Drop Zone:** Menerima file dari Explorer, Open, Show in Folder, dan history lima file terakhir.
-- [ ] **Clipboard History:** Fitur pencatat riwayat teks yang pernah disalin.
-- [ ] **System Cache Cleaner:** Utilitas sederhana untuk membersihkan file sampah komputer.
+- [ ] **Clipboard History:** Riwayat teks 5 item (menunggu batch terpisah, belum ada di sprint ini).
+- [ ] **System Cache Cleaner:** Utilitas membersihkan file sampah / standby memory.
 
 ## Phase 3: System Integration & Polish
-- [x] **Window Position Persistence:** Simpan posisi koordinat terakhir `x` dan `y` BRAMO ke *local store* agar tidak reset saat aplikasi ditutup.
+- [x] **Window Position Persistence:** Koordinat terakhir disimpan di local storage.
 - [x] **Pomodoro Timer:** Focus/break configurable dengan mini-timer floating dan feedback speech bubble.
 - [x] **Custom Themes:** Cyan, Matrix Green, Neon Pink, dan Amber Orange.
 - [x] **Mascot Sleep Mode:** Mode tidur visual yang mengecilkan BRAMO dan bangun lewat interaksi drag.
-- [ ] **System Tray & Auto-Start:** Tambahkan ikon tray di taskbar/panel bawah dan opsi autostart saat PC dinyalakan.
-- [ ] **Gamification System (EXP & Costumes):** Mekanik perolehan EXP harian untuk membuka kostum/aksesoris baru.
+- [x] **System Tray & Auto-Start:** Menu tray Show/Hide/Sleep/Quit dan plugin autostart terpasang.
+- [ ] **Gamification System (EXP & Costumes):** Mekanik EXP harian untuk membuka kostum/aksesoris baru.
+
+---
+
+## Sprint: Polish & Stabilisasi (SELESAI)
+
+Detail lengkap, lokasi file, dan skenario uji ada di `CONTEXT.md` Section 7.
+
+### Batch 1 — Repo hygiene & build script
+- [x] `package.json`: perbaiki `description`, hapus `main`, tambah script `tauri` / `dev` / `build` / `check`
+- [x] Tambah `.gitignore` root: `node_modules/`, `src-tauri/target/`, `dist/`, `*.log`
+- [x] `git rm -r --cached node_modules` (file tetap di disk)
+- [x] `src-tauri/tauri.conf.json`: `identifier` → `com.bramo.companion`, `productName` → `BRAMO` (localStorage reset satu kali)
+
+### Batch 2 — Perbaikan Rust (`src-tauri/src/lib.rs`)
+- [x] B2.1 CPU% valid: `SystemSampler` persisten via `app.manage(...)`, refresh maks 1x/500ms
+- [x] B2.2 Anti command injection: `explorer.exe` menggantikan `cmd /C start`
+- [x] B2.3 Clipboard gate: `set_clipboard_watcher(bool)` + `get_clipboard_text()`
+- [x] B2.4 Tray delegasi: emit `bramo://tray-action` (show/hide/sleep/quit)
+- [x] B2.5 Typing gate: `set_typing_watcher(bool)`
+- [x] B2.6 Media event-driven: cache WinRT manager, emit `bramo://media` tiap 2,5 detik
+
+### Batch 3 — Perbaikan Frontend (`src/main.js`, `src/index.html`, `src/style.css`)
+- [x] B3.1 Quit confirm in-app (ganti `window.confirm()`)
+- [x] B3.2 Clipboard single-source (hapus polling dobel)
+- [x] B3.3 `computeTargetWindowSize()` + `applyWindowLayout({ anchor })` sebagai satu sumber ukuran window
+- [x] B3.4 Toggle autostart di panel Power
+- [x] B3.5 Clamp multi-monitor pakai `win.currentMonitor()`
+- [x] B3.6 Media event-driven di frontend + `lastMediaState`
+
+### Batch 3A — Azan Priority Mode
+- [x] B3A.1 State `adhanSessionActive` / `mediaPausedByAdhan` / `adhanResumeTimer` / `ADHAN_SUPPRESS_MS`
+- [x] B3A.2 `beginAdhanSession()` / `endAdhanSession()` (idempotent)
+- [x] B3A.3 `pauseMediaForAdhan()` / `resumeMediaAfterAdhan()` (resume hanya kalau masih paused)
+- [x] B3A.4 Ganti semua guard `isAdhanPlaying` → `adhanSessionActive`
+- [x] B3A.5 Wiring audio: `ended` / `pause` / catch autoplay-blocked → `endAdhanSession()`
+- [x] B3A.6 Entry point: Test Reminder + scheduler jadwal → `beginAdhanSession()`
+
+### Batch 4 — Sinkronisasi dokumen
+- [x] B4.1 `README.md`: fitur over-promise → Roadmap, perbaiki perintah run & URL clone
+- [x] B4.2 `todo.md`: tandai ulang item (file ini)
+- [x] B4.3 `CONTEXT.md`: koreksi ukuran window, tambah Azan Priority Mode, update Fokus
+- [x] B4.4 `SUMMARY.md`: selaraskan daftar fitur
+
+### Verifikasi Sprint
+- [x] V1 `npm run check`
+- [x] V2 `cargo check` + `cargo clippy`
+- [ ] V3 `npm run build`
+- [ ] V4 Uji manual 14 skenario UI (drag, snap, 7 panel, autostart, tray, sleep, pomodoro, mini-player, fullscreen, clipboard, CPU%, multi-monitor, DPI)
+- [ ] V5 Uji skenario azan (pause musik, bubble terkunci, auto-resume, mute, audio OFF, test)
+
+---
 
 ## Completed Integration & Polish
 - [x] Speech bubble, expression triggers, gaze, and blink engine.
@@ -28,3 +82,5 @@
 - [x] System Tray + Auto-start.
 - [x] Fullscreen companion hide toggle with ChatGPT/Codex exclusions.
 - [x] DPI-aware native window sizing.
+- [x] File drop zone with history, Open, and Show in Folder.
+- [x] System stats monitor (CPU / RAM / Battery) — sampler persisten di Rust, CPU% kini valid.
