@@ -10,6 +10,9 @@ BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Lin
 - **Productivity Tools:** Configurable Pomodoro focus/break timer with a floating mini-timer.
 - **Customization:** Persistent visor themes (Cyan, Matrix, Pink, Amber).
 - **Desktop Integration:** File drop actions, clipboard/typing feedback, media controls, and mascot Sleep Mode.
+- **Quick Launcher:** Persistent shortcuts for URLs and local applications.
+- **System Tray:** Native Show/Hide/Sleep/Quit menu with optional autostart.
+- **Fullscreen & DPI Awareness:** External fullscreen hiding and Windows scale-aware native sizing.
 
 ## Tech Stack
 - **Backend:** Rust (Tauri v2 Core)

@@ -38,6 +38,11 @@ const nowPlayingBar = document.getElementById('nowPlayingBar');
 const nowPlayingTitle = document.getElementById('nowPlayingTitle');
 const nowPlayingArtist = document.getElementById('nowPlayingArtist');
 const themePicker = document.getElementById('themePicker');
+const fullscreenToggle = document.getElementById('fullscreenToggle');
+const launcherName = document.getElementById('launcherName');
+const launcherTarget = document.getElementById('launcherTarget');
+const launcherAdd = document.getElementById('launcherAdd');
+const launcherList = document.getElementById('launcherList');
 const sleepBramo = document.getElementById('sleepBramo');
 const quitBramo = document.getElementById('quitBramo');
 const pomodoroMode = document.getElementById('pomodoroMode');
@@ -78,6 +83,53 @@ let clipboardWatcherEnabled = localStorage.getItem('bramo.clipboard.watcher') ==
 let typingCuriosityEnabled = localStorage.getItem('bramo.typing.curiosity') === 'true';
 let prayerEnabled = localStorage.getItem('bramo.prayer.enabled') !== 'false';
 let audioEnabled = localStorage.getItem('bramo.prayer.audio') !== 'false';
+let hideInFullscreen = localStorage.getItem('bramo.hide.fullscreen') === 'true';
+let fullscreenMonitorTimer = null;
+let hiddenByFullscreen = false;
+let launcherItems = JSON.parse(localStorage.getItem('bramo.launcher.items') || '[]');
+
+async function launchTarget(target) {
+  try {
+    await window.__TAURI__?.core?.invoke('open_launcher_target', { target });
+    showBramoMessage('Membuka shortcut 🚀', 1800);
+  } catch (error) {
+    console.warn('Launcher error:', error);
+    showBramoMessage('Shortcut gagal dibuka 😕', 2200);
+  }
+}
+
+function renderLauncher() {
+  if (!launcherList) return;
+  launcherList.innerHTML = launcherItems.map((item, index) => `
+    <div class="launcher-item">
+      <button class="launcher-open interactive" data-launcher-index="${index}" type="button">${item.name}</button>
+      <button class="launcher-remove interactive" data-remove-launcher="${index}" type="button" aria-label="Remove shortcut">×</button>
+    </div>
+  `).join('');
+  launcherList.querySelectorAll('[data-launcher-index]').forEach(button => {
+    button.addEventListener('click', () => launchTarget(launcherItems[Number(button.dataset.launcherIndex)].target));
+  });
+  launcherList.querySelectorAll('[data-remove-launcher]').forEach(button => {
+    button.addEventListener('click', () => {
+      launcherItems.splice(Number(button.dataset.removeLauncher), 1);
+      localStorage.setItem('bramo.launcher.items', JSON.stringify(launcherItems));
+      renderLauncher();
+    });
+  });
+}
+
+launcherAdd?.addEventListener('click', () => {
+  const name = launcherName.value.trim();
+  const target = launcherTarget.value.trim();
+  if (!name || !target) return;
+  launcherItems = [...launcherItems, { name, target }].slice(-8);
+  localStorage.setItem('bramo.launcher.items', JSON.stringify(launcherItems));
+  launcherName.value = '';
+  launcherTarget.value = '';
+  renderLauncher();
+});
+
+renderLauncher();
 let mediaCandidate = null;
 let mediaCandidateCount = 0;
 let pomodoroLayoutSyncing = false;
@@ -247,6 +299,52 @@ themePicker?.addEventListener('click', event => {
   const button = event.target.closest('[data-theme]');
   if (button) applyTheme(button.dataset.theme);
 });
+
+fullscreenToggle.checked = hideInFullscreen;
+
+async function syncFullscreenVisibility() {
+  if (!hideInFullscreen || !window.__TAURI__?.window) return;
+  try {
+    const win = window.__TAURI__.window.getCurrentWindow();
+    if (document.fullscreenElement) await win.hide();
+    else await win.show();
+  } catch (error) {
+    console.warn('Fullscreen visibility error:', error);
+  }
+}
+
+fullscreenToggle.addEventListener('change', () => {
+  hideInFullscreen = fullscreenToggle.checked;
+  localStorage.setItem('bramo.hide.fullscreen', String(hideInFullscreen));
+  syncFullscreenVisibility();
+  updateFullscreenMonitor();
+});
+document.addEventListener('fullscreenchange', syncFullscreenVisibility);
+
+async function pollWindowsFullscreen() {
+  if (!hideInFullscreen || !window.__TAURI__?.core?.invoke) return;
+  try {
+    const active = await window.__TAURI__.core.invoke('is_other_window_fullscreen');
+    const win = window.__TAURI__.window.getCurrentWindow();
+    if (active && !hiddenByFullscreen) {
+      hiddenByFullscreen = true;
+      await win.hide();
+    } else if (!active && hiddenByFullscreen) {
+      hiddenByFullscreen = false;
+      await win.show();
+    }
+  } catch (error) {
+    console.warn('Windows fullscreen detection error:', error);
+  }
+}
+
+function updateFullscreenMonitor() {
+  if (fullscreenMonitorTimer) clearInterval(fullscreenMonitorTimer);
+  fullscreenMonitorTimer = hideInFullscreen ? setInterval(pollWindowsFullscreen, 700) : null;
+  if (hideInFullscreen) pollWindowsFullscreen();
+}
+
+updateFullscreenMonitor();
 let lastDroppedPath = null;
 let droppedHistory = JSON.parse(localStorage.getItem('bramo.file.history') || '[]');
 
@@ -829,16 +927,21 @@ async function resizeNativeWindow(win, size) {
   await previous;
 
   try {
-    const target = new window.__TAURI__.window.PhysicalSize(size.width, size.height);
+    const scale = await win.scaleFactor();
+    const physicalSize = {
+      width: Math.round(size.width * scale),
+      height: Math.round(size.height * scale)
+    };
+    const target = new window.__TAURI__.window.PhysicalSize(physicalSize.width, physicalSize.height);
     for (let attempt = 0; attempt < 4; attempt += 1) {
       await win.setSize(target);
       await nextFrame();
       const actual = await win.outerSize();
-      if (actual.width === size.width && actual.height === size.height) return actual;
+      if (actual.width === physicalSize.width && actual.height === physicalSize.height) return actual;
     }
 
     const actual = await win.outerSize();
-    console.warn('Native window resize mismatch:', { expected: size, actual });
+    console.warn('Native window resize mismatch:', { expected: physicalSize, actual, scale });
     return actual;
   } finally {
     release();
@@ -854,7 +957,9 @@ async function syncPomodoroLayout(isVisible = pomodoroTimer || pomodoroSeconds !
       ? (mediaWindowActive ? { width: 220, height: 210 } : { width: 220, height: 140 })
       : (mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE);
     const current = await win.outerSize();
-    if (current.height !== target.height || current.width !== target.width) {
+    const scale = await win.scaleFactor();
+    const targetPhysical = { width: Math.round(target.width * scale), height: Math.round(target.height * scale) };
+    if (current.height !== targetPhysical.height || current.width !== targetPhysical.width) {
       await resizeNativeWindow(win, target);
       await updateAdaptivePositioning();
     }
@@ -877,7 +982,8 @@ async function syncMediaWindow(isVisible) {
       ? (bramoContainer.classList.contains('pomodoro-active') ? { width: 220, height: 210 } : MEDIA_WINDOW_SIZE)
       : (bramoContainer.classList.contains('pomodoro-active') ? { width: 220, height: 140 } : COMPACT_WINDOW_SIZE);
     const currentSize = await win.outerSize();
-    if (currentSize.height !== targetSize.height) {
+    const scale = await win.scaleFactor();
+    if (currentSize.height !== Math.round(targetSize.height * scale)) {
       await resizeNativeWindow(win, targetSize);
       await updateAdaptivePositioning();
     }
@@ -1364,7 +1470,9 @@ dropdownToggle.addEventListener('click', async (e) => {
       
       const COMPACT_H = COMPACT_WINDOW_SIZE.height;
       const EXPANDED_H = EXPANDED_WINDOW_SIZE.height;
-      const heightDiff = EXPANDED_H - COMPACT_H; // 175px
+      const scale = await win.scaleFactor();
+      const heightDiff = Math.round((EXPANDED_H - COMPACT_H) * scale);
+      const widthDiff = Math.round((EXPANDED_WINDOW_SIZE.width - COMPACT_WINDOW_SIZE.width) * scale);
 
       if (isExpanding) {
         wasFlipped = bramoContainer.classList.contains('flip-dropdown');
@@ -1372,18 +1480,19 @@ dropdownToggle.addEventListener('click', async (e) => {
 
         let targetY = pos.y;
         if (wasFlipped) {
-          targetY = pos.y - heightDiff;
-        } else if (pos.y < 60) {
-          targetY = pos.y + 20;
+          // Sisakan ruang aman agar sisi atas panel yang di-flip tidak
+          // menempel/terpotong oleh batas viewport.
+          targetY = pos.y - heightDiff + 8;
         }
 
         await resizeNativeWindow(win, EXPANDED_WINDOW_SIZE);
+        const targetX = Math.round(pos.x - widthDiff / 2);
         await win.setPosition({
           type: 'Physical',
-          x: pos.x,
+          x: targetX,
           y: targetY
         });
-        saveWindowPosition({ x: pos.x, y: targetY });
+        saveWindowPosition({ x: targetX, y: targetY });
         // Resize dapat membuat sisi bawah melewati work area, terutama pada DPI > 100%.
         await updateAdaptivePositioning();
       } else {
@@ -1393,12 +1502,13 @@ dropdownToggle.addEventListener('click', async (e) => {
           : (savedCompactY !== null ? savedCompactY : (wasFlipped ? pos.y + heightDiff : pos.y - 20));
 
         await resizeNativeWindow(win, mediaWindowActive ? MEDIA_WINDOW_SIZE : COMPACT_WINDOW_SIZE);
+        const restoreX = Math.round(pos.x + widthDiff / 2);
         await win.setPosition({
           type: 'Physical',
-          x: pos.x,
+          x: restoreX,
           y: restoreY
         });
-        saveWindowPosition({ x: pos.x, y: restoreY });
+        saveWindowPosition({ x: restoreX, y: restoreY });
         if (speechBubble.classList.contains('show')) {
           await syncBubbleWindow(true);
         } else {

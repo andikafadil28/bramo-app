@@ -121,4 +121,8 @@
   - [x] Dropdown otomatis menutup saat blur atau idle 12 detik.
   - [x] Sleep Mode BRAMO mengecilkan seluruh maskot tanpa mensleep OS, tetap bisa dibangunkan dan langsung di-drag.
   - [x] Pomodoro Timer tersedia dengan focus/break configurable, mini-timer floating, dan layout adaptif terhadap music player serta speech bubble.
-  - Fokus berikutnya: pengujian visual end-to-end dan penyempurnaan state persistence/edge case multi-monitor.
+  - [x] Quick Launcher untuk URL/path aplikasi dengan persistence.
+  - [x] System Tray + Auto-start: menu Show/Hide/Sleep/Quit dan plugin autostart Tauri.
+  - [x] Fullscreen companion mode dengan pengecualian ChatGPT/Codex.
+  - [x] DPI-aware native sizing berbasis Windows scale factor.
+  - Fokus berikutnya: pengujian visual end-to-end dan penyempurnaan edge case multi-monitor.

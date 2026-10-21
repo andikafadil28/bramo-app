@@ -74,6 +74,7 @@
             <button class="utility-tab" data-panel="powerPanel" type="button">⚡</button>
             <button class="utility-tab" data-panel="prayerPanel" type="button">☪</button>
             <button class="utility-tab" data-panel="pomodoroPanel" type="button">⏱</button>
+            <button class="utility-tab" data-panel="launcherPanel" type="button">⌁</button>
           </div>
 
           <div class="utility-panel active" id="musicPanel">
@@ -126,6 +127,10 @@
               <button class="theme-swatch theme-pink interactive" data-theme="pink" type="button" aria-label="Neon Pink"></button>
               <button class="theme-swatch theme-amber interactive" data-theme="amber" type="button" aria-label="Amber Orange"></button>
             </div>
+            <label class="fullscreen-toggle">
+              <input type="checkbox" id="fullscreenToggle" />
+              <span>Hide in Fullscreen</span>
+            </label>
           </div>
 
           <div class="utility-panel" id="pomodoroPanel">
@@ -151,6 +156,16 @@
                 </label>
               </div>
             </div>
+          </div>
+
+          <div class="utility-panel" id="launcherPanel">
+            <div class="launcher-title">QUICK LAUNCHER</div>
+            <div class="launcher-form">
+              <input id="launcherName" class="launcher-input" type="text" placeholder="Nama" maxlength="24" />
+              <input id="launcherTarget" class="launcher-input" type="text" placeholder="URL atau path aplikasi" maxlength="260" />
+              <button id="launcherAdd" class="power-action interactive" type="button">Add</button>
+            </div>
+            <div id="launcherList" class="launcher-list"></div>
           </div>
 
           <div class="utility-panel" id="prayerPanel">

@@ -3,6 +3,9 @@ use std::path::Path;
 use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
 use sysinfo::System;
 use tauri::Emitter;
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
+use tauri::tray::TrayIconBuilder;
+use tauri::Manager;
 
 #[derive(Serialize)]
 struct SystemStats {
@@ -180,11 +183,137 @@ fn quit_bramo(app: tauri::AppHandle) {
   app.exit(0);
 }
 
+#[tauri::command]
+fn is_other_window_fullscreen() -> bool {
+  #[cfg(target_os = "windows")]
+  unsafe {
+    use windows::Win32::Foundation::RECT;
+    use windows::Win32::Graphics::Gdi::{GetMonitorInfoW, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST};
+    use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowLongW, GetWindowRect, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible, GWL_STYLE, WS_CAPTION};
+    use windows::Win32::System::Threading::GetCurrentProcessId;
+
+    let foreground = GetForegroundWindow();
+    if foreground.0 == 0 || !IsWindowVisible(foreground).as_bool() {
+      return false;
+    }
+
+    let mut process_id = 0;
+    GetWindowThreadProcessId(foreground, Some(&mut process_id));
+    if process_id == GetCurrentProcessId() {
+      return false;
+    }
+
+    let mut title_buffer = [0u16; 512];
+    let title_length = GetWindowTextW(foreground, &mut title_buffer);
+    let title = String::from_utf16_lossy(&title_buffer[..title_length as usize]).to_lowercase();
+    if title.contains("chatgpt") || title.contains("codex") {
+      return false;
+    }
+
+    // Maximized browser windows still cover the monitor, but retain a title
+    // bar. Only treat borderless/captionless windows as fullscreen media.
+    let style = GetWindowLongW(foreground, GWL_STYLE) as u32;
+    if style & WS_CAPTION.0 != 0 {
+      return false;
+    }
+
+    let monitor = MonitorFromWindow(foreground, MONITOR_DEFAULTTONEAREST);
+    if monitor.0 == 0 {
+      return false;
+    }
+
+    let mut monitor_info = MONITORINFO {
+      cbSize: std::mem::size_of::<MONITORINFO>() as u32,
+      rcMonitor: RECT::default(),
+      rcWork: RECT::default(),
+      dwFlags: 0,
+    };
+    if !GetMonitorInfoW(monitor, &mut monitor_info).as_bool() {
+      return false;
+    }
+
+    let mut window_rect = RECT::default();
+    if GetWindowRect(foreground, &mut window_rect).is_err() {
+      return false;
+    }
+
+    let monitor_rect = monitor_info.rcMonitor;
+    let tolerance = 4;
+    window_rect.left <= monitor_rect.left + tolerance
+      && window_rect.top <= monitor_rect.top + tolerance
+      && window_rect.right >= monitor_rect.right - tolerance
+      && window_rect.bottom >= monitor_rect.bottom - tolerance
+  }
+
+  #[cfg(not(target_os = "windows"))]
+  false
+}
+
+#[tauri::command]
+fn open_launcher_target(target: String) -> Result<(), String> {
+  if target.trim().is_empty() {
+    return Err("Target shortcut kosong".to_string());
+  }
+
+  #[cfg(target_os = "windows")]
+  {
+    std::process::Command::new("cmd")
+      .args(["/C", "start", "", &target])
+      .spawn()
+      .map_err(|error| error.to_string())?;
+  }
+  #[cfg(target_os = "macos")]
+  {
+    std::process::Command::new("open")
+      .arg(&target)
+      .spawn()
+      .map_err(|error| error.to_string())?;
+  }
+  #[cfg(target_os = "linux")]
+  {
+    std::process::Command::new("xdg-open")
+      .arg(&target)
+      .spawn()
+      .map_err(|error| error.to_string())?;
+  }
+
+  Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![get_system_stats, get_media_info, control_media, open_dropped_file, reveal_dropped_file, quit_bramo])
+    .plugin(tauri_plugin_autostart::Builder::new().build())
+    .invoke_handler(tauri::generate_handler![get_system_stats, get_media_info, control_media, open_dropped_file, reveal_dropped_file, quit_bramo, is_other_window_fullscreen, open_launcher_target])
     .setup(|app| {
+      let show = MenuItem::with_id(app, "show", "Show BRAMO", true, None::<&str>)?;
+      let hide = MenuItem::with_id(app, "hide", "Hide BRAMO", true, None::<&str>)?;
+      let sleep = MenuItem::with_id(app, "sleep", "Sleep BRAMO", true, None::<&str>)?;
+      let separator = PredefinedMenuItem::separator(app)?;
+      let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+      let menu = Menu::with_items(app, &[&show, &hide, &sleep, &separator, &quit])?;
+
+      let tray_icon = app.default_window_icon().cloned();
+      let mut tray_builder = TrayIconBuilder::new();
+      if let Some(icon) = tray_icon {
+        tray_builder = tray_builder.icon(icon);
+      }
+
+      tray_builder
+        .menu(&menu)
+        .tooltip("BRAMO Desktop Companion")
+        .on_menu_event(|app, event| {
+          let window = app.get_webview_window("main");
+          match event.id.as_ref() {
+            "show" => { if let Some(window) = window { let _ = window.show(); let _ = window.set_focus(); } }
+            "hide" => { if let Some(window) = window { let _ = window.hide(); } }
+            "sleep" => { if let Some(window) = window { let _ = window.hide(); } }
+            "quit" => app.exit(0),
+            _ => {}
+          }
+        })
+        .build(app)?;
+
       let app_handle = app.handle().clone();
       std::thread::spawn(move || {
         let control_down = Arc::new(AtomicBool::new(false));

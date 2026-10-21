@@ -18,3 +18,13 @@
 - [x] **Mascot Sleep Mode:** Mode tidur visual yang mengecilkan BRAMO dan bangun lewat interaksi drag.
 - [ ] **System Tray & Auto-Start:** Tambahkan ikon tray di taskbar/panel bawah dan opsi autostart saat PC dinyalakan.
 - [ ] **Gamification System (EXP & Costumes):** Mekanik perolehan EXP harian untuk membuka kostum/aksesoris baru.
+
+## Completed Integration & Polish
+- [x] Speech bubble, expression triggers, gaze, and blink engine.
+- [x] Prayer reminder with azan visual/audio mode.
+- [x] Quick Launcher for URL/application shortcuts.
+- [x] Configurable Pomodoro with floating mini-timer.
+- [x] Custom themes and mascot Sleep Mode.
+- [x] System Tray + Auto-start.
+- [x] Fullscreen companion hide toggle with ChatGPT/Codex exclusions.
+- [x] DPI-aware native window sizing.
