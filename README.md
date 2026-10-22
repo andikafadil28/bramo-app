@@ -51,6 +51,10 @@ npm run build
 
 Installer Windows x64 akan dibuat di `src-tauri/target/release/bundle/` (NSIS `.exe` dan MSI `.msi`).
 
+## Situs promosi
+
+Situs promosi BRAMO memakai Astro dan berada di [`promo-site/`](promo-site/README.md). Hubungkan repository ini ke Cloudflare Pages dengan root directory `promo-site`, build command `npm run build`, dan output `dist` agar setiap push ke `main` diterbitkan otomatis. Tombol unduh situs menuju halaman GitHub Releases.
+
 ## Versi dan dokumentasi
 
 Versi aplikasi saat ini: **2.0.0**.
