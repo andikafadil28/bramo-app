@@ -13,6 +13,8 @@
 - **Interactive Eye States:** Cursor tracking, auto-blink, dan lirik acak (glance kiri/kanan/atas).
 - **Color Themes:** Cyber Cyan, Matrix Green, Neon Pink, Amber Orange (persisten di local storage).
 - **Accessory:** Cowboy hat sebagai trigger snap ke tengah atas layar, peci kotak otomatis saat azan berbunyi.
+- **BRAMO Journey:** XP, level, koleksi aksesori/kosmetik, unlock, dan equip.
+- **Gaming Focus (Windows):** Ekspresi visor, kacamata pixel-art, dan headset bermikrofon dengan LED merah muncul saat game yang dikenali aktif; HUD menampilkan RTT internet.
 - **Mouth Expressions:** Idle, siul, gumam, dan mulut terbuka senang.
 
 ### 2. 🧰 Core Productivity Utilities — [Aktif]
@@ -21,6 +23,9 @@
 - **Clipboard & Typing Watcher:** Deteksi clipboard baru (sumber tunggal di sisi Rust) dan feedback ekspresif saat user mengetik.
 - **Quick Launcher:** Pintasan cepat untuk URL dan aplikasi lokal (persisten).
 - **Pomodoro Timer:** Focus/break configurable dengan mini-timer floating.
+- **To-do & Alarm:** Pengingat satu kali untuk tiap tugas dan alarm bangun tidur harian yang berulang sampai dimatikan atau ditunda 5 menit.
+- **Clipboard History:** Menyimpan hingga lima teks terakhir untuk disalin ulang.
+- **BRAMO Cache Cleaner:** Membersihkan isi direktori cache aplikasi BRAMO.
 
 ### 3. 🧠 Human-Centric Care — [Aktif]
 - **Prayer Reminder:** Jadwal lima waktu sholat dari Aladhan API (berbasis geolokasi, fallback Jakarta) + azan audio + bubble perhatian + animasi visor amber.
@@ -33,15 +38,12 @@
 - **System Tray + Auto-start:** Menu Show/Hide/Sleep/Quit plus toggle autostart di panel Power.
 - **Fullscreen Companion Mode:** Menyembunyikan diri di window fullscreen, dengan pengecualian ChatGPT/Codex.
 - **DPI-Aware Sizing:** Ukuran native window mengikuti Windows scale factor dan monitor aktif (multi-monitor aware).
+- **8-bit SFX:** Efek suara sintetis untuk interaksi UI dengan toggle ON/OFF.
 
 ### 5. 🚀 Roadmap (Belum Ada di Kode)
-- **Wardrobe & EXP System:** Kostum/aksesoris pixel yang di-unlock via EXP harian.
-- **Retro 8-Bit Audio Engine:** SFX per interaksi + master volume + global mute.
 - **Human Bio-Rhythm Reminders:** Sarapan, coffee break, lunch, micro-hydration, snack, makan malam.
 - **Proof-of-Work Active Tracker:** EXP hanya bertambah saat user benar-benar produktif, anti-AFK.
-- **Jus RAM Soda & Snack Junk File:** Utilitas pembersihan cache & folder `%TEMP%`.
-- **Quick To-Do & Smart Alarm:** Checklist tugas harian + preset alarm `+15m` / `+30m`.
-- **Clipboard History:** Riwayat teks 5 item.
+- **Advanced Cache Cleanup:** Pilihan pembersihan folder `%TEMP%` dan kategori cache lain di luar cache BRAMO.
 - **Battery Charging Animation:** Reaksi visual khusus saat laptop dicolok charger.
 - **Overwork Warning & Smart Snooze:** Peringatan encok setelah 5 jam kerja + snooze 2–3 jam.
 - **Dynamic RGB Cycle & Red Alert Theme:** Tambahan palet tema.

@@ -11,8 +11,10 @@
 ## Phase 2: Bio-Rhythm & Essential Utilities
 - [x] **Prayer Reminder (Pengingat Sholat):** Jadwal Advan/Aladhan, attention bubble, azan audio, topi berubah jadi peci.
 - [x] **Temporary File Drop Zone:** Menerima file dari Explorer, Open, Show in Folder, dan history lima file terakhir.
-- [ ] **Clipboard History:** Riwayat teks 5 item (menunggu batch terpisah, belum ada di sprint ini).
-- [ ] **System Cache Cleaner:** Utilitas membersihkan file sampah / standby memory.
+- [x] **Clipboard History:** Riwayat teks 5 item tersimpan di localStorage dengan tombol copy ulang.
+- [x] **System Cache Cleaner:** Tombol Power membersihkan isi direktori cache khusus BRAMO dan melaporkan file/ukuran yang dihapus.
+- [x] **8-bit SFX:** Efek UI chiptune sintetis dengan toggle ON/OFF dan preferensi tersimpan.
+- [x] **To-do + Alarm Bangun Tidur:** Subtab terpisah; pengingat tugas satu kali, alarm harian berulang dengan snooze 5 menit, tes suara, dan membangunkan BRAMO dari Sleep Mode.
 
 ## Phase 3: System Integration & Polish
 - [x] **Window Position Persistence:** Koordinat terakhir disimpan di local storage.
@@ -20,7 +22,7 @@
 - [x] **Custom Themes:** Cyan, Matrix Green, Neon Pink, dan Amber Orange.
 - [x] **Mascot Sleep Mode:** Mode tidur visual yang mengecilkan BRAMO dan bangun lewat interaksi drag.
 - [x] **System Tray & Auto-Start:** Menu tray Show/Hide/Sleep/Quit dan plugin autostart terpasang.
-- [ ] **Gamification System (EXP & Costumes):** Mekanik EXP harian untuk membuka kostum/aksesoris baru.
+- [x] **Gamification System (EXP & Costumes):** XP, level, milestone, koleksi kosmetik, unlock, dan equip sudah tersedia.
 
 ---
 

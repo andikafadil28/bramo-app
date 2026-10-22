@@ -617,7 +617,7 @@ html, body {
 
 .utility-tabs {
   display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 4px;
   padding: 3px;
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -854,6 +854,100 @@ html, body {
   max-height: 130px;
   overflow-y: auto;
 }
+
+#todoPanel { max-height: 330px; overflow: hidden; }
+.todo-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 8px; padding: 3px; border-radius: 8px; background: rgba(3, 8, 14, .5); }
+.todo-tab { min-height: 25px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #8fa1b4; cursor: pointer; font: inherit; font-size: 8px; }
+.todo-tab.active { border-color: rgba(0,240,255,.3); background: rgba(0,240,255,.1); color: #dcfbff; }
+.todo-view[hidden] { display: none !important; }
+.wake-alarm-countdown-label { margin-top: 6px; color: #9aabba; font-size: 8px; text-align: center; }
+.wake-alarm-clock { margin: 4px 0 7px; color: var(--led-cyan); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: center; text-shadow: 0 0 10px var(--led-cyan-glow); }
+.wake-alarm-time-label { display: block; margin-bottom: 4px; color: #9aabba; font-size: 8px; text-align: center; }
+.wake-alarm-time { display: block; width: 120px; margin: 0 auto; border: 1px solid rgba(0,240,255,.3); border-radius: 6px; background: rgba(8,12,18,.8); color: #e0faff; color-scheme: dark; font: inherit; font-size: 16px; padding: 5px; text-align: center; }
+.wake-alarm-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 9px; color: #d4e1ec; font-size: 8px; }
+.wake-alarm-toggle input { accent-color: var(--led-cyan); }
+.wake-alarm-days { display: flex; justify-content: center; gap: 3px; margin-top: 8px; }
+.wake-alarm-days label { cursor: pointer; }
+.wake-alarm-days input { position: absolute; opacity: 0; pointer-events: none; }
+.wake-alarm-days span { display: grid; place-items: center; width: 25px; height: 21px; border: 1px solid rgba(0,240,255,.24); border-radius: 5px; background: rgba(8,12,18,.65); color: #9aabba; font-size: 8px; }
+.wake-alarm-days input:checked + span { border-color: rgba(0,240,255,.7); background: rgba(0,240,255,.13); color: #d9fbff; box-shadow: 0 0 6px rgba(0,240,255,.16); }
+.wake-alarm-days input:focus-visible + span { outline: 2px solid var(--led-cyan); outline-offset: 2px; }
+.wake-alarm-test-row { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
+.speech-bubble.wake-alarm { border-color: rgba(255, 189, 89, .85); box-shadow: 0 0 12px rgba(255, 189, 89, .35); }
+.bramo-container.wake-alarm-ringing .bramo-capsule { animation: wakeAlarmRouse 1.15s ease-in-out infinite; transform-origin: center bottom; }
+.bramo-container.wake-alarm-ringing .visor-screen { animation: wakeAlarmGlow .9s ease-in-out infinite alternate; }
+.bramo-container.wake-alarm-ringing .visor-screen .led-eye {
+  width: 13px;
+  height: 10px;
+  border-radius: 50%;
+  clip-path: none !important;
+  animation: wakeAlarmEye 1.15s steps(1, end) infinite !important;
+}
+.bramo-container.wake-alarm-ringing .led-mouth { animation: wakeAlarmCall .7s ease-in-out infinite alternate; }
+@keyframes wakeAlarmRouse {
+  0%, 100% { transform: translateY(0) rotate(0) scale(1); }
+  18% { transform: translateY(-3px) rotate(-2deg) scale(1.015); }
+  38% { transform: translateY(0) rotate(2deg) scale(1); }
+  58% { transform: translateY(-2px) rotate(-1deg) scale(1.01); }
+  78% { transform: translateY(0) rotate(1deg) scale(1); }
+}
+@keyframes wakeAlarmGlow { from { filter: brightness(1); } to { filter: brightness(1.55) saturate(1.3); } }
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket:nth-child(2)::after,
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket:nth-child(4)::after {
+  animation: wakeAlarmChevron 1.15s steps(1, end) infinite;
+}
+@keyframes wakeAlarmEye {
+  0%, 25%, 65%, 100% { opacity: 1; }
+  26%, 64% { opacity: 0; }
+}
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket::after {
+  content: '>';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 13px;
+  height: 14px;
+  margin: -7px 0 0 -6px;
+  opacity: 0;
+  color: var(--led-cyan);
+  font: 900 14px/14px Arial, sans-serif;
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 0 3px var(--led-cyan), 0 0 7px var(--led-cyan);
+  animation: wakeAlarmChevron 1.15s ease-in-out infinite;
+}
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket { position: relative; }
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket:nth-child(4)::after { content: '<'; }
+@keyframes wakeAlarmChevron {
+  0%, 25%, 65%, 100% { opacity: 0; }
+  26%, 64% { opacity: 1; }
+}
+@keyframes wakeAlarmCall { from { transform: scale(.85,.75); } to { transform: scale(1.15,1.3); } }
+.todo-title { margin-bottom: 7px; color: var(--led-cyan); font-size: 8px; letter-spacing: 1px; text-align: center; }
+.todo-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; }
+.todo-input, .todo-alarm-input {
+  min-width: 0;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 5px;
+  background: rgba(8, 12, 18, 0.8);
+  color: #e0faff;
+  font: inherit;
+  font-size: 9px;
+  padding: 5px 6px;
+}
+.todo-input { grid-column: 1 / -1; }
+.todo-alarm-input { color-scheme: dark; }
+.todo-hint { margin-top: 5px; color: #718297; font-size: 7px; text-align: center; }
+.todo-list { display: grid; gap: 4px; max-height: 195px; margin-top: 7px; overflow-y: auto; }
+.todo-item { display: grid; grid-template-columns: 20px minmax(0, 1fr) 20px; align-items: center; gap: 5px; padding: 5px; border: 1px solid rgba(255,255,255,.08); border-radius: 6px; background: rgba(255,255,255,.035); }
+.todo-check, .todo-remove { border: 0; background: transparent; color: var(--led-cyan); cursor: pointer; font: inherit; }
+.todo-check { font-size: 13px; }
+.todo-remove { color: #ff8294; font-size: 16px; }
+.todo-item-content { display: grid; min-width: 0; gap: 2px; }
+.todo-item-text { overflow: hidden; color: #d5e1ec; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.todo-item-content small { color: #8194a8; font-size: 7px; }
+.todo-item.is-done .todo-item-text { color: #718297; text-decoration: line-through; }
+.todo-empty { padding: 10px 0; color: #718297; font-size: 8px; text-align: center; }
 
 .launcher-item {
   display: flex;
@@ -1218,6 +1312,23 @@ html, body {
   cursor: pointer;
 }
 
+.cache-cleaner {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.cache-cleaner span {
+  color: #8492a3;
+  font-size: 8px;
+}
+
+.cache-cleaner button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .prayer-title {
   color: var(--led-cyan);
   font-size: 8px;
@@ -1579,6 +1690,48 @@ html, body {
   font-size: 10px;
   padding: 4px 7px;
   cursor: pointer;
+}
+
+.clipboard-history-title {
+  margin-top: 8px;
+  color: #6f8195;
+  font-size: 7px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.clipboard-history {
+  display: grid;
+  gap: 3px;
+  margin-top: 4px;
+  max-height: 72px;
+  overflow: auto;
+}
+
+.clipboard-history-item {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #b8c4d2;
+  font: inherit;
+  font-size: 8px;
+  padding: 3px 5px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.clipboard-history-item:hover {
+  border-color: rgba(0, 240, 255, 0.4);
+  color: var(--led-cyan);
+}
+
+.clipboard-history-empty {
+  color: #657487;
+  font-size: 8px;
+  text-align: center;
 }
 
 .drop-action:hover,
@@ -2069,3 +2222,152 @@ html, body {
 @keyframes busyGlance { from { transform: translateX(-2px); } to { transform: translateX(2px); } }
 @keyframes busySway { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-1.4deg); } 70% { transform: rotate(1.4deg); } }
 @keyframes milestoneGlow { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.65) saturate(1.4); } }
+
+/* Wake alarm owns the face/body animation while ringing, ahead of music and reminders. */
+.bramo-container.wake-alarm-ringing .bramo-capsule { animation: wakeAlarmRouse 1.15s ease-in-out infinite !important; }
+.bramo-container.wake-alarm-ringing .now-playing-bar { display: none !important; }
+.bramo-container.wake-alarm-ringing .pomodoro-mini-bar { display: none !important; }
+.bramo-container.wake-alarm-ringing .visor-screen {
+  border-color: #ff9f43 !important;
+  box-shadow: 0 0 15px rgba(255, 159, 67, .6), 0 0 5px #ff9f43 inset !important;
+  animation: wakeAlarmGlow .9s ease-in-out infinite alternate !important;
+}
+.bramo-container.wake-alarm-ringing .visor-screen .led-eye { animation: wakeAlarmEye 1.15s steps(1, end) infinite !important; }
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket .led-eye {
+  width: 13px !important;
+  height: 10px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: var(--led-cyan) !important;
+  box-shadow: 0 0 8px var(--led-cyan), 0 0 14px var(--led-cyan) !important;
+  clip-path: none !important;
+  animation: wakeAlarmEye 1.15s steps(1, end) infinite !important;
+}
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket:nth-child(2)::after,
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket:nth-child(4)::after {
+  animation: wakeAlarmChevron 1.15s steps(1, end) infinite !important;
+}
+.bramo-container.wake-alarm-ringing .visor-screen .eye-socket:nth-child(4)::after { content: '<' !important; }
+.bramo-container.wake-alarm-ringing .led-mouth-wrapper { position: relative; }
+.bramo-container.wake-alarm-ringing .led-mouth {
+  width: 8px !important;
+  height: 4px !important;
+  border: 0 !important;
+  border-bottom: 2px solid var(--led-cyan) !important;
+  border-radius: 0 0 4px 4px !important;
+  background: transparent !important;
+  box-shadow: 0 2px 5px var(--led-cyan) !important;
+  animation: wakeAlarmMouth 1.15s steps(1, end) infinite !important;
+}
+.bramo-container.wake-alarm-ringing .led-mouth-wrapper::after {
+  content: 'X';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  color: var(--led-cyan);
+  font: 900 10px/1 'Segoe UI', sans-serif;
+  text-shadow: 0 0 4px var(--led-cyan), 0 0 8px var(--led-cyan);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.65);
+  animation: wakeAlarmX 1.15s steps(1, end) infinite;
+}
+@keyframes wakeAlarmMouth { 0%, 25%, 65%, 100% { opacity: 1; } 26%, 64% { opacity: 0; } }
+@keyframes wakeAlarmX { 0%, 25%, 65%, 100% { opacity: 0; } 26%, 64% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+/* Gaming focus: steady, concentrated visor while a recognized game is foregrounded. */
+.bramo-container.gaming-focus .visor-screen {
+  border-color: #7df9ff;
+  box-shadow: 0 0 13px rgba(85, 233, 255, .45), 0 0 5px rgba(85, 233, 255, .35) inset;
+}
+.bramo-container.gaming-focus .visor-screen .led-eye {
+  width: 13px;
+  height: 10px;
+  border-radius: 50%;
+  clip-path: none;
+  background: #7df9ff;
+  box-shadow: 0 0 7px #7df9ff, 0 0 12px rgba(85, 233, 255, .7);
+  animation: gamingEyeExcited 1.35s ease-in-out infinite;
+}
+.bramo-container.gaming-focus .visor-screen .eye-socket:nth-child(4) .led-eye { animation-delay: -.22s; }
+.bramo-container.gaming-focus .visor-screen .led-mouth {
+  width: 8px;
+  height: 3px;
+  border: 0;
+  border-bottom: 2px solid #7df9ff;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: 0 2px 5px rgba(85, 233, 255, .7);
+  animation: gamingMouthHype 1.15s ease-in-out infinite;
+}
+@keyframes gamingEyeExcited {
+  0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); }
+  18% { transform: translateY(-1px) scale(1.12); filter: brightness(1.35); }
+  34% { transform: translateY(0) scaleY(.28); filter: brightness(1.55); }
+  48% { transform: translateY(0) scaleY(1.08); filter: brightness(1.3); }
+  72% { transform: translateY(-1px) scale(1.16); filter: brightness(1.6); }
+}
+@keyframes gamingMouthHype {
+  0%, 100% { width: 8px; height: 3px; border: 0; border-bottom: 2px solid #7df9ff; border-radius: 0 0 5px 5px; background: transparent; }
+  22%, 48% { width: 7px; height: 6px; border: 1.5px solid #7df9ff; border-radius: 50%; background: rgba(125, 249, 255, .75); }
+  68%, 82% { width: 9px; height: 5px; border: 1.5px solid #7df9ff; border-radius: 50%; background: rgba(125, 249, 255, .55); }
+}
+.gaming-metrics[hidden] { display: none !important; }
+.gaming-metrics {
+  position: absolute;
+  z-index: 12;
+  top: 14px;
+  left: calc(100% + 2px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  width: 46px;
+  min-height: 28px;
+  padding: 3px 4px;
+  border: 1px solid rgba(125, 249, 255, .42);
+  border-radius: 5px;
+  background: rgba(8, 12, 18, .92);
+  box-shadow: 0 0 7px rgba(85, 233, 255, .2);
+  color: #bcefff;
+  font: 700 6px/1 'Segoe UI', sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.bramo-container.gaming-focus .visor-wrapper { position: relative; z-index: 3; }
+.bramo-container.gaming-focus .visor-screen .eye-socket {
+  position: relative;
+  z-index: 4;
+}
+.gaming-glasses-pixel {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.bramo-container.gaming-focus .gaming-glasses-pixel { display: block; }
+.gaming-headset-pixel {
+  display: none;
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  z-index: 8;
+  width: 122px;
+  height: 62px;
+  transform: translateX(-50%);
+  overflow: visible;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.bramo-container.gaming-focus .gaming-headset-pixel { display: block; }
+.bramo-container.gaming-focus .accessory-slot > svg,
+.bramo-container.gaming-focus .accessory-slot::before,
+.bramo-container.gaming-focus .accessory-slot::after { visibility: hidden; }
+.gaming-headset-led { animation: gamingPixelLed .85s steps(2, end) infinite alternate; }
+.bramo-container.wake-alarm-ringing .gaming-headset-pixel,
+.bramo-container.adhan-speaking .gaming-headset-pixel,
+.bramo-container.wake-alarm-ringing .gaming-glasses-pixel,
+.bramo-container.adhan-speaking .gaming-glasses-pixel { display: none; }
+@keyframes gamingPixelLed { from { opacity: .45; } to { opacity: 1; } }

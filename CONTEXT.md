@@ -83,7 +83,7 @@
   - `WHISTLE` / `MUMBLE` / `HAPPY-OPEN`: Variasi bentuk mulut LED interaktif.
 - **Ekspresi kontekstual aktif:**
   - `MUSIC_VIBE` **(aktif):** Mata berubah jadi equalizer LED, mulut pulse seperti humming, visor memakai palet warna berbasis judul/artist, dan speech bubble memakai kalimat vibing.
-  - `GAMING_FOCUS`: Belum diimplementasikan; memerlukan deteksi proses aplikasi game.
+  - `GAMING_FOCUS` **(aktif, Windows):** Mendeteksi proses game yang dikenal saat menjadi foreground, lalu mengubah mata ke ekspresi fokus dan memasang kacamata gaming serta headset bermikrofon dengan LED merah. HUD menampilkan RTT TCP internet sebagai perkiraan koneksi umum (bukan ping server game). Pemeriksaan lokal berjalan tiap 3 detik; alarm bangun tidur dan azan tetap mendapat prioritas visual.
   - `SLEEPING`: Mata terpejam dan mulut tenang; idle lama menambah ekspresi sigh/yawn terpisah.
   - `SUCCESS / FILE_DROP`: Reaksi sukses file/clipboard memakai mata cerah dan senyum.
   - `ERROR / WARNING`: Belum ada ekspresi visor silang universal; beberapa fitur sudah menampilkan bubble error kontekstual.
@@ -249,4 +249,4 @@ endAdhanSession()                 // idempotent
 - Implementasi fitur README yang belum ada (wardrobe/EXP, SFX 8-bit, bio-rhythm, cache cleaner, to-do + alarm).
 - E2E visual multi-monitor mendalam.
 
-- Fokus berikutnya: pengujian visual end-to-end, penyempurnaan edge case multi-monitor, dan pemecahan monolit `src/main.js` (1.850 baris) menjadi modul.
+- Fokus berikutnya: refactor monolit `src/main.js` menjadi modul, pengujian visual end-to-end, dan penyempurnaan edge case multi-monitor. Gaming Focus sudah berjalan di Windows untuk proses game yang dikenali.

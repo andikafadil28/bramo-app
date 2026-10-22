@@ -32,6 +32,7 @@ const dropActions = document.getElementById('dropActions');
 const openDroppedFile = document.getElementById('openDroppedFile');
 const revealDroppedFile = document.getElementById('revealDroppedFile');
 const dropHistory = document.getElementById('dropHistory');
+const clipboardHistory = document.getElementById('clipboardHistory');
 const clipboardToggle = document.getElementById('clipboardToggle');
 const typingToggle = document.getElementById('typingToggle');
 const musicStatus = document.getElementById('musicStatus');
@@ -46,8 +47,28 @@ const launcherName = document.getElementById('launcherName');
 const launcherTarget = document.getElementById('launcherTarget');
 const launcherAdd = document.getElementById('launcherAdd');
 const launcherList = document.getElementById('launcherList');
+const todoForm = document.getElementById('todoForm');
+const todoInput = document.getElementById('todoInput');
+const todoAlarmInput = document.getElementById('todoAlarmInput');
+const todoList = document.getElementById('todoList');
+const todoViewTabs = document.querySelectorAll('.todo-tab');
+const todoViews = document.querySelectorAll('.todo-view');
+const wakeAlarmTime = document.getElementById('wakeAlarmTime');
+const wakeAlarmEnabledToggle = document.getElementById('wakeAlarmEnabled');
+const wakeAlarmClock = document.getElementById('wakeAlarmClock');
+const wakeAlarmCountdownLabel = document.getElementById('wakeAlarmCountdownLabel');
+const wakeAlarmActions = document.getElementById('wakeAlarmActions');
+const wakeAlarmSnooze = document.getElementById('wakeAlarmSnooze');
+const wakeAlarmStop = document.getElementById('wakeAlarmStop');
+const wakeAlarmTest = document.getElementById('wakeAlarmTest');
+const wakeAlarmTestStop = document.getElementById('wakeAlarmTestStop');
+const wakeAlarmDayInputs = document.querySelectorAll('[data-wake-day]');
+const gamingMetrics = document.getElementById('gamingMetrics');
+const gamingPing = document.getElementById('gamingPing');
 const sleepBramo = document.getElementById('sleepBramo');
 const quitBramo = document.getElementById('quitBramo');
+const clearCacheButton = document.getElementById('clearCache');
+const cacheStatus = document.getElementById('cacheStatus');
 const pomodoroMode = document.getElementById('pomodoroMode');
 const pomodoroTime = document.getElementById('pomodoroTime');
 const pomodoroProgress = document.getElementById('pomodoroProgress');
@@ -60,6 +81,7 @@ const pomodoroMiniMode = document.getElementById('pomodoroMiniMode');
 const pomodoroMiniTime = document.getElementById('pomodoroMiniTime');
 const pomodoroMiniToggle = document.getElementById('pomodoroMiniToggle');
 const autostartToggle = document.getElementById('autostartToggle');
+const sfxToggle = document.getElementById('sfxToggle');
 const bioRhythmToggle = document.getElementById('bioRhythmToggle');
 const bioRhythmInterval = document.getElementById('bioRhythmInterval');
 const bioRhythmStatus = document.getElementById('bioRhythmStatus');
@@ -109,6 +131,7 @@ let idleAnimationTimeout = null;
 let idleAnimationResetTimer = null;
 let clipboardTimer = null;
 let lastClipboardSignature = null;
+let clipboardItems = loadClipboardHistory();
 let clipboardWatcherEnabled = localStorage.getItem('bramo.clipboard.watcher') === 'true';
 let typingCuriosityEnabled = localStorage.getItem('bramo.typing.curiosity') === 'true';
 let prayerEnabled = localStorage.getItem('bramo.prayer.enabled') !== 'false';
@@ -124,6 +147,452 @@ let bioRhythmMinutes = [30, 45, 60, 90].includes(Number(localStorage.getItem('br
 let bioRhythmNextAt = Number(localStorage.getItem('bramo.bio.nextAt')) || 0;
 let bioRhythmDue = localStorage.getItem('bramo.bio.due') === 'true';
 let bioRhythmTimer = null;
+let todoAlarmTimer = null;
+let wakeAlarmActive = false;
+let wakeAlarmTestActive = false;
+let wakeAlarmSoundTimer = null;
+let wakeAlarmTestTimer = null;
+let gamingFocusPollBusy = false;
+let wakeAlarmState = (() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('bramo.wake-alarm') || '{}');
+    return {
+      enabled: saved.enabled === true,
+      time: /^([01]\d|2[0-3]):[0-5]\d$/.test(saved.time || '') ? saved.time : '07:00',
+      days: Array.isArray(saved.days) ? [...new Set(saved.days.map(Number).filter(day => Number.isInteger(day) && day >= 0 && day <= 6))] : [0, 1, 2, 3, 4, 5, 6],
+      lastFiredDate: typeof saved.lastFiredDate === 'string' ? saved.lastFiredDate : '',
+      snoozedUntil: Number(saved.snoozedUntil) || 0
+    };
+  } catch { return { enabled: false, time: '07:00', days: [0, 1, 2, 3, 4, 5, 6], lastFiredDate: '', snoozedUntil: 0 }; }
+})();
+let todoItems = (() => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('bramo.todo.items') || '[]');
+    return Array.isArray(saved) ? saved.filter(item => item && typeof item.id === 'string' && typeof item.text === 'string').slice(0, 30) : [];
+  } catch { return []; }
+})();
+
+function saveTodoItems() {
+  localStorage.setItem('bramo.todo.items', JSON.stringify(todoItems));
+}
+
+function renderTodoItems() {
+  if (!todoList) return;
+  todoList.replaceChildren();
+  if (!todoItems.length) {
+    const empty = document.createElement('div');
+    empty.className = 'todo-empty';
+    empty.textContent = 'Daftar tugas masih kosong';
+    todoList.append(empty);
+    return;
+  }
+  todoItems.forEach(item => {
+    const row = document.createElement('div');
+    row.className = `todo-item${item.done ? ' is-done' : ''}`;
+    const done = document.createElement('button');
+    done.type = 'button';
+    done.className = 'todo-check interactive';
+    done.textContent = item.done ? '✓' : '○';
+    done.setAttribute('aria-label', item.done ? 'Tandai belum selesai' : 'Tandai selesai');
+    done.addEventListener('click', () => {
+      item.done = !item.done;
+      if (item.done) item.alarmNotified = true;
+      saveTodoItems();
+      renderTodoItems();
+    });
+    const content = document.createElement('div');
+    content.className = 'todo-item-content';
+    const label = document.createElement('span');
+    label.className = 'todo-item-text';
+    label.textContent = item.text;
+    content.append(label);
+    if (item.alarmAt) {
+      const alarm = document.createElement('small');
+      alarm.textContent = `⏰ ${new Date(item.alarmAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}`;
+      content.append(alarm);
+    }
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'todo-remove interactive';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', 'Hapus tugas');
+    remove.addEventListener('click', () => {
+      todoItems = todoItems.filter(entry => entry.id !== item.id);
+      saveTodoItems();
+      renderTodoItems();
+    });
+    row.append(done, content, remove);
+    todoList.append(row);
+  });
+}
+
+todoForm?.addEventListener('submit', event => {
+  event.preventDefault();
+  const text = todoInput.value.trim();
+  if (!text) return;
+  const alarmAt = todoAlarmInput.value ? new Date(todoAlarmInput.value).getTime() : null;
+  todoItems.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, text, alarmAt, alarmNotified: false, done: false });
+  todoItems = todoItems.slice(0, 30);
+  saveTodoItems();
+  renderTodoItems();
+  todoInput.value = '';
+  todoAlarmInput.value = '';
+  todoInput.focus();
+});
+
+function checkTodoAlarms() {
+  if (isBramoSleeping || adhanSessionActive || hiddenByFullscreen || document.hidden) return;
+  const due = todoItems.filter(item => !item.done && !item.alarmNotified && Number.isFinite(item.alarmAt) && item.alarmAt <= Date.now());
+  if (!due.length) return;
+  due.forEach(item => { item.alarmNotified = true; });
+  saveTodoItems();
+  const label = due.length === 1 ? due[0].text : `${due.length} tugas menunggu kamu`;
+  playBramoSfx('success');
+  showBramoMessage(`Pengingat tugas: ${label} 📋`, 7000, true);
+}
+
+function playWakeAlarmTone() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    bramoAudioContext ||= new AudioContextClass();
+    const context = bramoAudioContext;
+    if (context.state === 'suspended') context.resume();
+    const startAt = context.currentTime;
+    [740, 0, 1040].forEach((frequency, index) => {
+      if (!frequency) return;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const noteStart = startAt + index * 0.16;
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(frequency, noteStart);
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(0.24, noteStart + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.13);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteStart + 0.14);
+    });
+  } catch (error) {
+    console.warn('Wake alarm audio error:', error);
+  }
+}
+
+function startWakeAlarmSoundTest() {
+  if (wakeAlarmTestTimer || wakeAlarmSoundTimer || wakeAlarmActive) return;
+  wakeAlarmTestActive = true;
+  wakeAlarmTest.hidden = true;
+  wakeAlarmTestStop.hidden = false;
+  speechBubble.classList.add('wake-alarm');
+  bramoContainer.classList.add('wake-alarm-ringing');
+  wakeAlarmActions.hidden = false;
+  wakeAlarmSnooze.textContent = 'Tutup tes';
+  showBramoMessage('Tes alarm bangun tidur 🔔', null, true);
+  playWakeAlarmTone();
+  wakeAlarmTestTimer = setInterval(playWakeAlarmTone, 900);
+}
+
+function stopWakeAlarmSoundTest() {
+  const wasTesting = wakeAlarmTestActive;
+  if (wakeAlarmTestTimer) clearInterval(wakeAlarmTestTimer);
+  wakeAlarmTestTimer = null;
+  wakeAlarmTestActive = false;
+  if (wakeAlarmTest) wakeAlarmTest.hidden = false;
+  if (wakeAlarmTestStop) wakeAlarmTestStop.hidden = true;
+  if (wasTesting && !wakeAlarmActive) {
+    wakeAlarmActions.hidden = true;
+    speechBubble.classList.remove('wake-alarm');
+    bramoContainer.classList.remove('wake-alarm-ringing');
+    wakeAlarmSnooze.textContent = 'Tunda 5 menit';
+    hideBramoMessage(true);
+  }
+}
+
+wakeAlarmTest?.addEventListener('click', startWakeAlarmSoundTest);
+wakeAlarmTestStop?.addEventListener('click', stopWakeAlarmSoundTest);
+
+function saveWakeAlarm() {
+  localStorage.setItem('bramo.wake-alarm', JSON.stringify(wakeAlarmState));
+}
+
+function renderWakeAlarm(syncControls = false) {
+  if (!wakeAlarmTime) return;
+  if (syncControls) {
+    wakeAlarmTime.value = wakeAlarmState.time;
+    wakeAlarmEnabledToggle.checked = wakeAlarmState.enabled;
+    wakeAlarmDayInputs.forEach(input => { input.checked = wakeAlarmState.days.includes(Number(input.dataset.wakeDay)); });
+  }
+  const now = new Date();
+  if (!wakeAlarmState.enabled) {
+    wakeAlarmCountdownLabel.textContent = 'Alarm sedang nonaktif';
+    wakeAlarmClock.textContent = 'Nonaktif';
+    return;
+  }
+  if (wakeAlarmActive) {
+    wakeAlarmCountdownLabel.textContent = 'Alarm sedang berbunyi';
+    wakeAlarmClock.textContent = 'Bangun!';
+    return;
+  }
+
+  let targetTime;
+  if (wakeAlarmState.snoozedUntil > now.getTime()) {
+    targetTime = wakeAlarmState.snoozedUntil;
+    wakeAlarmCountdownLabel.textContent = 'Alarm snooze berbunyi dalam';
+  } else {
+    wakeAlarmCountdownLabel.textContent = 'Alarm berikutnya dalam';
+    if (!wakeAlarmState.days.length) {
+      wakeAlarmClock.textContent = 'Pilih hari';
+      return;
+    }
+    const [hours, minutes] = wakeAlarmState.time.split(':').map(Number);
+    for (let offset = 0; offset <= 7; offset += 1) {
+      const candidate = new Date(now);
+      candidate.setDate(now.getDate() + offset);
+      candidate.setHours(hours, minutes, 0, 0);
+      const isTodayAlreadyFired = offset === 0 && wakeAlarmState.lastFiredDate === localDateKey(now);
+      if (wakeAlarmState.days.includes(candidate.getDay()) && !isTodayAlreadyFired && candidate >= now) {
+        targetTime = candidate.getTime();
+        break;
+      }
+    }
+  }
+  if (!targetTime) {
+    wakeAlarmClock.textContent = 'Pilih hari';
+    return;
+  }
+  const remainingSeconds = Math.max(0, Math.floor((targetTime - now.getTime()) / 1000));
+  const days = Math.floor(remainingSeconds / 86400);
+  const hours = Math.floor((remainingSeconds % 86400) / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+  wakeAlarmClock.textContent = days
+    ? `${days} hari ${String(hours).padStart(2, '0')}j ${String(minutes).padStart(2, '0')}m`
+    : `${String(hours).padStart(2, '0')}j ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}d`;
+}
+
+function localDateKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function checkWakeAlarm() {
+  if (!wakeAlarmState.enabled || wakeAlarmActive || adhanSessionActive || hiddenByFullscreen || document.hidden) return;
+  const now = Date.now();
+  if (wakeAlarmState.snoozedUntil && now >= wakeAlarmState.snoozedUntil) {
+    startWakeAlarm();
+    return;
+  }
+  if (wakeAlarmState.snoozedUntil > now) return;
+  if (!wakeAlarmState.days.includes(new Date().getDay())) return;
+  const today = localDateKey();
+  if (wakeAlarmState.lastFiredDate === today) return;
+  const [hours, minutes] = wakeAlarmState.time.split(':').map(Number);
+  const current = new Date();
+  if (current.getHours() * 60 + current.getMinutes() < hours * 60 + minutes) return;
+  wakeAlarmState.lastFiredDate = today;
+  saveWakeAlarm();
+  startWakeAlarm();
+}
+
+async function startWakeAlarm() {
+  if (wakeAlarmActive) return;
+  stopWakeAlarmSoundTest();
+  wakeAlarmActive = true;
+  wakeAlarmState.snoozedUntil = 0;
+  saveWakeAlarm();
+  if (isBramoSleeping) await wakeBramo();
+  speechBubble.classList.add('wake-alarm');
+  bramoContainer.classList.add('wake-alarm-ringing');
+  wakeAlarmActions.hidden = false;
+  playWakeAlarmTone();
+  wakeAlarmSoundTimer = setInterval(playWakeAlarmTone, 900);
+  showWakeAlarmMessage();
+}
+
+function showWakeAlarmMessage() {
+  if (!wakeAlarmActive) return;
+  speechBubble.classList.add('wake-alarm');
+  bramoContainer.classList.add('wake-alarm-ringing');
+  wakeAlarmActions.hidden = false;
+  showBramoMessage(`Alarm bangun tidur! Sekarang ${wakeAlarmState.time} ⏰`, null, true);
+}
+
+function finishWakeAlarm({ snooze = false } = {}) {
+  wakeAlarmActive = false;
+  if (wakeAlarmSoundTimer) clearInterval(wakeAlarmSoundTimer);
+  wakeAlarmSoundTimer = null;
+  wakeAlarmActions.hidden = true;
+  wakeAlarmState.snoozedUntil = snooze ? Date.now() + 5 * 60_000 : 0;
+  saveWakeAlarm();
+  speechBubble.classList.remove('wake-alarm');
+  bramoContainer.classList.remove('wake-alarm-ringing');
+  if (bioRhythmDue && !adhanSessionActive) showBramoMessage('Waktunya jeda sebentar 🌿 Regangkan badan, ya!', null, true);
+  else if (!adhanSessionActive) hideBramoMessage(true);
+}
+
+todoViewTabs.forEach(tab => tab.addEventListener('click', () => {
+  const view = tab.dataset.todoView;
+  todoViewTabs.forEach(item => item.classList.toggle('active', item === tab));
+  todoViews.forEach(section => {
+    const active = section.id === (view === 'wakeAlarm' ? 'wakeAlarmView' : 'tasksView');
+    section.classList.toggle('active', active);
+    section.hidden = !active;
+  });
+}));
+
+wakeAlarmTime?.addEventListener('change', () => {
+  if (!wakeAlarmTime.value) return;
+  wakeAlarmState.time = wakeAlarmTime.value;
+  const [hours, minutes] = wakeAlarmState.time.split(':').map(Number);
+  const now = new Date();
+  wakeAlarmState.lastFiredDate = hours * 60 + minutes <= now.getHours() * 60 + now.getMinutes() ? localDateKey(now) : '';
+  wakeAlarmState.snoozedUntil = 0;
+  saveWakeAlarm();
+});
+wakeAlarmEnabledToggle?.addEventListener('change', () => {
+  wakeAlarmState.enabled = wakeAlarmEnabledToggle.checked;
+  if (wakeAlarmState.enabled) {
+    const [hours, minutes] = wakeAlarmState.time.split(':').map(Number);
+    const now = new Date();
+    wakeAlarmState.lastFiredDate = hours * 60 + minutes <= now.getHours() * 60 + now.getMinutes() ? localDateKey(now) : '';
+  } else {
+    wakeAlarmState.lastFiredDate = '';
+    wakeAlarmState.snoozedUntil = 0;
+  }
+  saveWakeAlarm();
+  if (!wakeAlarmState.enabled && wakeAlarmActive) finishWakeAlarm();
+});
+wakeAlarmDayInputs.forEach(input => input.addEventListener('change', () => {
+  const selectedDays = [...wakeAlarmDayInputs]
+    .filter(dayInput => dayInput.checked)
+    .map(dayInput => Number(dayInput.dataset.wakeDay));
+  if (!selectedDays.length) {
+    input.checked = true;
+    showBramoMessage('Pilih minimal satu hari alarm 🙂', 2200);
+    return;
+  }
+  wakeAlarmState.days = selectedDays;
+  wakeAlarmState.lastFiredDate = '';
+  wakeAlarmState.snoozedUntil = 0;
+  saveWakeAlarm();
+}));
+wakeAlarmSnooze?.addEventListener('click', () => {
+  if (wakeAlarmTestActive) stopWakeAlarmSoundTest();
+  else finishWakeAlarm({ snooze: true });
+});
+wakeAlarmStop?.addEventListener('click', () => {
+  if (wakeAlarmTestActive) stopWakeAlarmSoundTest();
+  else finishWakeAlarm();
+});
+
+renderWakeAlarm(true);
+setInterval(() => {
+  renderWakeAlarm();
+  checkWakeAlarm();
+}, 1_000);
+
+renderTodoItems();
+todoAlarmTimer = setInterval(checkTodoAlarms, 10_000);
+let bramoAudioContext = null;
+let lastSfxAt = 0;
+let sfxEnabled = localStorage.getItem('bramo.sfx.enabled') !== 'false';
+
+function playBramoSfx(kind = 'click') {
+  if (!sfxEnabled || document.hidden) return;
+  const now = performance.now();
+  if (now - lastSfxAt < 45) return;
+  lastSfxAt = now;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    bramoAudioContext ||= new AudioContextClass();
+    const context = bramoAudioContext;
+    if (context.state === 'suspended') context.resume();
+    const notes = kind === 'open' ? [520, 780, 1040]
+      : kind === 'close' ? [780, 520]
+      : kind === 'success' ? [660, 880, 1320]
+      : kind === 'error' ? [420, 280]
+      : [880];
+    const startAt = context.currentTime;
+    notes.forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const noteStart = startAt + index * 0.055;
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(frequency, noteStart);
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(0.035, noteStart + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.075);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteStart + 0.08);
+    });
+  } catch (error) {
+    console.debug('BRAMO SFX unavailable:', error);
+  }
+}
+
+sfxToggle.checked = sfxEnabled;
+sfxToggle.addEventListener('change', () => {
+  sfxEnabled = sfxToggle.checked;
+  localStorage.setItem('bramo.sfx.enabled', String(sfxEnabled));
+  if (sfxEnabled) playBramoSfx('success');
+});
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('button, .accessory-slot')) return;
+  if (event.target.closest('#dropdownToggle, #sfxToggle')) return;
+  playBramoSfx('click');
+}, true);
+
+function loadClipboardHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('bramo.clipboard.history') || '[]');
+    return Array.isArray(saved) ? saved.filter(item => typeof item === 'string' && item.trim()).slice(0, 5) : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function renderClipboardHistory() {
+  if (!clipboardHistory) return;
+  clipboardHistory.replaceChildren();
+  if (!clipboardItems.length) {
+    const empty = document.createElement('span');
+    empty.className = 'clipboard-history-empty';
+    empty.textContent = 'Belum ada clipboard tersimpan';
+    clipboardHistory.append(empty);
+    return;
+  }
+  clipboardItems.forEach((value, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'clipboard-history-item interactive';
+    button.title = value;
+    button.textContent = `${index + 1}. ${value.replace(/\s+/g, ' ').trim()}`;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(value);
+        dropStatus.textContent = 'Clipboard disalin ulang';
+        showBramoMessage('Clipboard disalin ulang 📋', 1800);
+      } catch (error) {
+        showBramoMessage('Clipboard tidak bisa disalin 😕', 2200);
+      }
+    });
+    clipboardHistory.append(button);
+  });
+}
+
+function rememberClipboard(value) {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  if (!normalized || normalized.length > 10_000) return;
+  clipboardItems = [normalized, ...clipboardItems.filter(item => item !== normalized)].slice(0, 5);
+  localStorage.setItem('bramo.clipboard.history', JSON.stringify(clipboardItems));
+  renderClipboardHistory();
+}
+
+renderClipboardHistory();
 
 // Local gamification: reward varied, intentional use and cap repeat farming.
 const BRAMO_LEVEL_XP = [0, 100, 250, 450, 700, 1000];
@@ -313,6 +782,47 @@ function triggerBramoReaction(name, duration = 1200) {
     buddyReactionTimers.delete(className);
   }, duration));
 }
+
+const knownGameProcesses = new Set([
+  'valorant-win64-shipping.exe', 'cs2.exe', 'dota2.exe', 'league of legends.exe',
+  'fortniteclient-win64-shipping.exe', 'r5apex.exe', 'overwatch.exe', 'robloxplayerbeta.exe',
+  'genshinimpact.exe', 'starrail.exe', 'zenlesszonezero.exe', 'eldenring.exe',
+  'cyberpunk2077.exe', 'gta5.exe', 'bg3.exe', 'helldivers2.exe', 'rocketleague.exe',
+  'deadbydaylight-win64-shipping.exe', 'minecraft.windows.exe', 'fallguys_client_game.exe'
+]);
+
+async function updateGamingFocus() {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke || gamingFocusPollBusy) return;
+  gamingFocusPollBusy = true;
+  try {
+    const processName = await invoke('get_foreground_process_name');
+    const isGame = typeof processName === 'string'
+      && (knownGameProcesses.has(processName) || /-win(?:32|64)-(?:shipping|test)\.exe$/i.test(processName));
+    const networkRtt = isGame ? await invoke('get_network_rtt_ms').catch(() => null) : null;
+    const shouldShowGamingFocus = isGame
+      && !adhanSessionActive
+      && !wakeAlarmActive
+      && !wakeAlarmTestActive
+      && !isBramoSleeping
+      && !document.hidden;
+    const wasGamingFocus = bramoContainer.classList.contains('gaming-focus');
+    bramoContainer.classList.toggle('gaming-focus', shouldShowGamingFocus);
+    gamingMetrics.hidden = !shouldShowGamingFocus;
+    gamingPing.textContent = Number.isFinite(networkRtt) ? `NET ${networkRtt}ms` : 'NET —';
+    if (shouldShowGamingFocus && !wasGamingFocus) {
+      leftEye.style.removeProperty('transform');
+      rightEye.style.removeProperty('transform');
+    }
+  } catch (error) {
+    console.debug('Gaming focus detection unavailable:', error);
+  } finally {
+    gamingFocusPollBusy = false;
+  }
+}
+
+setInterval(updateGamingFocus, 3000);
+updateGamingFocus();
 
 function awardFeatureMilestone(feature, label = feature) {
   if (bramoProgress.milestones[feature]) return;
@@ -653,6 +1163,31 @@ async function confirmQuit() {
 }
 
 quitBramo?.addEventListener('click', confirmQuit);
+
+clearCacheButton?.addEventListener('click', async () => {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) {
+    showBramoMessage('Pembersihan cache hanya tersedia di aplikasi desktop', 2400);
+    return;
+  }
+  clearCacheButton.disabled = true;
+  cacheStatus.textContent = 'Membersihkan…';
+  try {
+    const result = await invoke('clear_bramo_cache');
+    const bytes = Number(result.bytesRemoved || 0);
+    const size = bytes < 1024 ? `${bytes} B` : bytes < 1024 * 1024
+      ? `${(bytes / 1024).toFixed(1)} KB`
+      : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    const skipped = Number(result.filesSkipped || 0);
+    cacheStatus.textContent = `${result.filesRemoved || 0} file · ${size}${skipped ? ` · ${skipped} dilewati` : ''}`;
+  } catch (error) {
+    console.warn('Cache cleaner error:', error);
+    cacheStatus.textContent = 'Gagal membersihkan cache';
+    showBramoMessage('Cache BRAMO gagal dibersihkan 😕', 2400);
+  } finally {
+    clearCacheButton.disabled = false;
+  }
+});
 const savedTheme = localStorage.getItem('bramo.theme') || 'cyan';
 
 function applyTheme(theme) {
@@ -1076,7 +1611,9 @@ async function endAdhanSession() {
   }
   await resumeMediaAfterAdhan();
   suppressMediaUntil = Date.now() + 3000;
-  hideBramoMessage();
+  if (wakeAlarmActive) showWakeAlarmMessage();
+  else if (bioRhythmDue) showBramoMessage('Waktunya jeda sebentar 🌿 Regangkan badan, ya!', null, true);
+  else hideBramoMessage();
 }
 
 adhanAudio.addEventListener('play', () => setAdhanVisualMode(true));
@@ -1106,7 +1643,8 @@ utilityTabs.forEach(tab => {
     const featureNames = {
       musicPanel: 'Music', statsPanel: 'System Stats', filePanel: 'File Drop',
       powerPanel: 'Power dan tema', prayerPanel: 'Prayer Reminder',
-      pomodoroPanel: 'Pomodoro', bioRhythmPanel: 'Bio-rhythm Reminder', launcherPanel: 'Quick Launcher'
+      pomodoroPanel: 'Pomodoro', bioRhythmPanel: 'Bio-rhythm Reminder', launcherPanel: 'Quick Launcher',
+      todoPanel: 'To-do List dan Alarm'
     };
     if (featureNames[panelId]) awardFeatureMilestone(panelId, featureNames[panelId]);
     if (panelId === 'statsPanel') updateSystemStats();
@@ -1317,6 +1855,10 @@ async function pollClipboard() {
   }
   if (signature !== lastClipboardSignature) {
     lastClipboardSignature = signature;
+    try {
+      const text = await navigator.clipboard.readText();
+      rememberClipboard(text);
+    } catch (error) { /* browser permission may be unavailable */ }
     dropStatus.textContent = 'Clipboard baru terdeteksi';
     bramoContainer.classList.add('file-drop-success');
     triggerHappyMouth();
@@ -1430,6 +1972,7 @@ async function registerNativeActivityListeners() {
   await listen('bramo://clipboard-changed', async (event) => {
     if (!clipboardWatcherEnabled || adhanSessionActive) return;
     const text = event.payload || await window.__TAURI__?.core?.invoke('get_clipboard_text');
+    rememberClipboard(text);
     dropStatus.textContent = 'Clipboard baru terdeteksi';
     bramoContainer.classList.add('file-drop-success');
     triggerHappyMouth();
@@ -1721,12 +2264,14 @@ let bubbleTimeout = null;
 
 function showBramoMessage(text, duration = 3000, attention = false) {
   if (!speechBubble || !speechText) return;
+  if (bramoContainer.classList.contains('expanded') && !attention) return;
   if (bioRhythmDue && !attention) return;
   if (bramoContainer.classList.contains('dizzy') && !attention) return;
   if (adhanSessionActive && !attention) return;
   
   speechText.textContent = text;
   bramoContainer.classList.toggle('attention-reminder', attention);
+  if (wakeAlarmActive || wakeAlarmTestActive) wakeAlarmActions.hidden = false;
   speechBubble.classList.add('show');
 
   syncBubbleWindow(true);
@@ -2293,6 +2838,8 @@ dropdownToggle.addEventListener('click', async (e) => {
   await updateAdaptivePositioning();
 
   const isExpanding = bramoContainer.classList.toggle('expanded');
+  playBramoSfx(isExpanding ? 'open' : 'close');
+  if (isExpanding && !adhanSessionActive && !bioRhythmDue) hideBramoMessage(true);
   if (isExpanding) awardBramoXp('dropdown', 3, 20_000);
   capsuleWrapper.classList.toggle('is-expanded', isExpanding);
   if (isExpanding) armDropdownIdleClose();
@@ -2304,10 +2851,6 @@ dropdownToggle.addEventListener('click', async (e) => {
   else stopStatsPolling();
   triggerHappyMouth();
   if (isExpanding) triggerBramoReaction('think', 1500);
-
-  if (isExpanding) {
-    showContextualMessage('dropdown_open', 2500);
-  }
 
   if (window.__TAURI__?.window) {
     try {
@@ -2420,6 +2963,7 @@ function noteBramoActivity() {
 
 function switchGazeState() {
   if (!isActivelyDragging
+    && !bramoContainer.classList.contains('gaming-focus')
     && !bramoContainer.classList.contains('typing-curious')
     && !bramoContainer.classList.contains('idle-peek')) {
     const states = ['TRACKING', 'FORWARD', 'FORWARD', 'GLANCE'];
@@ -2444,6 +2988,7 @@ function switchGazeState() {
 }
 
 function applyEyePosition(x, y) {
+  if (bramoContainer.classList.contains('gaming-focus')) return;
   leftEye.style.transform = `translate(${x}px, ${y}px)`;
   rightEye.style.transform = `translate(${x}px, ${y}px)`;
 }
@@ -2469,6 +3014,7 @@ async function updateTypingEyeTarget() {
 
 function updateEyeFrame() {
   if (gazeState === 'TRACKING'
+    && !bramoContainer.classList.contains('gaming-focus')
     && !isActivelyDragging
     && !bramoContainer.classList.contains('typing-curious')
     && !bramoContainer.classList.contains('idle-peek')) {
@@ -2505,6 +3051,7 @@ function scheduleIdleAnimation() {
       && !bramoContainer.classList.contains('idle-peek')
       && !visorScreen.classList.contains('blinking')
       && !bramoContainer.classList.contains('music-vibing')
+      && !bramoContainer.classList.contains('gaming-focus')
       && !speechBubble.classList.contains('show');
 
     if (canAnimate) {

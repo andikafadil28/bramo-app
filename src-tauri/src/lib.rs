@@ -50,6 +50,67 @@ struct MediaInfo {
   playing: bool,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CacheCleanResult {
+  files_removed: u64,
+  bytes_removed: u64,
+  files_skipped: u64,
+}
+
+fn remove_cache_contents(path: &Path, result: &mut CacheCleanResult) -> Result<(), String> {
+  let entries = match std::fs::read_dir(path) {
+    Ok(entries) => entries,
+    Err(_) => {
+      result.files_skipped = result.files_skipped.saturating_add(1);
+      return Ok(());
+    }
+  };
+  for entry in entries {
+    let Ok(entry) = entry else {
+      result.files_skipped = result.files_skipped.saturating_add(1);
+      continue;
+    };
+    let entry_path = entry.path();
+    let Ok(metadata) = std::fs::symlink_metadata(&entry_path) else {
+      result.files_skipped = result.files_skipped.saturating_add(1);
+      continue;
+    };
+    let file_type = metadata.file_type();
+    if file_type.is_dir() {
+      remove_cache_contents(&entry_path, result)?;
+      if std::fs::remove_dir(&entry_path).is_err() {
+        result.files_skipped = result.files_skipped.saturating_add(1);
+      }
+    } else {
+      match std::fs::remove_file(&entry_path) {
+        Ok(()) => {
+          if file_type.is_file() {
+            result.bytes_removed = result.bytes_removed.saturating_add(metadata.len());
+          }
+          result.files_removed = result.files_removed.saturating_add(1);
+        }
+        Err(_) => result.files_skipped = result.files_skipped.saturating_add(1),
+      }
+    }
+  }
+  Ok(())
+}
+
+#[tauri::command]
+fn clear_bramo_cache(app: tauri::AppHandle) -> Result<CacheCleanResult, String> {
+  let cache_dir = app.path().app_cache_dir().map_err(|error| error.to_string())?;
+  if !cache_dir.exists() {
+    return Ok(CacheCleanResult { files_removed: 0, bytes_removed: 0, files_skipped: 0 });
+  }
+  if !cache_dir.is_dir() {
+    return Err("Direktori cache BRAMO tidak valid".to_string());
+  }
+  let mut result = CacheCleanResult { files_removed: 0, bytes_removed: 0, files_skipped: 0 };
+  remove_cache_contents(&cache_dir, &mut result)?;
+  Ok(result)
+}
+
 // --- CPU / memory sampler -------------------------------------------------
 // sysinfo butuh dua sample untuk menghasilkan delta CPU yang valid, jadi
 // `System` harus hidup terus, bukan dibuat ulang tiap panggilan command.
@@ -200,33 +261,36 @@ fn media_info_from_manager(manager: &GlobalSystemMediaTransportControlsSessionMa
     .and_then(|operation| operation.get())
   else {
     return MediaInfo {
-      active: true,
-      title: "Media aktif".to_string(),
+      active: false,
+      title: String::new(),
       artist: String::new(),
       playing: false,
     };
   };
 
-  let playing = session
+  let playback_status = session
     .GetPlaybackInfo()
     .ok()
     .and_then(|info| info.PlaybackStatus().ok())
-    .map(|status| {
-      status
-        == windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing
-    })
-    .unwrap_or(false);
+    ;
+  let playing = playback_status
+    == Some(windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing);
+  let paused = playback_status
+    == Some(windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus::Paused);
+  let title = properties
+    .Title()
+    .map(|value| value.to_string_lossy())
+    .unwrap_or_default();
+  let artist = properties
+    .Artist()
+    .map(|value| value.to_string_lossy())
+    .unwrap_or_default();
+  let has_metadata = !title.trim().is_empty() || !artist.trim().is_empty();
 
   MediaInfo {
-    active: true,
-    title: properties
-      .Title()
-      .map(|value| value.to_string_lossy())
-      .unwrap_or_default(),
-    artist: properties
-      .Artist()
-      .map(|value| value.to_string_lossy())
-      .unwrap_or_default(),
+    active: has_metadata && (playing || paused),
+    title,
+    artist,
     playing,
   }
 }
@@ -414,6 +478,57 @@ fn quit_bramo(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
+fn get_foreground_process_name() -> Option<String> {
+  #[cfg(target_os = "windows")]
+  unsafe {
+    use windows::Win32::Foundation::CloseHandle;
+    use windows::Win32::System::Threading::{
+      GetCurrentProcessId, OpenProcess, QueryFullProcessImageNameW,
+      PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
+    };
+    use windows::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowThreadProcessId};
+
+    let foreground = GetForegroundWindow();
+    if foreground.0 == 0 { return None; }
+    let mut process_id = 0;
+    GetWindowThreadProcessId(foreground, Some(&mut process_id));
+    if process_id == 0 || process_id == GetCurrentProcessId() { return None; }
+
+    let process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, process_id).ok()?;
+    let mut path = [0u16; 1024];
+    let mut length = path.len() as u32;
+    let queried = QueryFullProcessImageNameW(process, PROCESS_NAME_WIN32, windows::core::PWSTR(path.as_mut_ptr()), &mut length).is_ok();
+    let _ = CloseHandle(process);
+    if !queried { return None; }
+    let full_path = String::from_utf16_lossy(&path[..length as usize]);
+    return full_path.rsplit(['\\', '/']).next().map(str::to_lowercase);
+  }
+
+  #[cfg(not(target_os = "windows"))]
+  { None }
+}
+
+#[tauri::command]
+fn get_network_rtt_ms() -> Option<u32> {
+  use std::net::{SocketAddr, TcpStream};
+
+  let target: SocketAddr = "1.1.1.1:443".parse().ok()?;
+  let started = Instant::now();
+  let _connection = TcpStream::connect_timeout(&target, Duration::from_millis(600)).ok()?;
+  Some(started.elapsed().as_millis().min(u32::MAX as u128) as u32)
+}
+
+fn is_game_process_name(name: &str) -> bool {
+  matches!(name,
+    "valorant-win64-shipping.exe" | "cs2.exe" | "dota2.exe" | "league of legends.exe" |
+    "fortniteclient-win64-shipping.exe" | "r5apex.exe" | "overwatch.exe" | "robloxplayerbeta.exe" |
+    "genshinimpact.exe" | "starrail.exe" | "zenlesszonezero.exe" | "eldenring.exe" |
+    "cyberpunk2077.exe" | "gta5.exe" | "bg3.exe" | "helldivers2.exe" | "rocketleague.exe" |
+    "deadbydaylight-win64-shipping.exe" | "minecraft.windows.exe" | "fallguys_client_game.exe"
+  ) || (name.ends_with(".exe") && (name.ends_with("-win64-shipping.exe") || name.ends_with("-win32-shipping.exe") || name.ends_with("-win64-test.exe") || name.ends_with("-win32-test.exe")))
+}
+
+#[tauri::command]
 fn is_other_window_fullscreen() -> bool {
   #[cfg(target_os = "windows")]
   unsafe {
@@ -430,6 +545,11 @@ fn is_other_window_fullscreen() -> bool {
     let mut process_id = 0;
     GetWindowThreadProcessId(foreground, Some(&mut process_id));
     if process_id == GetCurrentProcessId() {
+      return false;
+    }
+    // Keep BRAMO visible over fullscreen games; fullscreen media/apps still
+    // follow the user's hide-in-fullscreen preference.
+    if get_foreground_process_name().as_deref().is_some_and(is_game_process_name) {
       return false;
     }
 
@@ -517,12 +637,15 @@ pub fn run() {
     .plugin(tauri_plugin_autostart::Builder::new().build())
     .invoke_handler(tauri::generate_handler![
       get_system_stats,
+      clear_bramo_cache,
       get_current_monitor_work_area,
       get_media_info,
       control_media,
       open_dropped_file,
       reveal_dropped_file,
       quit_bramo,
+      get_foreground_process_name,
+      get_network_rtt_ms,
       is_other_window_fullscreen,
       open_launcher_target,
       set_clipboard_watcher,

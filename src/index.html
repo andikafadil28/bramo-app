@@ -18,6 +18,10 @@
             <button class="speech-action interactive" id="bioBubbleDone" type="button">Sudah jeda</button>
             <button class="speech-action interactive" id="bioBubbleSnooze" type="button">Tunda 10 menit</button>
           </div>
+          <div class="speech-actions wake-alarm-actions" id="wakeAlarmActions" hidden>
+            <button class="speech-action interactive" id="wakeAlarmSnooze" type="button">Tunda 5 menit</button>
+            <button class="speech-action interactive" id="wakeAlarmStop" type="button">Matikan alarm</button>
+          </div>
         </div>
         <div class="accessory-slot interactive" id="hatTrigger">
           <svg class="pixel-hat" viewBox="0 0 24 14" width="38" height="22">
@@ -59,7 +63,36 @@
               <div class="eye-socket"><div class="led-eye" id="rightEye"></div></div>
               <div class="led-blush right-blush"></div>
             </div>
+            <svg class="gaming-glasses-pixel" viewBox="0 0 108 40" aria-hidden="true" shape-rendering="crispEdges">
+              <g fill="#10141b" fill-opacity=".48" stroke="#05070a" stroke-opacity=".62" stroke-width="2" stroke-linejoin="miter">
+                <path d="M5 9h4V6h35v4h4v18h-4v4H10v-4H5z"/>
+                <path d="M60 10h4V6h35v3h4v19h-4v4H64v-4h-4z"/>
+                <path d="M46 12h14v5H46z"/>
+                <path d="M1 8h5v5H1zM102 8h5v5h-5z"/>
+              </g>
+              <g fill="none" stroke="#b7f7ff" stroke-opacity=".7" stroke-width="1.5" shape-rendering="crispEdges">
+                <path d="M11 12h30v15H11zM66 12h30v15H66zM47 14h12"/>
+              </g>
+              <g fill="#efffff">
+                <path d="M14 14h4v3h-4zM19 17h3v3h-3zM69 14h4v3h-4zM74 17h3v3h-3z"/>
+              </g>
+            </svg>
           </div>
+        </div>
+        <svg class="gaming-headset-pixel" viewBox="0 0 122 62" aria-hidden="true" shape-rendering="crispEdges">
+          <g stroke="#080a0e" stroke-width="2" stroke-linejoin="miter">
+            <path fill="#252b35" d="M19 25V18h4V12h5V7h7V4h9V2h14V1h15v2h9v3h7v5h5v7h4v8h-7v-8h-4v-6h-5V8h-7V6H73V5H59v1H46v2h-7v4h-5v6h-4v7z"/>
+            <path fill="#303744" d="M3 22h16v4h4v17h-4v4H5v-4H2V27H0v-3h3zM103 22h16v4h3v18h-3v4h-14v-4h-4V26h2z"/>
+            <path fill="#596273" d="M5 26h4v15H5zM111 26h4v15h-4z" stroke="none"/>
+            <path fill="#8d263b" d="M12 29h4v8h-4zM106 29h4v8h-4z" stroke="none"/>
+            <path class="gaming-headset-led" fill="#ff294f" d="M13 31h2v4h-2zM107 31h2v4h-2z" stroke="none"/>
+            <path fill="#303744" d="M4 41h5v4h4v4h5v4h8v3h7v-4h-7v-4h-6v-4h-5v-4h-7z"/>
+            <path fill="#ff294f" d="M29 52h4v4h-4z" stroke="none"/>
+          </g>
+          <path fill="#ff7188" d="M13 32h1v2h-1zM107 32h1v2h-1z"/>
+        </svg>
+        <div class="gaming-metrics" id="gamingMetrics" hidden aria-label="Gaming performance">
+          <span id="gamingPing" title="RTT koneksi internet, bukan ping server game">NET —</span>
         </div>
 
         <!-- PULL-TAB / DROPDOWN TRIGGER -->
@@ -81,6 +114,7 @@
             <button class="utility-tab" data-panel="pomodoroPanel" type="button">⏱</button>
             <button class="utility-tab" data-panel="bioRhythmPanel" type="button" aria-label="Bio-rhythm reminder">🌿</button>
             <button class="utility-tab" data-panel="launcherPanel" type="button">⌁</button>
+            <button class="utility-tab" data-panel="todoPanel" type="button" aria-label="To-do list dan alarm">☑</button>
             <button class="utility-tab" data-panel="bramoProgressPanel" type="button" aria-label="BRAMO gamification">🏆</button>
           </div>
 
@@ -112,6 +146,8 @@
               <button class="drop-action interactive" id="revealDroppedFile" type="button">Show in Folder</button>
             </div>
             <div class="drop-history" id="dropHistory"></div>
+            <div class="clipboard-history-title">CLIPBOARD HISTORY</div>
+            <div class="clipboard-history" id="clipboardHistory" aria-live="polite"></div>
             <label class="clipboard-toggle">
               <input type="checkbox" id="clipboardToggle" />
               <span>Clipboard Watcher</span>
@@ -127,6 +163,10 @@
               <button class="power-action interactive" id="sleepBramo" type="button">Sleep</button>
               <button class="power-action interactive" id="quitBramo" type="button">Quit</button>
             </div>
+            <div class="cache-cleaner">
+              <button class="power-action interactive" id="clearCache" type="button">Bersihkan Cache BRAMO</button>
+              <span id="cacheStatus" aria-live="polite">Cache aplikasi</span>
+            </div>
             <div class="theme-title">VISOR THEME</div>
             <div class="theme-picker" id="themePicker" role="group" aria-label="Visor theme">
               <button class="theme-swatch theme-cyan interactive" data-theme="cyan" type="button" aria-label="Cyberpunk Cyan"></button>
@@ -141,6 +181,10 @@
             <label class="fullscreen-toggle">
               <input type="checkbox" id="autostartToggle" />
               <span>Start with Windows</span>
+            </label>
+            <label class="fullscreen-toggle">
+              <input type="checkbox" id="sfxToggle" />
+              <span>8-bit SFX</span>
             </label>
           </div>
 
@@ -204,6 +248,48 @@
               <button id="launcherAdd" class="power-action interactive" type="button">Add</button>
             </div>
             <div id="launcherList" class="launcher-list"></div>
+          </div>
+
+          <div class="utility-panel" id="todoPanel">
+            <div class="todo-tabs" role="tablist" aria-label="To-do dan alarm">
+              <button class="todo-tab active interactive" data-todo-view="tasks" type="button">Tugas</button>
+              <button class="todo-tab interactive" data-todo-view="wakeAlarm" type="button">Bangun tidur</button>
+            </div>
+            <section class="todo-view active" id="tasksView">
+              <div class="todo-title">TO-DO & PENGINGAT TUGAS</div>
+              <form class="todo-form" id="todoForm">
+                <input class="todo-input" id="todoInput" type="text" placeholder="Tugas berikutnya…" maxlength="80" autocomplete="off" required />
+                <input class="todo-alarm-input" id="todoAlarmInput" type="datetime-local" aria-label="Waktu pengingat tugas (opsional)" />
+                <button class="power-action interactive" type="submit">Tambah</button>
+              </form>
+              <div class="todo-hint">Pengingat satu kali untuk tugas. BRAMO harus berjalan.</div>
+              <div class="todo-list" id="todoList" aria-live="polite"></div>
+            </section>
+            <section class="todo-view" id="wakeAlarmView" hidden>
+              <div class="todo-title">ALARM BANGUN TIDUR</div>
+              <div class="wake-alarm-countdown-label" id="wakeAlarmCountdownLabel">Alarm berikutnya dalam</div>
+              <div class="wake-alarm-clock" id="wakeAlarmClock">--</div>
+              <label class="wake-alarm-time-label" for="wakeAlarmTime">Waktu alarm harian</label>
+              <input class="wake-alarm-time" id="wakeAlarmTime" type="time" />
+              <label class="wake-alarm-toggle">
+                <input id="wakeAlarmEnabled" type="checkbox" />
+                <span>Alarm aktif</span>
+              </label>
+              <div class="wake-alarm-days" role="group" aria-label="Hari alarm berulang">
+                <label><input type="checkbox" data-wake-day="1" /><span>Sen</span></label>
+                <label><input type="checkbox" data-wake-day="2" /><span>Sel</span></label>
+                <label><input type="checkbox" data-wake-day="3" /><span>Rab</span></label>
+                <label><input type="checkbox" data-wake-day="4" /><span>Kam</span></label>
+                <label><input type="checkbox" data-wake-day="5" /><span>Jum</span></label>
+                <label><input type="checkbox" data-wake-day="6" /><span>Sab</span></label>
+                <label><input type="checkbox" data-wake-day="0" /><span>Min</span></label>
+              </div>
+              <div class="wake-alarm-test-row">
+                <button class="bio-action interactive" id="wakeAlarmTest" type="button">Tes suara</button>
+                <button class="bio-action interactive" id="wakeAlarmTestStop" type="button" hidden>Stop tes</button>
+              </div>
+              <div class="todo-hint">Bunyi berulang sampai dimatikan atau ditunda 5 menit. BRAMO bisa bangun dari Sleep Mode; PC harus tetap menyala.</div>
+            </section>
           </div>
 
           <div class="utility-panel bramo-progress-panel" id="bramoProgressPanel">
