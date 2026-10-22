@@ -1,6 +1,6 @@
 {
   "name": "bramo-app",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "BRAMO (Brader Visor / Tech Buddy) - interaktif cyberpunk LED visor desktop companion untuk Windows/Linux/macOS via Tauri v2.",
   "scripts": {
     "tauri": "tauri",

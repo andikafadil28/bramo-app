@@ -4,7 +4,7 @@
 - **Nama Proyek:** BRAMO (Cyberpunk Desktop Companion / Interactive Top-Bar Widget)
 - **Target Platform:** Desktop (Windows / macOS / Linux via Tauri v2)
 - **Konsep Utama:** Asisten kapsul desktop interaktif bertema cyberpunk yang dilengkapi wajah visor LED hidup, gelembung dialog komik (speech bubble), fisika drag-and-drop, serta panel dropdown utilitas yang bisa dilipat.
-- **Tantangan Arsitektur Utama:** Menyeimbangkan transparansi penuh pada window OS dan kemampuan *click-through* (`pointer-events: none` pada background) dengan elemen interaktif (`pointer-events: auto`), serta melakukan *resize* ukuran window secara dinamis (`win.setSize`) antara **Mode Compact** (`220x90`), **Mode Music** (`220x162`), dan **Mode Expanded** (`280x360`) tanpa menembus batas layar atau taskbar.
+- **Tantangan Arsitektur Utama:** Menyeimbangkan transparansi penuh pada window OS dan kemampuan *click-through* (`pointer-events: none` pada background) dengan elemen interaktif (`pointer-events: auto`), serta melakukan *resize* ukuran window secara dinamis (`win.setSize`) antara **Mode Compact** (`220x90`), **Mode Music** (`220x162`), dan **Mode Expanded** (`280x470`) tanpa menembus batas layar atau taskbar.
 
 ---
 
@@ -29,7 +29,7 @@
 - **`.bramo-capsule`**: Badan utama yang bisa di-drag (`listener mousedown`). Berisi:
   - **`.visor-screen`**: Monitor LED cyberpunk dengan garis scan, soket mata (`#leftEye`, `#rightEye`), mulut LED (`#ledMouth`), dan efek blush (`.led-blush`).
   - **`.dropdown-handle-bar`**: Tab penarik dropdown (`#dropdownToggle`) dengan indikator garis animasi (`.tab-indicator`).
-- **`.dropdown-panel`**: Panel pulau utilitas compact berbasis quick-action button untuk Music, System Stats, File Drop, Power, dan Prayer Reminder. Hanya satu utility panel aktif pada satu waktu.
+- **`.dropdown-panel`**: Panel pulau utilitas compact dengan 10 tab: Music, System Stats, File Drop, Power, Prayer, Pomodoro, Bio-rhythm, Launcher, To-do/Alarm, dan BRAMO Journey. Hanya satu utility panel aktif pada satu waktu.
 
 ### B. `src/style.css` (Lapisan Styling & Animasi)
 - **Variabel CSS (`:root`)**: Cyan neon (`--led-cyan: #00f0ff`), efek glow, dan warna panel transparan gelap (`--bg-capsule`, `--bg-panel`).
@@ -58,8 +58,8 @@
 4. **Double-Click Snap**:
    - Klik 2x pada `#hatTrigger` menghitung dimensi layar dan langsung melakukan *snap* BRAMO ke posisi tengah atas layar (`targetX = (screenWidth - windowWidth) / 2`, `targetY = 20`), sekaligus mereset state ke compact.
    5. **Dual-Mode Dynamic Window Sizing & State Management (Kunci Logika Aktif)**:
-    - Menekan `#dropdownToggle` beralih antara **Mode Compact** (`220x90`) dan **Mode Expanded** (`280x360`), dengan retry/verifikasi `outerSize()` setelah `setSize()`.
-    - Ukuran native kini punya satu sumber: `computeTargetWindowSize()` (expanded > media+pomodoro `220x210` > media `220x162` > pomodoro `220x140` > compact `220x90`, dengan override sleep) dan `applyWindowLayout({ anchor })`. Fungsi ini dipakai oleh sleep, wake, toggle dropdown, sync media, sync pomodoro, dan bubble.
+    - Menekan `#dropdownToggle` beralih antara **Mode Compact** (`220x90`) dan **Mode Expanded** (`280x470`), dengan retry/verifikasi `outerSize()` setelah `setSize()`.
+    - Ukuran native kini punya satu sumber: `computeTargetWindowSize()` (expanded `280x470` > media+pomodoro `220x210` > media `220x162` > pomodoro `220x140` > compact `220x90`, dengan override sleep) dan `applyWindowLayout({ anchor })`. Fungsi ini dipakai oleh sleep, wake, toggle dropdown, sync media, sync pomodoro, dan bubble.
     - Menggunakan `savedCompactY` dan `wasFlipped` untuk mencegah pergeseran kumulatif saat dropdown dibuka-tutup.
 6. **Window Position Persistence & Bubble Sizing**:
    - Posisi terakhir disimpan di `localStorage` dan dipulihkan saat startup.
@@ -74,7 +74,7 @@
 
 ---
 
-## 4. Daftar Ekspresi Visor LED BRAMO (Aktif & Rencana Kontekstual)
+## 4. Fitur Aktif dan Ekspresi Kontekstual
 - **Ekspresi Dasar dan Kontekstual (Sudah Dibuat):**
   - `FORWARD`: Menatap lurus ke depan secara stabil.
   - `BLINKING`: Mengecilkan tinggi mata secara instan (`height: 2px`) secara periodik.
@@ -83,7 +83,7 @@
   - `WHISTLE` / `MUMBLE` / `HAPPY-OPEN`: Variasi bentuk mulut LED interaktif.
 - **Ekspresi kontekstual aktif:**
   - `MUSIC_VIBE` **(aktif):** Mata berubah jadi equalizer LED, mulut pulse seperti humming, visor memakai palet warna berbasis judul/artist, dan speech bubble memakai kalimat vibing.
-  - `GAMING_FOCUS` **(aktif, Windows):** Mendeteksi proses game yang dikenal saat menjadi foreground, lalu mengubah mata ke ekspresi fokus dan memasang kacamata gaming serta headset bermikrofon dengan LED merah. HUD menampilkan RTT TCP internet sebagai perkiraan koneksi umum (bukan ping server game). Pemeriksaan lokal berjalan tiap 3 detik; alarm bangun tidur dan azan tetap mendapat prioritas visual.
+  - `GAMING_FOCUS` **(aktif, Windows):** Mendeteksi game foreground yang didukung, termasuk Valorant, CS2, Dota 2, League of Legends, Fortnite, Apex, Overwatch, Roblox, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero, Elden Ring, Cyberpunk 2077, GTA V, BG3, Helldivers 2, Rocket League, Dead by Daylight, Minecraft, dan Fall Guys; pola executable shipping/test umum juga dikenali. BRAMO memakai ekspresi fokus, kacamata/headset pixel dengan LED merah, dan HUD RTT TCP internet sebagai perkiraan koneksi umum (bukan ping server game). Pemeriksaan lokal berjalan tiap 3 detik; alarm bangun tidur dan azan tetap mendapat prioritas visual.
   - `SLEEPING`: Mata terpejam dan mulut tenang; idle lama menambah ekspresi sigh/yawn terpisah.
   - `SUCCESS / FILE_DROP`: Reaksi sukses file/clipboard memakai mata cerah dan senyum.
   - `ERROR / WARNING`: Belum ada ekspresi visor silang universal; beberapa fitur sudah menampilkan bubble error kontekstual.
@@ -100,7 +100,15 @@
 - Saat musik aktif, mata bergerak seperti equalizer, badan bergoyang halus, dan mulut berubah seperti sedang bernyanyi.
 - Reaksi lain yang sudah tersedia: XP/level-up, klik/sapa, bangun, fokus/istirahat, sukses launcher, idle peek/stretch/sigh/yawn, typing-curious, goyangan pusing, serta sukses file/clipboard. Animasi mencakup mata, mulut, visor, dan badan sesuai konteks.
 - Kedip otomatis dibatalkan saat BRAMO tidur; idle animation tidak berjalan saat tidur, window tersembunyi, dropdown terbuka, atau aktivitas khusus berlangsung.
-## 5. Roadmap Fitur Masa Depan (Todo List Pembahasan)
+
+### Gaming Focus (Windows)
+- Deteksi foreground process lokal mengenali game yang didukung; daftar nama dan pola executable ada di Section 4.
+- Saat aktif, BRAMO memasang kacamata/headset pixel, mengganti ekspresi visor, dan menampilkan RTT TCP internet sebagai gambaran koneksi umum; angka tersebut bukan ping server game.
+- Pemeriksaan berjalan setiap 3 detik. Alarm bangun tidur dan azan mengambil prioritas visual.
+
+## 5. Status Fitur dan Roadmap
+
+### Sudah tersedia
 - [x] **Level & Accessory Unlock System (Gamifikasi):** Sistem XP/level berdasarkan interaksi harian (sering di-drag, diklik, atau dipakai mangkal), di mana pengguna bisa membuka/unlock aksesoris baru (macam-macam topi pixel, skin visor warna-warni, atau stiker LED) lewat *reward milestone*.
 - [x] **Prayer Reminder:** Fitur pengingat waktu sholat interaktif yang terintegrasi dengan speech bubble BRAMO, toggle, audio azan, mute, dan test reminder.
 - [x] **Window Position Persistence:** Menyimpan posisi terakhir koordinat BRAMO di local storage agar posisinya tidak reset saat aplikasi direstart.
@@ -112,44 +120,36 @@
 - [x] **Custom Themes & Color Palette:** Fitur kustomisasi warna LED visor (pilihan tema: *Cyberpunk Cyan*, *Matrix Green*, *Neon Pink*, *Amber Orange*).
 - [x] **Productivity / Pomodoro Timer:** Timer fokus kerja terintegrasi dengan maskot yang memberikan motivasi atau teguran lewat *speech bubble*.
 - [x] **Quick App / Web Launcher:** Pintasan cepat untuk membuka aplikasi favorit atau web link langsung dari panel dropdown BRAMO.
+- [x] **Bio-rhythm Reminder:** Pengingat jeda dengan interval, test, selesai, dan snooze.
+- [x] **To-do + Wake Alarm:** Daftar tugas dengan pengingat, alarm berulang berdasarkan hari, test suara, dan snooze.
+- [x] **Clipboard History + Watchers:** Riwayat lima item clipboard; watcher clipboard dan typing dapat diatur.
+- [x] **BRAMO Cache Cleaner:** Membersihkan cache khusus BRAMO dan melaporkan hasilnya.
+- [x] **8-bit UI SFX:** Efek suara sintetis dengan toggle dan preferensi tersimpan.
+- [x] **Gaming Focus (Windows):** Fokus visor, aksesori gaming pixel, dan HUD RTT internet saat game yang didukung foreground.
+- [x] **Buddy Mood & Reactions:** Mood adaptif, sapaan waktu, reaksi kontekstual, serta apresiasi target Pomodoro harian.
+
+### Backlog yang belum tersedia / perlu keputusan produk
+- [x] Daftar game tambahan dari UI (nama executable), tersimpan lokal dan bisa dihapus.
+- [x] Status baterai charging dengan ikon/pulse saat panel Stats dibuka.
+- [x] Tracker produktivitas harian opsional yang menghitung waktu Pomodoro fokus atau Gaming Focus (dipilih pengguna).
+- [x] Cache cleaner punya pilihan semua cache BRAMO atau file sementara pada subfolder cache BRAMO; tidak menyasar cache aplikasi lain.
+- [x] Peringatan fokus panjang setelah ambang 60/90/120 menit dengan snooze 15 menit.
+- [x] Tema RGB cycle dan red-alert.
 
 ---
 
-## 6. Progress Selesai & Isu Terbaru (Active Debugging)
-- **Fitur Selesai (Completed):**
-  - Transparansi frameless penuh dan perilaku *click-through* area kosong.
-  - Fisika drag-and-drop, wiggle, landing bounce, dan snap ke tengah atas.
-  - Ekspresi visor otonom, berkedip, melirik, chat kontekstual, mood bertahap, sapaan waktu, dan animasi buddy mata/mulut/badan.
-  - UI adaptif untuk speech bubble (di atas layar) dan panel dropdown (di bawah layar).
-  - **Dual-Mode Height Awareness & Saved Compact Y:** Sistem buka-tutup dropdown dinamis (`90px` vs `270px`) yang mengunci koordinat awal pakai `savedCompactY` dan `wasFlipped` agar posisi window presisi dan tidak menembus batas taskbar.
-  - **Quick-Action Dropdown:** Music, Stats, File, Power, dan Prayer kini memakai tombol fitur sehingga hanya satu panel terbuka.
-  - **Prayer Reminder + Audio Azan:** Jadwal lima waktu, toggle reminder/audio, test berurutan, mute, attention bubble, animasi mulut/mata, dan pergantian cowboy hat ke peci saat azan.
-  - **Transparent Hit Area:** Padding transparan di atas kapsul tidak lagi menangkap klik; native window compact dirapatkan ke topi, kapsul, dan tab.
-  - **System Media Session & Now Playing:** Mini-player otomatis muncul saat sesi media valid sedang diputar atau dijeda, menampilkan judul/artist dan kontrol media, dengan mode Music Vibe saat pemutaran aktif.
-  - **Azan/Media Isolation:** Audio azan, session berjudul BRAMO, dan periode setelah mute diabaikan oleh deteksi musik agar tidak bentrok dengan reminder, dropdown, atau mini-player.
-  - **Dropdown/Media Layer Separation:** Mini-player disembunyikan saat dropdown terbuka; bubble dan mini-player memakai layout serta perhitungan tinggi native yang terpisah agar tidak saling menimpa atau flicker.
-  - **Azan Priority Mode:** Musik di-pause otomatis, mini-player disembunyikan, bubble terkunci selama azan, musik auto-resume setelah azan selesai atau di-mute.
-  - **Autostart toggle di panel Power** (`plugin:autostart|is_enabled|enable|disable`).
-  - **Media event-driven:** Rust meng-cache `GlobalSystemMediaTransportControlsSessionManager` dan emit `bramo://media` tiap 2,5 detik; frontend tidak lagi polling WinRT.
-  - **Media active-state fix:** sesi Windows hanya dianggap aktif bila status playback `Playing` atau `Paused` dan judul/artist tersedia. Sesi `Stopped`/`Closed`, metadata kosong, atau kegagalan membaca metadata tidak lagi memunculkan mini-player palsu. Status paused tetap ditampilkan agar kontrol resume tersedia.
-  - **Clipboard single-source:** Rust menjadi satu-satunya sumber deteksi clipboard; isi clipboard asli dikirim ke bubble.
-  - **Quit confirm in-app:** bubble "klik lagi" + tombol "Confirm?" dengan timeout 3 detik, tanpa `window.confirm()`.
-  - **Multi-monitor clamp:** `win.currentMonitor()` menentukan batas area kerja, bukan `window.screen`.
-  - **CPU% valid:** sampler `sysinfo` persisten di Rust, bukan `System::new()` per panggilan.
-  - **Anti command injection:** buka file/shortcut memakai `explorer.exe`, tanpa `cmd /C start`.
-  - **Watcher gate:** thread clipboard dan `rdev` berhenti emit saat toggle OFF.
-- **Fokus / Isu Terbaru (setelah sprint Polish & Stabilisasi):**
-  - [x] Presisi batas bawah layar saat ditarik (*drag release*) dalam kondisi dropdown tertutup maupun terbuka sudah ditangani. Kalkulasi *bottom safety lock* kini membaca tinggi aktual native window, termasuk setelah resize dropdown dan pada skenario DPI scaling umum.
-  - [x] Interactive File Drop Zone menerima file, menampilkan metadata, menyediakan Open/Show in Folder, dan menyimpan riwayat lima file terakhir.
-  - [x] Custom Themes tersedia untuk Cyberpunk Cyan, Matrix Green, Neon Pink, dan Amber Orange dengan persistence.
-  - [x] Dropdown otomatis menutup saat blur atau idle 12 detik.
-  - [x] Sleep Mode BRAMO mengecilkan seluruh maskot tanpa mensleep OS, tetap bisa dibangunkan dan langsung di-drag; kedip dibatalkan saat tidur dan anchor resize mengikuti posisi atas/bawah.
-  - [x] Pomodoro Timer tersedia dengan focus/break configurable, mini-timer floating, layout adaptif, dukungan fokus tiap 8 menit, serta apresiasi target harian 2/4/6 sesi.
-  - [x] Quick Launcher untuk URL/path aplikasi dengan persistence.
-  - [x] System Tray + Auto-start: menu Show/Hide/Sleep/Quit dan plugin autostart Tauri.
-  - [x] Fullscreen companion mode dengan pengecualian ChatGPT/Codex.
-  - [x] DPI-aware native sizing berbasis Windows scale factor.
-  - [x] `identifier` aplikasi → `com.bramo.companion` (localStorage, tema, pomodoro, dan launcher reset satu kali setelah migrasi).
+## 6. Status Proyek (2026-10-22)
+- **Interaksi desktop:** window frameless/transparan, drag dengan tilt dan landing bounce, snap top-center lewat klik ganda topi, persist posisi, clamp per-monitor, DPI-aware sizing, tray, dan fullscreen hide.
+- **Ukuran window saat ini:** compact `220x90`, media `220x162`, Pomodoro `220x140`, media+Pomodoro `220x210`, expanded `300x520`; mode sleep memakai tinggi sesuai kombinasi media/timer. Expanded Y menjaga posisi atas/bawah dengan `savedCompactY` dan `wasFlipped`.
+- **Dropdown:** 10 tab aktif — Music, Stats, File, Power, Prayer, Pomodoro, Bio-rhythm, Launcher, To-do/Alarm, dan BRAMO Journey.
+- **Dropdown UI/UX:** tab horizontal scrollable dengan label aksesibilitas dan navigasi keyboard; seluruh panel memakai heading, ukuran kontrol konsisten, serta scroll internal.
+- **Buddy:** gaze/blink, typing-curious, idle peek/stretch/sigh/yawn, pusing saat digoyang, mood adaptif, sapaan pagi/malam, reaksi sukses/XP/level, musik, fokus, kaget, reuni, serta target fokus harian.
+- **Gaming Focus (Windows):** deteksi game foreground tiap 3 detik, kosmetik gaming, ekspresi fokus, dan HUD RTT TCP internet.
+- **Roadmap (2026-10-22):** pengelolaan daftar executable game, tracker produktivitas harian, indikator charging, cache cleaner per kategori aman, peringatan fokus panjang dengan snooze, serta tema RGB/red-alert sudah tersedia.
+- **Produktivitas & reminder:** Pomodoro dengan dukungan fokus tiap 8 menit dan target harian 2/4/6 sesi; bio-rhythm; to-do dengan alarm; wake alarm harian dan snooze; Prayer Reminder dengan audio dan Azan Priority Mode.
+- **Utilitas lain:** system stats CPU/RAM/baterai, file drop/history, clipboard history + watcher, typing curiosity, quick launcher, cache cleaner BRAMO, 8-bit SFX, tema visor, dan koleksi kosmetik.
+- **Pemeriksaan kode yang pernah tercatat lolos:** `npm run check`, `cargo check`, `cargo clippy`, dan `npm run build`. Hasil tersebut tidak menggantikan uji perilaku di komputer pengguna.
+- **Uji manual yang masih perlu dilakukan:** drag/snap lintas monitor dan DPI; tray/sleep/wake; pengenalan game serta fullscreen game; transisi media stop/pause/play; Pomodoro, reminder, alarm, azan, dan audio resume; watcher clipboard/typing; cache cleaner dan autostart.
 
 ---
 
@@ -160,30 +160,26 @@
 ### Hasil Eksekusi
 - **Batch 1 — selesai.** `package.json` rapi (tanpa `main`, description polos, script `tauri`/`dev`/`build`/`check`), `.gitignore` root ditambahkan, `node_modules` dilepas dari git index, `identifier` → `com.bramo.companion`, `productName` → `BRAMO`.
 - **Batch 2 — selesai.** `SystemSampler` persisten (`app.manage`), `explorer.exe` menggantikan `cmd /C start`, gate clipboard + typing via `AtomicBool`, tray emit `bramo://tray-action`, media event-driven dengan cache WinRT manager, plus command baru `get_clipboard_text`.
-- **Batch 3 — selesai.** Quit confirm in-app, clipboard single-source, `computeTargetWindowSize()` + `applyWindowLayout({ anchor })`, toggle autostart di panel Power, clamp multi-monitor via `win.currentMonitor()`, dan `listen('bramo://media')` menggantikan polling frontend.
+- **Batch 3 — selesai.** Quit confirm in-app, clipboard single-source, `computeTargetWindowSize()` + `applyWindowLayout({ anchor })`, toggle autostart di panel Power, pemilihan monitor melalui `availableMonitors()` dengan fallback `currentMonitor()`, dan `listen('bramo://media')` menggantikan polling frontend.
 - **Batch 3A — selesai.** Azan Priority Mode sesuai pseudocode: bubble terkunci, musik auto-pause/resume, mute dan autoplay-blocked tetap menutup sesi dengan rapi.
 - **Batch 4 — selesai.** `README.md`, `todo.md`, `CONTEXT.md`, dan `SUMMARY.md` diselaraskan dengan kondisi kode.
 
-### Masalah Terverifikasi (hasil audit kode)
-| Lokasi | Masalah | Dampak |
+### Riwayat Audit: Status Perbaikan dan Verifikasi
+
+Temuan di tabel ini berasal dari audit lama. Status di bawah mencerminkan implementasi yang sekarang; label **perlu uji manual** berarti pemeriksaan kode saja belum memastikan perilaku di komputer pengguna.
+
+| Temuan lama | Status sekarang | Catatan |
 |---|---|---|
-| `src-tauri/src/lib.rs:72` | `get_system_stats` membuat `System::new()` tiap panggilan; sysinfo butuh 2 sample | **CPU% selalu 0%** |
-| `src-tauri/src/lib.rs:125,157,260` | `cmd /C start "" <path>` dipakai untuk buka file & shortcut | *Command injection* kalau path/URL punya `&` |
-| `src-tauri/src/lib.rs:352` | Thread poll clipboard (arboard) jalan tiap 1,5s walau toggle OFF | Boros resource background |
-| `src-tauri/src/lib.rs:310` | Tray "Sleep" hanya `hide()`, tidak memicu mode tidur frontend | Perilaku beda dari tombol Sleep di panel Power |
-| `src-tauri/src/lib.rs:323` | `rdev` emit `bramo://typing` terus walau toggle OFF | Event jadi sia-sia saat toggle mati |
-| `src-tauri/src/lib.rs:36` | `GlobalSystemMediaTransportControlsSessionManager::RequestAsync()` diulang tiap 2,5s | Overhead WinRT tiap polling |
-| `src/main.js:686` | Bubble azan ditampilkan sebelum `playAdhan()`; `isAdhanPlaying` baru true saat event `'play'` | Bubble azan bisa **ditimpa** pesan vibing/random chat |
-| `src/main.js:571` | Kalau `audioEnabled === false`, `playAdhan()` return → `isAdhanPlaying` tidak pernah true | Bubble **tidak terlindungi sama sekali** |
-| `src/main.js:583` | `suppressMediaUntil` hanya 8 detik, azan durasi ±4:11 | Guard habis di tengah azan |
-| `src/main.js:829` | Clipboard di-watch dua kali (Rust arboard + `navigator.clipboard`) | Event dobel |
-| `src/main.js:252` | `dropdownToggle.click()` async lalu langsung resize | Race dua resize berebut |
-| `src/main.js:1162` | `updateAdaptivePositioning` pakai `window.screen` | Multi-monitor bisa clamp ke display yang salah |
-| `src/main.js:278` | `window.confirm()` di webview frameless | Dialog sering muncul di belakang window |
-| `package.json` | Tidak ada script `tauri`/`dev` | `npm run tauri dev` di README **gagal** |
-| `package.json` | `description` berisi markdown, `main` menunjuk `index.js` yang tidak ada | Metadata tidak rapi |
-| git index | 30 file `node_modules` ikut ter-commit | Repo membengkak |
-| `src-tauri/tauri.conf.json` | `identifier` masih `com.tauri.dev`, `productName` `bramo` | Placeholder, tidak cocok untuk rilis |
+| CPU selalu 0 karena sampler dibuat ulang | **Diperbaiki di kode** | `SystemSampler` persisten di Rust; nilai CPU tetap perlu dilihat saat aplikasi berjalan. |
+| Buka file/shortcut memakai `cmd /C start` | **Diperbaiki di kode** | Windows memakai `explorer.exe`; macOS/Linux memakai opener platform. |
+| Clipboard/typing watcher tetap aktif atau terpasang ganda | **Diperbaiki di kode** | Rust watcher memakai gate; browser polling hanya fallback preview tanpa Tauri. |
+| Tray Sleep hanya menyembunyikan window | **Diperbaiki di kode** | Aksi tray didelegasikan ke frontend; perlu uji manual tray dan wake. |
+| WinRT media manager dibuat ulang setiap polling | **Diperbaiki di kode** | Manager di-cache dan snapshot dikirim melalui event. |
+| Bubble azan tertimpa, audio OFF tidak mengunci sesi, atau guard habis terlalu cepat | **Diperbaiki di kode** | `adhanSessionActive` dan alur begin/end sesi mengunci bubble serta mengatur resume; perlu uji manual dengan media aktif. |
+| Resize dropdown beradu dan posisi monitor salah | **Diperbaiki di kode** | Resize diserialisasi; pemilihan work area memakai monitor terdekat dari `availableMonitors()` dengan fallback. Perlu uji lintas monitor/DPI. |
+| Dialog quit native muncul di belakang window | **Diperbaiki di kode** | Konfirmasi dilakukan di dalam bubble BRAMO. |
+| Script/metadata package dan identifier masih placeholder | **Diperbaiki di kode** | Script `dev/build/check`, metadata, dan identifier aplikasi sudah diperbarui. |
+| `node_modules` ter-commit | **Diperbaiki di Git index** | `git ls-files node_modules` saat refresh mengembalikan nol file; dependency lokal tetap ada untuk development. |
 
 ### Batch 1 — Repo hygiene & build script
 - `package.json`: perbaiki `description`, hapus `main`, tambah scripts `tauri`, `dev`, `build`, `check` (`node --check src/main.js`).
@@ -205,7 +201,7 @@
 2. **Clipboard single-source:** Rust jadi sumber tunggal; polling `navigator.clipboard` hanya fallback saat `invoke` tidak tersedia (preview di browser). Event Rust → `get_clipboard_text` → tampilkan isi asli di bubble.
 3. **Satu sumber ukuran window:** satukan `computeTargetWindowSize()` (expanded > media+pomodoro > media > pomodoro > compact, dengan override saat sleeping) dan `applyWindowLayout({ anchor })`; dipakai oleh sleep, wake, toggle dropdown, sync media, sync pomodoro, dan bubble.
 4. **Autostart UI:** toggle di panel Power → `plugin:autostart|is_enabled` saat load, `plugin:autostart|enable|disable` saat diubah, preferensi disimpan di `localStorage`, bubble error bila gagal. Permission `autostart:default` sudah mengizinkan ketiganya.
-5. **Multi-monitor clamp:** ganti `window.screen` dengan `win.currentMonitor()` (posisi & ukuran fisik) dikombinasikan dengan `screen.availHeight * devicePixelRatio` untuk work area taskbar.
+5. **Multi-monitor clamp:** pilih work area monitor terdekat dari `availableMonitors()` berdasarkan pusat window; fallback ke `currentMonitor()` lalu ukuran `window.screen` bila diperlukan.
 6. **Media event-driven di frontend:** `listen('bramo://media')` menggantikan `setInterval(updateMediaInfo, 2500)`; simpan `lastMediaState { active, playing }` untuk dipakai Azan Priority Mode.
 
 ### Batch 3A — Azan Priority Mode
@@ -233,7 +229,7 @@ endAdhanSession()                 // idempotent
 - Dependency: butuh `lastMediaState` dari Batch 3.6; fallback ke `isMusicVibing` bila event media belum tersedia.
 
 ### Batch 4 — Sinkronisasi dokumen
-- `README.md`: pindahkan fitur yang belum ada (wardrobe/EXP, SFX 8-bit, bio-rhythm reminder, cache cleaner, to-do + alarm, clipboard history, animasi battery charging, active tracker, overwork warning, snooze/AFK, 6 tema) ke bagian **Roadmap**; perbaiki perintah `npm run tauri dev` → `npm run dev`; perbaiki URL clone.
+- `README.md`: pada saat Batch 4, pindahkan fitur yang belum ada saat itu ke bagian **Roadmap**; perbaiki perintah `npm run tauri dev` → `npm run dev`; perbaiki URL clone. Status fitur terkini ada di Section 5.
 - `todo.md`: tandai ulang item yang sudah selesai dan masukkan checklist sprint ini.
 - `CONTEXT.md`: koreksi ukuran window, tambahkan Azan Priority Mode, perbarui bagian Fokus.
 - `SUMMARY.md`: selaraskan daftar fitur dengan kondisi kode.
@@ -244,16 +240,20 @@ endAdhanSession()                 // idempotent
 - Frontend debounce dua snapshot untuk perubahan active/inactive tetap dipakai agar pergantian sesi sesaat tidak membuat layout berkedip.
 - Tidak menjalankan build MSI pada perbaikan ini. Perlu uji manual di Windows untuk memastikan sesi berhenti menutup panel dan sesi pause tetap tersedia.
 
+### Refresh konteks proyek (2026-10-22)
+- Fakta arsitektur diselaraskan dengan implementasi saat ini: expanded `280x470`, 10 tab dropdown, dan pemilihan work area melalui monitor terdekat dari `availableMonitors()`.
+- Fitur aktif dipisahkan dari backlog. Temuan audit lama diberi status perbaikan kode atau uji manual yang masih diperlukan.
+
 ### Verifikasi Sprint
 1. [x] `npm run check` (syntax check `src/main.js`).
 2. [x] `cargo check --manifest-path src-tauri/Cargo.toml` lalu `cargo clippy --manifest-path src-tauri/Cargo.toml` (bersih, tanpa warning).
 3. [x] `npm run build` (bundle Tauri harus lolos).
-4. [ ] Uji manual: drag + snap · 7 panel dropdown · toggle autostart (periksa registry `Run`) · tray show/hide/sleep/quit · sleep lalu wake · pomodoro · mini-player · hide in fullscreen · clipboard on/off (event tunggal) · **CPU% bukan 0 lagi** · clamp multi-monitor · DPI 125% dan 150%.
+4. [ ] Uji manual: drag/snap lintas monitor dan DPI · 10 tab dropdown · tray/autostart · sleep/wake dan alarm · Pomodoro/target harian · media play/pause/stop · azan dan auto-resume · clipboard/typing watcher · file drop/cache cleaner · Gaming Focus serta fullscreen game.
 5. [ ] Uji skenario azan: musik main → jadwal Prayer / Test Reminder dipicu → musik **pause**, mini-player hilang, bubble azan **tidak tertimpa** selama azan berjalan → azan selesai → musik **auto-resume** · mute di tengah jalan → musik resume · Audio OFF → pause 15 detik lalu resume.
 
 ### Di Luar Scope Sprint Ini
-- Refactor `src/main.js` monolit (1.650 baris) menjadi modul.
-- Implementasi fitur README yang belum ada (wardrobe/EXP, SFX 8-bit, bio-rhythm, cache cleaner, to-do + alarm).
-- E2E visual multi-monitor mendalam.
+- Refactor `src/main.js` menjadi modul-modul yang lebih mudah dirawat.
+- E2E visual mendalam untuk multi-monitor, DPI, dan interaksi antar-reminder.
+- Perluas daftar game yang didukung dan evaluasi kebutuhan pengaturan allowlist dari UI.
 
-- Fokus berikutnya: refactor monolit `src/main.js` menjadi modul, pengujian visual end-to-end, dan penyempurnaan edge case multi-monitor. Gaming Focus sudah berjalan di Windows untuk proses game yang dikenali.
+- Fokus berikutnya: selesaikan uji manual Windows pada Section 6/7, lalu pilih antara modularisasi frontend atau perluasan Gaming Focus.

@@ -98,7 +98,7 @@ fn remove_cache_contents(path: &Path, result: &mut CacheCleanResult) -> Result<(
 }
 
 #[tauri::command]
-fn clear_bramo_cache(app: tauri::AppHandle) -> Result<CacheCleanResult, String> {
+fn clear_bramo_cache(app: tauri::AppHandle, category: Option<String>) -> Result<CacheCleanResult, String> {
   let cache_dir = app.path().app_cache_dir().map_err(|error| error.to_string())?;
   if !cache_dir.exists() {
     return Ok(CacheCleanResult { files_removed: 0, bytes_removed: 0, files_skipped: 0 });
@@ -107,7 +107,19 @@ fn clear_bramo_cache(app: tauri::AppHandle) -> Result<CacheCleanResult, String> 
     return Err("Direktori cache BRAMO tidak valid".to_string());
   }
   let mut result = CacheCleanResult { files_removed: 0, bytes_removed: 0, files_skipped: 0 };
-  remove_cache_contents(&cache_dir, &mut result)?;
+  let category = category.as_deref().unwrap_or("all");
+  let selected: Vec<std::path::PathBuf> = match category {
+    "all" => vec![cache_dir.clone()],
+    "temp" => vec![cache_dir.join("tmp"), cache_dir.join("temp")],
+    _ => return Err("Kategori cache tidak dikenal".to_string()),
+  };
+  let canonical_cache = std::fs::canonicalize(&cache_dir).map_err(|error| error.to_string())?;
+  for selected_path in selected {
+    if !selected_path.exists() { continue; }
+    let canonical_selected = std::fs::canonicalize(&selected_path).map_err(|error| error.to_string())?;
+    if !canonical_selected.starts_with(&canonical_cache) { return Err("Path cache berada di luar direktori BRAMO".to_string()); }
+    if category == "all" || canonical_selected.is_dir() { remove_cache_contents(&canonical_selected, &mut result)?; }
+  }
   Ok(result)
 }
 

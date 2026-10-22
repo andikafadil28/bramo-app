@@ -62,6 +62,9 @@ const wakeAlarmSnooze = document.getElementById('wakeAlarmSnooze');
 const wakeAlarmStop = document.getElementById('wakeAlarmStop');
 const wakeAlarmTest = document.getElementById('wakeAlarmTest');
 const wakeAlarmTestStop = document.getElementById('wakeAlarmTestStop');
+const wakeAlarmPanelActions = document.getElementById('wakeAlarmPanelActions');
+const wakeAlarmPanelSnooze = document.getElementById('wakeAlarmPanelSnooze');
+const wakeAlarmPanelStop = document.getElementById('wakeAlarmPanelStop');
 const wakeAlarmDayInputs = document.querySelectorAll('[data-wake-day]');
 const gamingMetrics = document.getElementById('gamingMetrics');
 const gamingPing = document.getElementById('gamingPing');
@@ -102,6 +105,15 @@ const journeyTabs = document.querySelectorAll('.journey-tab');
 const journeyViews = document.querySelectorAll('.journey-view');
 const cosmeticGroups = document.getElementById('cosmeticGroups');
 const collectionSummary = document.getElementById('collectionSummary');
+const activityTrackerSource = document.getElementById('activityTrackerSource');
+const activityTrackerStatus = document.getElementById('activityTrackerStatus');
+const cacheCategory = document.getElementById('cacheCategory');
+const gameProcessInput = document.getElementById('gameProcessInput');
+const addGameProcess = document.getElementById('addGameProcess');
+const gameProcessList = document.getElementById('gameProcessList');
+const overworkEnabled = document.getElementById('overworkEnabled');
+const overworkThreshold = document.getElementById('overworkThreshold');
+const overworkSnooze = document.getElementById('overworkSnooze');
 
 let isActivelyDragging = false;
 let isDragCandidate = false;
@@ -153,6 +165,12 @@ let wakeAlarmTestActive = false;
 let wakeAlarmSoundTimer = null;
 let wakeAlarmTestTimer = null;
 let gamingFocusPollBusy = false;
+let gamingFocusActive = false;
+let activityDaily = (() => { try { const value = JSON.parse(localStorage.getItem('bramo.activity.daily') || '{}'); return value.date === new Date().toLocaleDateString('en-CA') ? value : { date: new Date().toLocaleDateString('en-CA'), seconds: 0 }; } catch { return { date: new Date().toLocaleDateString('en-CA'), seconds: 0 }; } })();
+let overworkSnoozedUntil = Number(localStorage.getItem('bramo.overwork.snoozedUntil')) || 0;
+let overworkLastAlertAt = Number(localStorage.getItem('bramo.overwork.lastAlertAt')) || 0;
+const savedGameProcesses = (() => { try { const value = JSON.parse(localStorage.getItem('bramo.games.custom') || '[]'); return Array.isArray(value) ? value.filter(name => /^[\w .()&'-]+\.exe$/i.test(name)).slice(0, 30) : []; } catch { return []; } })();
+let gameProcessOverrides = new Set(savedGameProcesses.map(name => name.toLowerCase()));
 let wakeAlarmState = (() => {
   try {
     const saved = JSON.parse(localStorage.getItem('bramo.wake-alarm') || '{}');
@@ -318,6 +336,7 @@ function saveWakeAlarm() {
 
 function renderWakeAlarm(syncControls = false) {
   if (!wakeAlarmTime) return;
+  wakeAlarmPanelActions.hidden = !wakeAlarmActive;
   if (syncControls) {
     wakeAlarmTime.value = wakeAlarmState.time;
     wakeAlarmEnabledToggle.checked = wakeAlarmState.enabled;
@@ -404,6 +423,7 @@ async function startWakeAlarm() {
   speechBubble.classList.add('wake-alarm');
   bramoContainer.classList.add('wake-alarm-ringing');
   wakeAlarmActions.hidden = false;
+  wakeAlarmPanelActions.hidden = false;
   playWakeAlarmTone();
   wakeAlarmSoundTimer = setInterval(playWakeAlarmTone, 900);
   showWakeAlarmMessage();
@@ -414,6 +434,7 @@ function showWakeAlarmMessage() {
   speechBubble.classList.add('wake-alarm');
   bramoContainer.classList.add('wake-alarm-ringing');
   wakeAlarmActions.hidden = false;
+  wakeAlarmPanelActions.hidden = false;
   showBramoMessage(`Alarm bangun tidur! Sekarang ${wakeAlarmState.time} ⏰`, null, true);
 }
 
@@ -422,6 +443,7 @@ function finishWakeAlarm({ snooze = false } = {}) {
   if (wakeAlarmSoundTimer) clearInterval(wakeAlarmSoundTimer);
   wakeAlarmSoundTimer = null;
   wakeAlarmActions.hidden = true;
+  wakeAlarmPanelActions.hidden = true;
   wakeAlarmState.snoozedUntil = snooze ? Date.now() + 5 * 60_000 : 0;
   saveWakeAlarm();
   speechBubble.classList.remove('wake-alarm');
@@ -430,7 +452,7 @@ function finishWakeAlarm({ snooze = false } = {}) {
   else if (!adhanSessionActive) hideBramoMessage(true);
 }
 
-todoViewTabs.forEach(tab => tab.addEventListener('click', () => {
+  todoViewTabs.forEach(tab => tab.addEventListener('click', () => {
   const view = tab.dataset.todoView;
   todoViewTabs.forEach(item => item.classList.toggle('active', item === tab));
   todoViews.forEach(section => {
@@ -438,7 +460,10 @@ todoViewTabs.forEach(tab => tab.addEventListener('click', () => {
     section.classList.toggle('active', active);
     section.hidden = !active;
   });
-}));
+  todoViewTabs.forEach(item => item.setAttribute('aria-selected', String(item === tab)));
+    localStorage.setItem('bramo.todo.view', view);
+  }));
+if (localStorage.getItem('bramo.todo.view') === 'wakeAlarm') todoViewTabs[1]?.click();
 
 wakeAlarmTime?.addEventListener('change', () => {
   if (!wakeAlarmTime.value) return;
@@ -484,6 +509,8 @@ wakeAlarmStop?.addEventListener('click', () => {
   if (wakeAlarmTestActive) stopWakeAlarmSoundTest();
   else finishWakeAlarm();
 });
+wakeAlarmPanelSnooze?.addEventListener('click', () => finishWakeAlarm({ snooze: true }));
+wakeAlarmPanelStop?.addEventListener('click', () => finishWakeAlarm());
 
 renderWakeAlarm(true);
 setInterval(() => {
@@ -791,6 +818,30 @@ const knownGameProcesses = new Set([
   'deadbydaylight-win64-shipping.exe', 'minecraft.windows.exe', 'fallguys_client_game.exe'
 ]);
 
+function renderGameProcessList() {
+  gameProcessList.replaceChildren();
+  [...gameProcessOverrides].sort().forEach(processName => {
+    const row = document.createElement('div');
+    const label = document.createElement('span'); label.textContent = processName;
+    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'interactive'; remove.textContent = '×'; remove.setAttribute('aria-label', `Hapus ${processName}`);
+    remove.addEventListener('click', () => { gameProcessOverrides.delete(processName); saveGameProcessOverrides(); });
+    row.append(label, remove); gameProcessList.append(row);
+  });
+}
+function saveGameProcessOverrides() {
+  localStorage.setItem('bramo.games.custom', JSON.stringify([...gameProcessOverrides]));
+  renderGameProcessList();
+}
+addGameProcess?.addEventListener('click', () => {
+  const processName = gameProcessInput.value.trim().toLowerCase();
+  if (!/^[\w .()&'-]+\.exe$/i.test(processName) || gameProcessOverrides.size >= 30) { showBramoMessage('Masukkan nama file .exe yang valid (maksimal 30 game)', 2400); return; }
+  gameProcessOverrides.add(processName); gameProcessInput.value = ''; saveGameProcessOverrides();
+});
+gameProcessInput?.addEventListener('keydown', event => {
+  if (event.key === 'Enter') { event.preventDefault(); addGameProcess.click(); }
+});
+renderGameProcessList();
+
 async function updateGamingFocus() {
   const invoke = window.__TAURI__?.core?.invoke;
   if (!invoke || gamingFocusPollBusy) return;
@@ -798,7 +849,7 @@ async function updateGamingFocus() {
   try {
     const processName = await invoke('get_foreground_process_name');
     const isGame = typeof processName === 'string'
-      && (knownGameProcesses.has(processName) || /-win(?:32|64)-(?:shipping|test)\.exe$/i.test(processName));
+      && (knownGameProcesses.has(processName) || gameProcessOverrides.has(processName.toLowerCase()) || /-win(?:32|64)-(?:shipping|test)\.exe$/i.test(processName));
     const networkRtt = isGame ? await invoke('get_network_rtt_ms').catch(() => null) : null;
     const shouldShowGamingFocus = isGame
       && !adhanSessionActive
@@ -808,6 +859,7 @@ async function updateGamingFocus() {
       && !document.hidden;
     const wasGamingFocus = bramoContainer.classList.contains('gaming-focus');
     bramoContainer.classList.toggle('gaming-focus', shouldShowGamingFocus);
+    gamingFocusActive = shouldShowGamingFocus;
     gamingMetrics.hidden = !shouldShowGamingFocus;
     gamingPing.textContent = Number.isFinite(networkRtt) ? `NET ${networkRtt}ms` : 'NET —';
     if (shouldShowGamingFocus && !wasGamingFocus) {
@@ -906,6 +958,12 @@ launcherAdd?.addEventListener('click', () => {
   launcherTarget.value = '';
   renderLauncher();
 });
+launcherTarget?.addEventListener('keydown', event => {
+  if (event.key === 'Enter') { event.preventDefault(); launcherAdd.click(); }
+});
+launcherName?.addEventListener('keydown', event => {
+  if (event.key === 'Enter') { event.preventDefault(); launcherTarget.focus(); }
+});
 
 renderLauncher();
 let mediaCandidate = null;
@@ -917,7 +975,7 @@ const POSITION_STORAGE_KEY = 'bramo.window.position.v1';
 let windowPositionRevision = 0;
 const COMPACT_WINDOW_SIZE = { width: 220, height: 90 };
 const MEDIA_WINDOW_SIZE = { width: 220, height: 162 };
-const EXPANDED_WINDOW_SIZE = { width: 280, height: 470 };
+const EXPANDED_WINDOW_SIZE = { width: 300, height: 520 };
 let mediaWindowActive = false;
 let bubbleBasePosition = null;
 let shakeSamples = [];
@@ -929,6 +987,44 @@ const savedBreakMinutes = Number(localStorage.getItem('bramo.pomodoro.break')) |
 let pomodoroSeconds = savedFocusMinutes * 60;
 let pomodoroDuration = savedFocusMinutes * 60;
 let pomodoroFocusMode = true;
+let pomodoroSessionStartedAt = 0;
+try {
+  const savedPomodoro = JSON.parse(localStorage.getItem('bramo.pomodoro.session') || 'null');
+  if (savedPomodoro && typeof savedPomodoro.focus === 'boolean' && Number.isFinite(savedPomodoro.seconds) && Number.isFinite(savedPomodoro.duration)) {
+    pomodoroFocusMode = savedPomodoro.focus;
+    pomodoroDuration = Math.max(60, Math.min(60 * 60, savedPomodoro.duration));
+    pomodoroSeconds = Math.max(0, Math.min(pomodoroDuration, savedPomodoro.seconds));
+  }
+} catch {}
+
+function persistPomodoroSession() {
+  localStorage.setItem('bramo.pomodoro.session', JSON.stringify({ focus: pomodoroFocusMode, seconds: pomodoroSeconds, duration: pomodoroDuration }));
+}
+
+activityTrackerSource.value = localStorage.getItem('bramo.activity.source') || 'off';
+overworkEnabled.checked = localStorage.getItem('bramo.overwork.enabled') === 'true';
+overworkThreshold.value = ['60', '90', '120'].includes(localStorage.getItem('bramo.overwork.threshold')) ? localStorage.getItem('bramo.overwork.threshold') : '90';
+activityTrackerSource.addEventListener('change', () => { localStorage.setItem('bramo.activity.source', activityTrackerSource.value); });
+overworkEnabled.addEventListener('change', () => localStorage.setItem('bramo.overwork.enabled', String(overworkEnabled.checked)));
+overworkThreshold.addEventListener('change', () => localStorage.setItem('bramo.overwork.threshold', overworkThreshold.value));
+overworkSnooze.addEventListener('click', () => { overworkSnoozedUntil = Date.now() + 15 * 60_000; localStorage.setItem('bramo.overwork.snoozedUntil', String(overworkSnoozedUntil)); overworkSnooze.hidden = true; });
+
+function updateProductivityTracker() {
+  const source = activityTrackerSource.value;
+  const active = (source === 'pomodoro' && pomodoroTimer && pomodoroFocusMode) || (source === 'gaming' && gamingFocusActive);
+  const today = new Date().toLocaleDateString('en-CA');
+  if (activityDaily.date !== today) activityDaily = { date: today, seconds: 0 };
+  if (active) { activityDaily.seconds++; localStorage.setItem('bramo.activity.daily', JSON.stringify(activityDaily)); }
+  const minutes = Math.floor(activityDaily.seconds / 60);
+  activityTrackerStatus.textContent = source === 'off' ? 'Tracker mati' : `${minutes} menit tercatat${active ? ' · aktif' : ' · menunggu sesi'}`;
+  const thresholdSeconds = Number(overworkThreshold.value) * 60;
+  const eligible = overworkEnabled.checked && source === 'pomodoro' && activityDaily.seconds >= thresholdSeconds && Date.now() >= overworkSnoozedUntil;
+  if (eligible && Date.now() - overworkLastAlertAt >= 30 * 60_000) {
+    overworkLastAlertAt = Date.now(); localStorage.setItem('bramo.overwork.lastAlertAt', String(overworkLastAlertAt));
+    overworkSnooze.hidden = false; showBramoMessage('Kamu sudah fokus cukup lama. Mau istirahat sebentar? 🌿', 5000);
+  }
+}
+setInterval(updateProductivityTracker, 1000);
 
 pomodoroFocusSetting.value = String(savedFocusMinutes);
 pomodoroBreakSetting.value = String(savedBreakMinutes);
@@ -953,6 +1049,7 @@ function renderPomodoro() {
 function finishPomodoroSession() {
   if (pomodoroTimer) clearInterval(pomodoroTimer);
   pomodoroTimer = null;
+  pomodoroSessionStartedAt = 0;
   if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
   focusEncouragementTimer = null;
   const completedFocus = pomodoroFocusMode;
@@ -964,6 +1061,7 @@ function finishPomodoroSession() {
   const minutes = pomodoroFocusMode ? Number(pomodoroFocusSetting.value) : Number(pomodoroBreakSetting.value);
   pomodoroDuration = minutes * 60;
   pomodoroSeconds = pomodoroDuration;
+  persistPomodoroSession();
   renderPomodoro();
   triggerBramoReaction(completedFocus ? 'agree' : (pomodoroFocusMode ? 'focus' : 'break'), 2200);
   showBramoMessage(pomodoroFocusMode ? 'Waktu fokus dimulai! Semangat 🔥' : 'Saatnya istirahat sebentar ☕', 4000);
@@ -974,6 +1072,7 @@ function togglePomodoro() {
   if (pomodoroTimer) {
     clearInterval(pomodoroTimer);
     pomodoroTimer = null;
+    pomodoroSessionStartedAt = 0;
     if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
     focusEncouragementTimer = null;
     renderPomodoro();
@@ -981,9 +1080,11 @@ function togglePomodoro() {
   }
   pomodoroTimer = setInterval(() => {
     pomodoroSeconds -= 1;
+    persistPomodoroSession();
     if (pomodoroSeconds <= 0) finishPomodoroSession();
     else renderPomodoro();
   }, 1000);
+  if (pomodoroFocusMode) { pomodoroSessionStartedAt = Date.now(); overworkLastAlertAt = 0; overworkSnoozedUntil = 0; overworkSnooze.hidden = true; }
   renderPomodoro();
   scheduleFocusEncouragement();
   triggerBramoReaction('think', 1600);
@@ -1044,9 +1145,11 @@ pomodoroReset?.addEventListener('click', () => {
   if (focusEncouragementTimer) clearTimeout(focusEncouragementTimer);
   focusEncouragementTimer = null;
   pomodoroTimer = null;
+  pomodoroSessionStartedAt = 0;
   pomodoroFocusMode = true;
   pomodoroDuration = Number(pomodoroFocusSetting.value) * 60;
   pomodoroSeconds = pomodoroDuration;
+  persistPomodoroSession();
   renderPomodoro();
 });
 function updatePomodoroSetting() {
@@ -1056,6 +1159,7 @@ function updatePomodoroSetting() {
     pomodoroFocusMode = true;
     pomodoroDuration = Number(pomodoroFocusSetting.value) * 60;
     pomodoroSeconds = pomodoroDuration;
+    persistPomodoroSession();
     renderPomodoro();
   }
 }
@@ -1173,7 +1277,7 @@ clearCacheButton?.addEventListener('click', async () => {
   clearCacheButton.disabled = true;
   cacheStatus.textContent = 'Membersihkan…';
   try {
-    const result = await invoke('clear_bramo_cache');
+    const result = await invoke('clear_bramo_cache', { category: cacheCategory.value });
     const bytes = Number(result.bytesRemoved || 0);
     const size = bytes < 1024 ? `${bytes} B` : bytes < 1024 * 1024
       ? `${(bytes / 1024).toFixed(1)} KB`
@@ -1191,7 +1295,7 @@ clearCacheButton?.addEventListener('click', async () => {
 const savedTheme = localStorage.getItem('bramo.theme') || 'cyan';
 
 function applyTheme(theme) {
-  const validThemes = ['cyan', 'matrix', 'pink', 'amber'];
+  const validThemes = ['cyan', 'matrix', 'pink', 'amber', 'rgb', 'alert'];
   const nextTheme = validThemes.includes(theme) ? theme : 'cyan';
   const themeCosmetic = COSMETICS.find(item => item.id === `theme-${nextTheme}`);
   if (themeCosmetic && bramoProgress.xp < themeCosmetic.xp) return;
@@ -1202,6 +1306,7 @@ function applyTheme(theme) {
   themePicker?.querySelectorAll('[data-theme]').forEach(button => {
     button.classList.toggle('selected', button.dataset.theme === nextTheme);
   });
+  bramoContainer.classList.toggle('rgb-theme', nextTheme === 'rgb');
 }
 
 applyTheme(savedTheme);
@@ -1627,10 +1732,23 @@ adhanAudio.addEventListener('ended', () => {
 });
 
 let recentPanelSwitches = [];
+const savedPanelId = localStorage.getItem('bramo.panel.last') || 'musicPanel';
+const initialPanelId = [...utilityPanels].some(panel => panel.id === savedPanelId) ? savedPanelId : 'musicPanel';
+utilityPanels.forEach(panel => panel.classList.toggle('active', panel.id === initialPanelId));
+utilityTabs.forEach(tab => {
+  const selected = tab.dataset.panel === initialPanelId;
+  tab.classList.toggle('active', selected);
+  tab.setAttribute('aria-selected', String(selected));
+  tab.setAttribute('tabindex', selected ? '0' : '-1');
+});
 utilityTabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const panelId = tab.dataset.panel;
     utilityTabs.forEach(item => item.classList.toggle('active', item === tab));
+    utilityTabs.forEach(item => item.setAttribute('aria-selected', String(item === tab)));
+    utilityTabs.forEach(item => item.setAttribute('tabindex', item === tab ? '0' : '-1'));
+    tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    localStorage.setItem('bramo.panel.last', panelId);
     const now = Date.now();
     recentPanelSwitches = recentPanelSwitches.filter(item => now - item.at < 45_000);
     recentPanelSwitches.push({ id: panelId, at: now });
@@ -1649,6 +1767,15 @@ utilityTabs.forEach(tab => {
     if (featureNames[panelId]) awardFeatureMilestone(panelId, featureNames[panelId]);
     if (panelId === 'statsPanel') updateSystemStats();
     if (panelId === 'prayerPanel') loadPrayerSchedule();
+  });
+  tab.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const tabs = [...utilityTabs];
+    const current = tabs.indexOf(tab);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+      : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    tabs[next].focus(); tabs[next].click();
   });
 });
 
@@ -2002,8 +2129,9 @@ async function updateSystemStats() {
       batteryManager = await navigator.getBattery();
     }
     batteryValue.textContent = batteryManager
-      ? `${Math.round(batteryManager.level * 100)}%`
+      ? `${Math.round(batteryManager.level * 100)}%${batteryManager.charging ? ' ⚡' : ''}`
       : 'N/A';
+    bramoContainer.classList.toggle('battery-charging', Boolean(batteryManager?.charging));
 
     const cpu = Number.parseFloat(cpuValue.textContent);
     const memory = Number.parseFloat(memoryValue.textContent);
@@ -2416,6 +2544,7 @@ bioRhythmDone.addEventListener('click', completeBioRhythmBreak);
 bioRhythmSnooze.addEventListener('click', snoozeBioRhythmBreak);
 bioBubbleDone.addEventListener('click', completeBioRhythmBreak);
 bioBubbleSnooze.addEventListener('click', snoozeBioRhythmBreak);
+bioRhythmDone.addEventListener('keydown', event => event.stopPropagation());
 
 startBioRhythmReminder();
 if (bioRhythmEnabled && bioRhythmDue) {

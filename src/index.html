@@ -105,20 +105,21 @@
       <!-- Dropdown Island Panel -->
       <div class="dropdown-panel" id="dropdownPanel">
         <div class="dropdown-content-wrapper">
-          <div class="utility-tabs" role="tablist">
-            <button class="utility-tab active" data-panel="musicPanel" type="button">♫</button>
-            <button class="utility-tab" data-panel="statsPanel" type="button">▥</button>
-            <button class="utility-tab" data-panel="filePanel" type="button">▣</button>
-            <button class="utility-tab" data-panel="powerPanel" type="button">⚡</button>
-            <button class="utility-tab" data-panel="prayerPanel" type="button">☪</button>
-            <button class="utility-tab" data-panel="pomodoroPanel" type="button">⏱</button>
-            <button class="utility-tab" data-panel="bioRhythmPanel" type="button" aria-label="Bio-rhythm reminder">🌿</button>
-            <button class="utility-tab" data-panel="launcherPanel" type="button">⌁</button>
-            <button class="utility-tab" data-panel="todoPanel" type="button" aria-label="To-do list dan alarm">☑</button>
-            <button class="utility-tab" data-panel="bramoProgressPanel" type="button" aria-label="BRAMO gamification">🏆</button>
+          <div class="utility-tabs" role="tablist" aria-label="Fitur BRAMO">
+            <button class="utility-tab active" id="tabMusic" role="tab" aria-selected="true" aria-controls="musicPanel" data-panel="musicPanel" data-tooltip="Musik" title="Musik" aria-label="Musik" type="button">♫</button>
+            <button class="utility-tab" id="tabStats" role="tab" aria-selected="false" aria-controls="statsPanel" data-panel="statsPanel" data-tooltip="Statistik" title="Statistik" aria-label="Statistik" type="button">▥</button>
+            <button class="utility-tab" id="tabFile" role="tab" aria-selected="false" aria-controls="filePanel" data-panel="filePanel" data-tooltip="File & Clipboard" title="File & Clipboard" aria-label="File dan Clipboard" type="button">▣</button>
+            <button class="utility-tab" id="tabPomodoro" role="tab" aria-selected="false" aria-controls="pomodoroPanel" data-panel="pomodoroPanel" data-tooltip="Pomodoro" title="Pomodoro" aria-label="Pomodoro" type="button">⏱</button>
+            <button class="utility-tab" id="tabLauncher" role="tab" aria-selected="false" aria-controls="launcherPanel" data-panel="launcherPanel" data-tooltip="Launcher" title="Launcher" aria-label="Launcher" type="button">⌁</button>
+            <button class="utility-tab" id="tabBioRhythm" role="tab" aria-selected="false" aria-controls="bioRhythmPanel" data-panel="bioRhythmPanel" data-tooltip="Pengingat Jeda" title="Pengingat Jeda" aria-label="Pengingat Jeda" type="button">🌿</button>
+            <button class="utility-tab" id="tabPrayer" role="tab" aria-selected="false" aria-controls="prayerPanel" data-panel="prayerPanel" data-tooltip="Pengingat Sholat" title="Pengingat Sholat" aria-label="Pengingat Sholat" type="button">☪</button>
+            <button class="utility-tab" id="tabTodo" role="tab" aria-selected="false" aria-controls="todoPanel" data-panel="todoPanel" data-tooltip="To-do & Alarm" title="To-do & Alarm" aria-label="To-do dan Alarm" type="button">☑</button>
+            <button class="utility-tab" id="tabJourney" role="tab" aria-selected="false" aria-controls="bramoProgressPanel" data-panel="bramoProgressPanel" data-tooltip="BRAMO Journey" title="BRAMO Journey" aria-label="BRAMO Journey" type="button">🏆</button>
+            <button class="utility-tab" id="tabPower" role="tab" aria-selected="false" aria-controls="powerPanel" data-panel="powerPanel" data-tooltip="Pengaturan" title="Pengaturan" aria-label="Pengaturan" type="button">⚙</button>
           </div>
 
-          <div class="utility-panel active" id="musicPanel">
+          <div class="utility-panel active" id="musicPanel" role="tabpanel" aria-labelledby="tabMusic">
+            <div class="panel-heading"><strong>Musik</strong><span>Kontrol media sistem</span></div>
             <div class="song-title" id="musicStatus">System media controls</div>
             <div class="media-controls">
               <button class="btn-media" data-media-action="previous" aria-label="Previous track">⏮</button>
@@ -127,15 +128,24 @@
             </div>
           </div>
 
-          <div class="utility-panel" id="statsPanel">
+          <div class="utility-panel" id="statsPanel" role="tabpanel" aria-labelledby="tabStats">
+            <div class="panel-heading"><strong>Statistik</strong><span>Status perangkat</span></div>
             <div class="stats-grid">
               <span>CPU</span><strong id="cpuValue">--%</strong>
               <span>RAM</span><strong id="memoryValue">--%</strong>
               <span>BAT</span><strong id="batteryValue">--%</strong>
             </div>
+            <div class="activity-tracker">
+              <label for="activityTrackerSource">Tracker produktivitas</label>
+              <select id="activityTrackerSource" class="interactive">
+                <option value="off">Mati</option><option value="pomodoro">Sesi Pomodoro</option><option value="gaming">Gaming Focus</option>
+              </select>
+              <div id="activityTrackerStatus" aria-live="polite">Tracker mati</div>
+            </div>
           </div>
 
-          <div class="utility-panel" id="filePanel">
+          <div class="utility-panel" id="filePanel" role="tabpanel" aria-labelledby="tabFile">
+            <div class="panel-heading"><strong>File & Clipboard</strong><span>Lempar file atau salin ulang teks</span></div>
             <div class="drop-widget interactive" id="fileDropZone">
               <span class="drop-label">Drop File</span>
               <div class="folder-icon">📁</div>
@@ -158,12 +168,15 @@
             </label>
           </div>
 
-          <div class="utility-panel" id="powerPanel">
+          <div class="utility-panel" id="powerPanel" role="tabpanel" aria-labelledby="tabPower">
+            <div class="panel-heading"><strong>Pengaturan</strong><span>Tampilan dan perilaku BRAMO</span></div>
             <div class="power-actions">
               <button class="power-action interactive" id="sleepBramo" type="button">Sleep</button>
               <button class="power-action interactive" id="quitBramo" type="button">Quit</button>
             </div>
             <div class="cache-cleaner">
+              <label for="cacheCategory">Kategori cache</label>
+              <select id="cacheCategory" class="interactive"><option value="all">Semua cache BRAMO</option><option value="temp">File sementara BRAMO</option></select>
               <button class="power-action interactive" id="clearCache" type="button">Bersihkan Cache BRAMO</button>
               <span id="cacheStatus" aria-live="polite">Cache aplikasi</span>
             </div>
@@ -173,6 +186,13 @@
               <button class="theme-swatch theme-matrix interactive" data-theme="matrix" type="button" aria-label="Matrix Green"></button>
               <button class="theme-swatch theme-pink interactive" data-theme="pink" type="button" aria-label="Neon Pink"></button>
               <button class="theme-swatch theme-amber interactive" data-theme="amber" type="button" aria-label="Amber Orange"></button>
+              <button class="theme-swatch theme-rgb interactive" data-theme="rgb" type="button" aria-label="RGB Cycle"></button>
+              <button class="theme-swatch theme-alert interactive" data-theme="alert" type="button" aria-label="Red Alert"></button>
+            </div>
+            <div class="game-manager">
+              <label for="gameProcessInput">Game tambahan (nama .exe)</label>
+              <div><input id="gameProcessInput" class="launcher-input" type="text" maxlength="64" placeholder="contoh: game.exe" autocomplete="off"/><button id="addGameProcess" class="power-action interactive" type="button">Tambah</button></div>
+              <div id="gameProcessList" aria-live="polite"></div>
             </div>
             <label class="fullscreen-toggle">
               <input type="checkbox" id="fullscreenToggle" />
@@ -188,7 +208,8 @@
             </label>
           </div>
 
-          <div class="utility-panel" id="pomodoroPanel">
+          <div class="utility-panel" id="pomodoroPanel" role="tabpanel" aria-labelledby="tabPomodoro">
+            <div class="panel-heading"><strong>Fokus</strong><span>Atur sesi kerja dan istirahat</span></div>
             <div class="pomodoro-card" id="pomodoroCard">
               <div class="pomodoro-title">POMODORO</div>
               <div class="pomodoro-mode" id="pomodoroMode">FOCUS SESSION</div>
@@ -210,10 +231,16 @@
                   </select>
                 </label>
               </div>
+              <div class="overwork-controls">
+                <label><input id="overworkEnabled" type="checkbox"/> Peringatan fokus panjang (akumulasi hari ini)</label>
+                <select id="overworkThreshold" aria-label="Durasi sebelum peringatan"><option value="60">60 menit</option><option value="90" selected>90 menit</option><option value="120">120 menit</option></select>
+                <button id="overworkSnooze" class="power-action interactive" type="button" hidden>Tunda 15 menit</button>
+              </div>
             </div>
           </div>
 
-          <div class="utility-panel" id="bioRhythmPanel">
+          <div class="utility-panel" id="bioRhythmPanel" role="tabpanel" aria-labelledby="tabBioRhythm">
+            <div class="panel-heading"><strong>Pengingat Jeda</strong><span>Istirahat singkat selama bekerja</span></div>
             <div class="bio-title">BIO-RHYTHM BREAK</div>
             <div class="bio-description">Pengingat jeda ringan selama kamu memakai BRAMO.</div>
             <label class="bio-toggle">
@@ -240,7 +267,8 @@
             </div>
           </div>
 
-          <div class="utility-panel" id="launcherPanel">
+          <div class="utility-panel" id="launcherPanel" role="tabpanel" aria-labelledby="tabLauncher">
+            <div class="panel-heading"><strong>Launcher</strong><span>Akses cepat ke aplikasi dan situs</span></div>
             <div class="launcher-title">QUICK LAUNCHER</div>
             <div class="launcher-form">
               <input id="launcherName" class="launcher-input" type="text" placeholder="Nama" maxlength="24" />
@@ -250,7 +278,8 @@
             <div id="launcherList" class="launcher-list"></div>
           </div>
 
-          <div class="utility-panel" id="todoPanel">
+          <div class="utility-panel" id="todoPanel" role="tabpanel" aria-labelledby="tabTodo">
+            <div class="panel-heading"><strong>To-do & Alarm</strong><span>Tugas dan jadwal bangun</span></div>
             <div class="todo-tabs" role="tablist" aria-label="To-do dan alarm">
               <button class="todo-tab active interactive" data-todo-view="tasks" type="button">Tugas</button>
               <button class="todo-tab interactive" data-todo-view="wakeAlarm" type="button">Bangun tidur</button>
@@ -267,6 +296,10 @@
             </section>
             <section class="todo-view" id="wakeAlarmView" hidden>
               <div class="todo-title">ALARM BANGUN TIDUR</div>
+              <div class="wake-alarm-actions-panel" id="wakeAlarmPanelActions" hidden>
+                <button class="bio-action interactive" id="wakeAlarmPanelSnooze" type="button">Tunda 5 menit</button>
+                <button class="bio-action interactive" id="wakeAlarmPanelStop" type="button">Matikan alarm</button>
+              </div>
               <div class="wake-alarm-countdown-label" id="wakeAlarmCountdownLabel">Alarm berikutnya dalam</div>
               <div class="wake-alarm-clock" id="wakeAlarmClock">--</div>
               <label class="wake-alarm-time-label" for="wakeAlarmTime">Waktu alarm harian</label>
@@ -292,8 +325,8 @@
             </section>
           </div>
 
-          <div class="utility-panel bramo-progress-panel" id="bramoProgressPanel">
-            <div class="progress-panel-title">BRAMO JOURNEY</div>
+          <div class="utility-panel bramo-progress-panel" id="bramoProgressPanel" role="tabpanel" aria-labelledby="tabJourney">
+            <div class="panel-heading"><strong>BRAMO Journey</strong><span>Temani BRAMO tumbuh</span></div>
             <div class="journey-tabs" role="tablist" aria-label="Gamifikasi BRAMO">
               <button class="journey-tab active" data-journey-view="journey" type="button">Perjalanan</button>
               <button class="journey-tab" data-journey-view="collection" type="button">Koleksi</button>
@@ -324,7 +357,7 @@
             </section>
           </div>
 
-          <div class="utility-panel" id="prayerPanel">
+          <div class="utility-panel" id="prayerPanel" role="tabpanel" aria-labelledby="tabPrayer">
             <div class="prayer-title">PRAYER REMINDER</div>
             <div class="prayer-next" id="prayerNext">Memuat jadwal...</div>
             <div class="prayer-location" id="prayerLocation">Lokasi: Jakarta (fallback)</div>
