@@ -4,7 +4,7 @@ Static Astro website for BRAMO, deployed on Cloudflare Pages.
 
 ## Local development
 
-Pastikan Node.js versi 20.19+ atau 22.12+ sudah terpasang. Buka terminal di folder `promo-site`, lalu jalankan:
+Pastikan Node.js versi **22.19.0 atau lebih baru** sudah terpasang. Buka terminal di folder `promo-site`, lalu jalankan:
 
 ```sh
 npm ci
