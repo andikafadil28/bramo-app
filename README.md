@@ -19,7 +19,7 @@
 
 ### 2. 🧰 Core Productivity Utilities — [Aktif]
 - **Temporary File Shelf ("Perut BRAMO"):** *Drop zone* file dari Explorer + **Open** / **Show in Folder** + riwayat 5 file terakhir.
-- **Universal Media Controller:** Integrasi pemutar musik Windows (Windows Media Session) + mini-player *Now Playing* + efek *LED Equalizer beat effect*.
+- **Universal Media Controller:** Integrasi Windows Media Session dengan mini-player *Now Playing* yang tersembunyi saat tidak ada sesi aktif; sesi paused tetap tersedia untuk resume, sedangkan sesi stopped/closed tidak dianggap aktif.
 - **Clipboard & Typing Watcher:** Deteksi clipboard baru (sumber tunggal di sisi Rust) dan feedback ekspresif saat user mengetik.
 - **Quick Launcher:** Pintasan cepat untuk URL dan aplikasi lokal (persisten).
 - **Pomodoro Timer:** Focus/break configurable dengan mini-timer floating.

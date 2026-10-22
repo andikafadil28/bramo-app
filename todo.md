@@ -66,6 +66,13 @@ Detail lengkap, lokasi file, dan skenario uji ada di `CONTEXT.md` Section 7.
 - [x] B4.3 `CONTEXT.md`: koreksi ukuran window, tambah Azan Priority Mode, update Fokus
 - [x] B4.4 `SUMMARY.md`: selaraskan daftar fitur
 
+### Perbaikan lanjutan — Media active-state (2026-10-22)
+- [x] Status sesi Windows Media Session stopped/closed tidak lagi dianggap aktif.
+- [x] Metadata kosong atau gagal dibaca tidak lagi menghasilkan mini-player placeholder palsu.
+- [x] Sesi paused tetap dianggap aktif agar tombol resume tersedia; Music Vibe tetap hanya saat playing.
+- [ ] Uji manual Windows: stop/close player menyembunyikan mini-player; pause mempertahankannya; play menampilkan Music Vibe.
+- Catatan: belum menjalankan build MSI.
+
 ### Verifikasi Sprint
 - [x] V1 `npm run check`
 - [x] V2 `cargo check` + `cargo clippy`

@@ -11,7 +11,7 @@ BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Lin
 - **Expandable Dropdown Island:** CSS-powered dropdown panel with 7 utility panels (Music, Stats, File, Power, Prayer, Pomodoro, Launcher) without window clipping.
 - **Productivity & Health Companion:** Prayer/sholat reminders with azan audio, attention bubble, and Azan Priority Mode (music auto-pause + locked bubble + auto-resume), plus configurable Pomodoro focus/break timer with a floating mini-timer.
 - **System Monitor:** CPU, RAM, and battery readout with amber reaction under load.
-- **Media Integration:** Windows Media Session controls, auto-hiding Now Playing mini-player, and music-vibe visor palette driven by the active track.
+- **Media Integration:** Windows Media Session controls, auto-hiding Now Playing mini-player, and music-vibe visor palette during playback. Paused tracks remain available for resume; stopped/closed sessions and sessions without track metadata are treated as inactive.
 - **File Shelf:** Drag-and-drop file zone with Open, Show in Folder, and a five-item history.
 - **Customization:** Persistent visor themes (Cyan, Matrix, Pink, Amber).
 - **Desktop Integration:** Clipboard watcher, typing curiosity, Quick Launcher, and mascot Sleep Mode.

@@ -125,12 +125,13 @@
   - **Quick-Action Dropdown:** Music, Stats, File, Power, dan Prayer kini memakai tombol fitur sehingga hanya satu panel terbuka.
   - **Prayer Reminder + Audio Azan:** Jadwal lima waktu, toggle reminder/audio, test berurutan, mute, attention bubble, animasi mulut/mata, dan pergantian cowboy hat ke peci saat azan.
   - **Transparent Hit Area:** Padding transparan di atas kapsul tidak lagi menangkap klik; native window compact dirapatkan ke topi, kapsul, dan tab.
-  - **System Media Session & Now Playing:** Mini-player otomatis muncul saat media aktif, menampilkan judul/artist dan kontrol media, dengan mode Music Vibe dan chat bubble bertema musik.
+  - **System Media Session & Now Playing:** Mini-player otomatis muncul saat sesi media valid sedang diputar atau dijeda, menampilkan judul/artist dan kontrol media, dengan mode Music Vibe saat pemutaran aktif.
   - **Azan/Media Isolation:** Audio azan, session berjudul BRAMO, dan periode setelah mute diabaikan oleh deteksi musik agar tidak bentrok dengan reminder, dropdown, atau mini-player.
   - **Dropdown/Media Layer Separation:** Mini-player disembunyikan saat dropdown terbuka; bubble dan mini-player memakai layout serta perhitungan tinggi native yang terpisah agar tidak saling menimpa atau flicker.
   - **Azan Priority Mode:** Musik di-pause otomatis, mini-player disembunyikan, bubble terkunci selama azan, musik auto-resume setelah azan selesai atau di-mute.
   - **Autostart toggle di panel Power** (`plugin:autostart|is_enabled|enable|disable`).
   - **Media event-driven:** Rust meng-cache `GlobalSystemMediaTransportControlsSessionManager` dan emit `bramo://media` tiap 2,5 detik; frontend tidak lagi polling WinRT.
+  - **Media active-state fix:** sesi Windows hanya dianggap aktif bila status playback `Playing` atau `Paused` dan judul/artist tersedia. Sesi `Stopped`/`Closed`, metadata kosong, atau kegagalan membaca metadata tidak lagi memunculkan mini-player palsu. Status paused tetap ditampilkan agar kontrol resume tersedia.
   - **Clipboard single-source:** Rust menjadi satu-satunya sumber deteksi clipboard; isi clipboard asli dikirim ke bubble.
   - **Quit confirm in-app:** bubble "klik lagi" + tombol "Confirm?" dengan timeout 3 detik, tanpa `window.confirm()`.
   - **Multi-monitor clamp:** `win.currentMonitor()` menentukan batas area kerja, bukan `window.screen`.
@@ -236,6 +237,12 @@ endAdhanSession()                 // idempotent
 - `todo.md`: tandai ulang item yang sudah selesai dan masukkan checklist sprint ini.
 - `CONTEXT.md`: koreksi ukuran window, tambahkan Azan Priority Mode, perbarui bagian Fokus.
 - `SUMMARY.md`: selaraskan daftar fitur dengan kondisi kode.
+
+### Batch 5 — Media active-state fix (2026-10-22)
+- Backend `media_info_from_manager()` kini menentukan `active` dari status playback (`Playing`/`Paused`) dan metadata judul/artist yang tidak kosong.
+- Jika properti media gagal dibaca, snapshot menjadi inactive (bukan placeholder “Media aktif”). Sesi stopped/closed tidak lagi membuat mini-player menetap; sesi paused tetap terlihat untuk memungkinkan resume.
+- Frontend debounce dua snapshot untuk perubahan active/inactive tetap dipakai agar pergantian sesi sesaat tidak membuat layout berkedip.
+- Tidak menjalankan build MSI pada perbaikan ini. Perlu uji manual di Windows untuk memastikan sesi berhenti menutup panel dan sesi pause tetap tersedia.
 
 ### Verifikasi Sprint
 1. [x] `npm run check` (syntax check `src/main.js`).
