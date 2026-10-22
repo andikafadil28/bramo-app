@@ -4,10 +4,19 @@ Static Astro website for BRAMO, deployed on Cloudflare Pages.
 
 ## Local development
 
+Pastikan Node.js versi 20.19+ atau 22.12+ sudah terpasang. Buka terminal di folder `promo-site`, lalu jalankan:
+
 ```sh
-npm install
+npm ci
 npm run dev
 ```
+
+Buka alamat yang ditampilkan Astro di terminal (biasanya `http://localhost:4321/`). Biarkan terminal tetap berjalan saat mengecek situs. Tekan `Ctrl+C` untuk menghentikan server. Setelah mengubah file, browser biasanya memperbarui halaman otomatis; jika tidak, refresh.
+
+Perintah lain:
+
+- `npm run build` membuat versi statis untuk Cloudflare Pages di folder `dist/`.
+- `npm run preview` melihat hasil build lokal setelah `npm run build`.
 
 ## Cloudflare Pages with automatic Git deploys
 

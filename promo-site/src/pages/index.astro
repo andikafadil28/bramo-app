@@ -1,11 +1,16 @@
 ---
 const features = [
-  { title: 'Buddy yang terasa hidup', description: 'Ekspresi mata dan mulut, mood, animasi idle, serta reaksi saat kamu bekerja, mengetik, atau memutar musik.', image: '/images/07-living-animations.svg', tag: 'DESKTOP BUDDY' },
-  { title: 'Fokus tanpa kehilangan ritme', description: 'Pomodoro yang bisa diatur, timer mini, tracker sesi, dan pengingat saat fokus terlalu lama.', image: '/images/03-focus-pomodoro.svg', tag: 'PRODUCTIVITY' },
-  { title: 'Utilitas tepat di desktop', description: 'Kontrol musik, system stats, file drop, clipboard history, dan shortcut aplikasi dalam satu panel ringkas.', image: '/images/04-tools-launcher.svg', tag: 'QUICK TOOLS' },
-  { title: 'Jeda yang lebih teratur', description: 'Pengingat bio-rhythm, to-do dengan pengingat, alarm bangun, serta jadwal sholat dan audio azan.', image: '/images/05-break-prayer.svg', tag: 'WELLBEING' },
-  { title: 'Tumbuh dan tampil sesuai gaya', description: 'Kumpulkan XP, naik level, buka aksesori, lalu ganti tema visor termasuk RGB dan Red Alert.', image: '/images/06-visor-collection.svg', tag: 'BRAMO JOURNEY' },
-  { title: 'Teman kecil saat gaming', description: 'Gaming Focus mengenali game yang didukung atau executable pilihanmu, lalu BRAMO ikut masuk mode fokus.', image: '/images/08-control-and-sleep.svg', tag: 'GAMING FOCUS' },
+  { title: 'Buddy desktop yang bereaksi', description: 'BRAMO tinggal di atas desktop, bisa dipindah antar monitor, dan merespons klik serta aktivitas dengan bubble kontekstual.', image: '/images/01-bramo-buddy.svg', tag: 'DESKTOP BUDDY' },
+  { title: 'Ekspresi dan animasi hidup', description: 'Mata LED melirik, mengikuti kursor, berkedip, atau berubah jadi spiral saat digoyang. Mulut dan badan ikut bereaksi saat idle, mengetik, fokus, tidur, dan mendengarkan musik.', image: '/images/07-living-animations.svg', tag: 'ANIMASI & MOOD' },
+  { title: 'Pomodoro yang bisa diatur', description: 'Pilih sesi fokus 15, 25, 45, atau 60 menit dan jeda 5, 10, atau 15 menit. Timer mini tetap terlihat; BRAMO memberi dukungan dan merayakan sesi yang selesai.', image: '/images/03-focus-pomodoro.svg', tag: 'FOKUS' },
+  { title: 'Pengingat jeda dan fokus panjang', description: 'Atur pengingat istirahat tiap 30–90 menit, tunda atau tandai sudah jeda, dan aktifkan peringatan jika akumulasi fokus harian terlalu lama.', image: '/images/05-break-prayer.svg', tag: 'KESEIMBANGAN' },
+  { title: 'To-do dan alarm bangun', description: 'Catat tugas dengan pengingat sekali jalan. Atur alarm berulang pada jam dan hari pilihan; alarm dapat membangunkan BRAMO dari Sleep Mode, tetapi PC harus tetap menyala.', image: '/images/05-break-prayer.svg', tag: 'PENGINGAT' },
+  { title: 'Pengingat waktu sholat', description: 'Lihat jadwal Subuh hingga Isya berdasarkan lokasi, dengan fallback Jakarta. Aktifkan audio azan, tes pengingat, atau mute; BRAMO menjaga bubble pengingat tetap tampil selama azan.', image: '/images/05-break-prayer.svg', tag: 'PRAYER REMINDER' },
+  { title: 'Musik dan alat bantu desktop', description: 'Kontrol media sistem (sebelumnya, putar/jeda, berikutnya), lihat judul lagu, pantau CPU/RAM/baterai, dan gunakan launcher untuk membuka aplikasi atau situs.', image: '/images/04-tools-launcher.svg', tag: 'QUICK TOOLS' },
+  { title: 'File drop dan clipboard', description: 'Lempar file ke BRAMO untuk membuka atau menemukan lokasinya, lihat lima file terakhir, simpan lima item clipboard terbaru, dan atur watcher clipboard serta reaksi saat mengetik.', image: '/images/04-tools-launcher.svg', tag: 'FILE & CLIPBOARD' },
+  { title: 'Gaming Focus', description: 'Di Windows, BRAMO mendeteksi game yang didukung atau executable tambahan pilihanmu, lalu memakai ekspresi dan aksesori gaming. Indikator RTT adalah perkiraan koneksi internet, bukan ping server game.', image: '/images/08-control-and-sleep.svg', tag: 'GAMING' },
+  { title: 'XP, koleksi, dan kustomisasi', description: 'Dapatkan XP dari penggunaan, naik level, lalu buka dan pilih aksesori kosmetik. Ubah warna visor ke Cyan, Matrix Green, Neon Pink, Amber, RGB, atau Red Alert.', image: '/images/06-visor-collection.svg', tag: 'BRAMO JOURNEY' },
+  { title: 'Pengaturan dan kenyamanan', description: 'Pilih mulai bersama Windows, sembunyikan saat aplikasi fullscreen, aktifkan efek suara 8-bit, bersihkan cache BRAMO, atau tidurkan buddy saat ingin fokus.', image: '/images/08-control-and-sleep.svg', tag: 'KONTROL' },
 ];
 
 const downloadUrl = 'https://github.com/andikafadil28/bramo-app/releases/latest';
@@ -72,7 +77,7 @@ const downloadUrl = 'https://github.com/andikafadil28/bramo-app/releases/latest'
       </section>
 
       <section class="features section-wrap" id="fitur">
-        <div class="section-head"><div><div class="section-kicker">YANG BISA BRAMO LAKUKAN</div><h2>Satu buddy.<br /><span>Banyak hal kecil.</span></h2></div><p>Dibuat untuk nemenin keseharian, bukan memenuhi layar. Ilustrasi berikut adalah visual konsep fitur.</p></div>
+        <div class="section-head"><div><div class="section-kicker">FITUR BRAMO 1.0</div><h2>Satu buddy.<br /><span>Banyak hal kecil.</span></h2></div><p>Kenali hal-hal yang bisa BRAMO lakukan: menemani aktivitas, membantu fokus, mengatur pengingat, dan menyediakan alat bantu langsung dari desktop.</p></div>
         <div class="feature-grid">
           {features.map((feature, index) => (
             <article class={`feature-card ${index === 0 ? 'feature-wide' : ''}`}>
