@@ -62,4 +62,6 @@ Versi aplikasi saat ini: **2.0.0**.
 
 ## Lisensi
 
-Lisensi proyek belum ditentukan. Sampai file lisensi ditambahkan, jangan menganggap repository ini memberi izin untuk menggunakan, memodifikasi, atau mendistribusikan ulang kode.
+BRAMO memakai lisensi proprietary dengan izin terbatas. Penggunaan pribadi dan modifikasi pribadi yang tidak dibagikan diperbolehkan. Installer resmi boleh dibagikan gratis tanpa perubahan, dengan pemberitahuan lisensi tetap disertakan.
+
+Penjualan atau penggunaan komersial, distribusi source code atau versi modifikasi, dan klaim kepemilikan tidak diperbolehkan tanpa izin tertulis. Baca [LICENSE](LICENSE) untuk ketentuan lengkap.
