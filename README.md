@@ -55,6 +55,8 @@ Installer Windows x64 akan dibuat di `src-tauri/target/release/bundle/` (NSIS `.
 
 Situs promosi BRAMO memakai Astro dan berada di [`promo-site/`](promo-site/README.md). Hubungkan repository ini ke Cloudflare Pages dengan root directory `promo-site`, build command `npm run build`, dan output `dist` agar setiap push ke `main` diterbitkan otomatis. Tombol unduh situs menuju halaman GitHub Releases.
 
+Untuk menjalankan preview Astro secara lokal, gunakan Node.js **22.19.0 atau lebih baru**, lalu ikuti langkah pada [`promo-site/README.md`](promo-site/README.md). Jika `npm ci` gagal menghapus file native Astro di Windows, hentikan dulu server Astro dengan `Ctrl+C`, baru jalankan lagi `npm ci`.
+
 ## Versi dan dokumentasi
 
 Versi aplikasi saat ini: **1.0.0**.
@@ -62,6 +64,7 @@ Versi aplikasi saat ini: **1.0.0**.
 - [`CONTEXT.md`](CONTEXT.md): arsitektur, inventaris fitur, dan status proyek.
 - [`todo.md`](todo.md): checklist dan tindak lanjut.
 - [`SUMMARY.md`](SUMMARY.md): ringkasan proyek.
+- [`HANDOFF.md`](HANDOFF.md): status terbaru dan langkah pindah komputer.
 - [`AGENTS.md`](AGENTS.md): panduan kerja repository.
 
 ## Lisensi

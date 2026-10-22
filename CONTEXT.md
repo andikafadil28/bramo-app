@@ -257,3 +257,16 @@ endAdhanSession()                 // idempotent
 - Perluas daftar game yang didukung dan evaluasi kebutuhan pengaturan allowlist dari UI.
 
 - Fokus berikutnya: selesaikan uji manual Windows pada Section 6/7, lalu pilih antara modularisasi frontend atau perluasan Gaming Focus.
+
+---
+
+## 8. Handoff Terbaru (2026-10-22)
+
+- **Versi stabil:** BRAMO **1.0.0**. Metadata root `package.json`, `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, dan `src-tauri/tauri.conf.json` sudah diselaraskan.
+- **GitHub Release:** `v1.0.0` sudah dipublikasikan dengan `BRAMO_1.0.0_x64-setup.exe` dan `BRAMO_1.0.0_x64_en-US.msi`. Tombol unduh promo menuju `/releases/latest`.
+- **Situs promo:** Astro di `promo-site/`, menjelaskan 11 kelompok fitur BRAMO 1.0. Deploy Cloudflare Pages otomatis hanya berlaku jika project Pages sudah tersambung ke repo, branch `main`, root `promo-site`, build `npm run build`, output `dist`.
+- **Panduan pindah komputer:** baca `HANDOFF.md`; mulai dari `git pull origin main` di komputer rumah.
+- **Menjalankan Astro:** dari `promo-site`, gunakan Node.js **22.19.0+**, `npm ci`, lalu `npm run dev`; buka alamat localhost yang ditampilkan (biasanya `http://localhost:4321/`). `npm run build` memeriksa build statis dan membuat `dist/`.
+- **Isu Windows yang baru ditangani:** `npm ci` pengguna gagal `EPERM` pada `astro.win32-x64-msvc.node` karena dev server Astro yang sebelumnya dibuka masih hidup dan mengunci file. Server itu sudah dihentikan. Sebelum instal ulang dependency, hentikan server lama dengan `Ctrl+C`. Node lokal yang teramati adalah `v22.13.1`; upgrade ke `22.19.0+` agar sesuai dengan `undici` di lockfile dan menghilangkan warning engine.
+- **Basis sinkronisasi sebelum catatan ini:** branch `main` sampai commit `c7321e2` (`docs: clarify Astro Node.js requirement`). Catatan handoff ini kemudian dipush sebagai commit baru; di komputer rumah jalankan `git pull origin main`.
+- **Fokus lanjutan:** review tampilan halaman fitur di Astro, pastikan Cloudflare Pages tersambung dan deployment sukses, lalu lanjutkan uji manual BRAMO Windows yang tercantum pada Section 6/7. Jangan anggap uji manual tersebut selesai hanya dari build.

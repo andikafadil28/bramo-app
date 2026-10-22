@@ -3,6 +3,8 @@
 > Rujukan eksekusi sprint aktif ada di `CONTEXT.md` Section 7 ("Rencana Sprint: Polish & Stabilisasi").
 > Checklist di bawah adalah versi ringkas — detail + lokasi file ada di `CONTEXT.md`.
 
+> **Status sekarang (2026-10-22):** BRAMO 1.0.0 sudah dirilis; promo Astro ada di `promo-site/`. Untuk melanjutkan dari komputer rumah, ikuti `HANDOFF.md`. Checklist sprint lama di bawah ini adalah riwayat implementasi dan tidak berarti seluruh item masih backlog.
+
 ## Phase 1: Core Interaction & "Aliveness"
 - [x] **Chat Bubble / Speech Dialog System:** Elemen balon teks melayang di atas kepala BRAMO untuk sapaan, status, dan komentar acak.
 - [x] **Interactive Expression Trigger:** Aksi klik/drag/dropdown terhubung ke ekspresi LED visor (idle, siul, gumam, senang terbuka).
