@@ -1,4 +1,4 @@
-# BRAMO 2.0
+# BRAMO 1.0
 
 BRAMO adalah pendamping desktop Windows berbentuk visor LED yang menggabungkan utilitas produktivitas, pengingat, pemantau sistem, dan mascot interaktif. Aplikasi dibangun dengan Tauri v2, Rust, HTML, CSS, dan JavaScript.
 
@@ -57,7 +57,7 @@ Situs promosi BRAMO memakai Astro dan berada di [`promo-site/`](promo-site/READM
 
 ## Versi dan dokumentasi
 
-Versi aplikasi saat ini: **2.0.0**.
+Versi aplikasi saat ini: **1.0.0**.
 
 - [`CONTEXT.md`](CONTEXT.md): arsitektur, inventaris fitur, dan status proyek.
 - [`todo.md`](todo.md): checklist dan tindak lanjut.
