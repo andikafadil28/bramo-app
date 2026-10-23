@@ -1,4 +1,6 @@
 ---
+import BramoDemo from '../components/BramoDemo.astro';
+
 const features = [
   { title: 'Buddy desktop yang bereaksi', description: 'BRAMO tinggal di atas desktop, bisa dipindah antar monitor, dan merespons klik serta aktivitas dengan bubble kontekstual.', image: '/images/01-bramo-buddy.svg', imageAlt: 'Ilustrasi BRAMO sebagai buddy visor LED di desktop', tag: 'DESKTOP BUDDY' },
   { title: 'Ekspresi dan animasi hidup', description: 'Mata LED melirik, mengikuti kursor, berkedip, atau berubah jadi spiral saat digoyang. Mulut dan badan ikut bereaksi saat idle, mengetik, fokus, tidur, dan mendengarkan musik.', image: '/images/07-living-animations.svg', imageAlt: 'Ilustrasi animasi dan ekspresi BRAMO', tag: 'ANIMASI & MOOD' },
@@ -39,6 +41,7 @@ const downloadUrl = 'https://github.com/andikafadil28/bramo-app/releases/latest'
         <a href="#fitur">Fitur</a>
         <a href="#tentang">Tentang</a>
         <a href="#faq">FAQ</a>
+        <a href="#demo">Demo</a>
       </nav>
       <a class="header-cta" href={downloadUrl} target="_blank" rel="noreferrer">Unduh BRAMO <span>↗</span></a>
     </header>
@@ -77,6 +80,8 @@ const downloadUrl = 'https://github.com/andikafadil28/bramo-app/releases/latest'
           <div><strong>03</strong><span>Buddy yang tumbuh<br />bareng kamu</span></div>
         </div>
       </section>
+
+      <BramoDemo />
 
       <section class="features section-wrap" id="fitur">
         <div class="section-head"><div><div class="section-kicker">FITUR BRAMO 1.0</div><h2>Satu buddy.<br /><span>Banyak hal kecil.</span></h2></div><p>Kenali hal-hal yang bisa BRAMO lakukan: menemani aktivitas, membantu fokus, mengatur pengingat, dan menyediakan alat bantu langsung dari desktop.</p></div>

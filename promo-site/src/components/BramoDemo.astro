@@ -1,0 +1,158 @@
+<section class="demo-section section-wrap" id="demo" aria-labelledby="demo-title">
+  <div class="demo-heading">
+    <div>
+      <div class="section-kicker">COBA LANGSUNG</div>
+      <h2 id="demo-title">Lihat BRAMO <span>bereaksi.</span></h2>
+    </div>
+    <p>Gerakkan kursor di dekat visor, lalu coba ekspresi dan warna glow-nya.</p>
+  </div>
+
+  <div class="demo-window">
+    <div class="demo-window-bar">
+      <span class="demo-window-lights"><i></i><i></i><i></i></span>
+      <span>BRAMO · LIVE PREVIEW</span>
+      <span class="demo-live"><i></i> ONLINE</span>
+    </div>
+    <div class="demo-stage" id="demoStage">
+      <div class="demo-orbit demo-orbit-one"></div>
+      <div class="demo-orbit demo-orbit-two"></div>
+      <div class="demo-bubble" id="demoBubble" aria-live="polite">Hai! Arahkan kursor ke visor, ya 👀</div>
+      <button class="demo-buddy" id="demoBuddy" type="button" aria-label="Sapa BRAMO di demo">
+        <span class="demo-hat"><i></i></span>
+        <span class="demo-visor">
+          <span class="demo-eye demo-eye-left"></span>
+          <span class="demo-mouth"></span>
+          <span class="demo-eye demo-eye-right"></span>
+        </span>
+        <span class="demo-visor-glow"></span>
+      </button>
+      <div class="demo-status"><span class="demo-status-dot"></span><span id="demoStatus">Lagi santai</span></div>
+    </div>
+    <div class="demo-controls">
+      <div class="demo-control-group" role="group" aria-label="Coba ekspresi BRAMO">
+        <span class="demo-control-label">EKSPRESI</span>
+        <div class="demo-state-buttons">
+          <button class="demo-chip active" type="button" data-demo-state="idle">Santai</button>
+          <button class="demo-chip" type="button" data-demo-state="focus">Fokus</button>
+          <button class="demo-chip" type="button" data-demo-state="music">Musik</button>
+          <button class="demo-chip" type="button" data-demo-state="dizzy">Pusing</button>
+        </div>
+      </div>
+      <div class="demo-control-group" role="group" aria-label="Pilih warna visor demo">
+        <span class="demo-control-label">WARNA GLOW</span>
+        <div class="demo-color-buttons">
+          <button class="demo-color active" type="button" data-demo-color="#51f7e4" aria-label="Cyan" style="--swatch:#51f7e4"></button>
+          <button class="demo-color" type="button" data-demo-color="#70ed9b" aria-label="Matrix Green" style="--swatch:#70ed9b"></button>
+          <button class="demo-color" type="button" data-demo-color="#ff65d4" aria-label="Neon Pink" style="--swatch:#ff65d4"></button>
+          <button class="demo-color" type="button" data-demo-color="#ffad52" aria-label="Amber" style="--swatch:#ffad52"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="demo-disclaimer">Demo visual untuk browser. Fitur desktop seperti Pomodoro aktif, kontrol musik, dan statistik perangkat tersedia di aplikasi BRAMO.</p>
+</section>
+
+<style>
+  .demo-section { max-width:1160px;margin:0 auto;padding:48px 26px 0; }
+  .demo-section .section-kicker { color:#6adfdc;font:10px 'DM Mono',monospace;letter-spacing:2px; }
+  .demo-heading { display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:24px; }
+  .demo-heading h2 { margin:13px 0 0;font-size:clamp(32px,4vw,47px);line-height:1.12;letter-spacing:-2px; }
+  .demo-heading h2 span { color:#6cf3e5; }
+  .demo-heading>p { max-width:260px;margin:0;color:#91a5b4;font-size:12px;line-height:1.8; }
+  .demo-window { overflow:hidden;border:1px solid rgba(113,207,215,.2);border-radius:17px;background:#0c121a;box-shadow:0 26px 80px #0005,0 0 55px #00dcd21c; }
+  .demo-window-bar { height:40px;padding:0 15px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-bottom:1px solid #ffffff10;background:#111923;color:#718694;font:8px 'DM Mono',monospace;letter-spacing:1.2px; }
+  .demo-window-lights { display:flex;gap:5px; }.demo-window-lights i { width:6px;height:6px;border-radius:50%;background:#ff6a78; }.demo-window-lights i:nth-child(2) { background:#f6c65e; }.demo-window-lights i:nth-child(3) { background:#58df9b; }
+  .demo-live { justify-self:end;color:#8ba49f;font-size:7px; }.demo-live i,.demo-status-dot { display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:#67e8b2;box-shadow:0 0 9px #67e8b2; }
+  .demo-stage { --demo-led:#51f7e4; min-height:300px;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at center, color-mix(in srgb,var(--demo-led) 12%,transparent),transparent 42%),linear-gradient(145deg,#0d151f,#080d13 72%); }
+  .demo-stage::before { content:'';position:absolute;inset:0;opacity:.2;background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:34px 34px;mask-image:radial-gradient(ellipse at center,#000,transparent 76%); }
+  .demo-orbit { position:absolute;width:min(56vw,470px);height:170px;border:1px solid color-mix(in srgb,var(--demo-led) 21%,transparent);border-radius:50%;transform:rotate(-12deg);pointer-events:none; }.demo-orbit-two { width:min(64vw,540px);height:220px;border-style:dashed;opacity:.45;transform:rotate(17deg); }
+  .demo-buddy { width:260px;height:112px;position:relative;z-index:1;display:grid;place-items:center;padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation;animation:demo-float 4s ease-in-out infinite; }
+  .demo-visor { width:235px;height:78px;position:relative;z-index:2;display:flex;align-items:center;justify-content:space-evenly;padding:0 28px;border:3px solid color-mix(in srgb,var(--demo-led) 85%,white);border-radius:48px;background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--demo-led) 25%,#0a141b),#061016 72%);box-shadow:0 0 8px var(--demo-led),0 0 22px color-mix(in srgb,var(--demo-led) 66%,transparent),0 0 54px color-mix(in srgb,var(--demo-led) 24%,transparent),inset 0 0 19px color-mix(in srgb,var(--demo-led) 21%,transparent);transition:border-color .3s,box-shadow .3s,background .3s; }
+  .demo-visor::before { content:'';position:absolute;inset:7px 10px;border:1px solid color-mix(in srgb,var(--demo-led) 13%,transparent);border-radius:40px;background:repeating-linear-gradient(to bottom,transparent 0 4px,color-mix(in srgb,var(--demo-led) 8%,transparent) 5px);pointer-events:none; }
+  .demo-eye { width:28px;height:20px;position:relative;z-index:1;border-radius:50%;background:var(--demo-led);box-shadow:0 0 8px var(--demo-led),0 0 17px color-mix(in srgb,var(--demo-led) 75%,transparent);transform:translate(var(--gaze-x,0px),var(--gaze-y,0px));transition:transform .14s ease-out; }
+  .demo-eye::after { content:'';position:absolute;inset:5px 8px;border-radius:50%;background:#effffb;opacity:.85;filter:blur(1px); }
+  .demo-mouth { width:21px;height:7px;position:relative;z-index:1;border-bottom:2px solid var(--demo-led);border-radius:0 0 50% 50%;filter:drop-shadow(0 0 4px var(--demo-led));transition:all .22s ease; }
+  .demo-hat { width:34px;height:11px;position:absolute;z-index:3;top:7px;left:50%;transform:translateX(-50%);border-bottom:4px solid #a84f08;border-radius:10px 10px 2px 2px;background:linear-gradient(to bottom,#ffd26b 0 55%,#f18a12 56%);box-shadow:0 0 9px #ff9e27; }
+  .demo-hat::before { content:'';position:absolute;width:24px;height:5px;left:5px;top:-5px;border-radius:3px 3px 0 0;background:#ff9b19;border:1px solid #7d3d08; }.demo-hat i { position:absolute;left:-7px;right:-7px;bottom:-5px;height:3px;border-radius:50%;background:#f2a126; }
+  .demo-visor-glow { width:185px;height:30px;position:absolute;z-index:0;bottom:10px;left:50%;transform:translateX(-50%);border-radius:50%;background:var(--demo-led);filter:blur(22px);opacity:.43;transition:background .3s; }
+  .demo-status { position:absolute;z-index:2;bottom:18px;padding:7px 11px;border:1px solid #ffffff12;border-radius:999px;background:#080d13bd;color:#91a3b2;font:8px 'DM Mono',monospace;letter-spacing:.4px; }
+  .demo-bubble { min-width:130px;max-width:min(280px,75%);position:absolute;z-index:4;top:28px;left:50%;padding:10px 14px;transform:translate(-50%,8px);border:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);border-radius:10px;background:#111b25ed;color:#dce9ee;box-shadow:0 8px 28px #0006,0 0 20px color-mix(in srgb,var(--demo-led) 12%,transparent);font-size:11px;text-align:center;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none; }
+  .demo-bubble.show { transform:translate(-50%,0);opacity:1; }.demo-bubble::after { content:'';position:absolute;left:50%;bottom:-5px;width:8px;height:8px;transform:translateX(-50%) rotate(45deg);border-right:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);background:#111b25; }
+  .demo-controls { display:flex;justify-content:space-between;gap:22px;padding:17px 20px 19px;border-top:1px solid #ffffff0d;background:#0c121a; }.demo-control-group { display:grid;gap:9px; }.demo-control-label { color:#718593;font:7px 'DM Mono',monospace;letter-spacing:1.4px; }.demo-state-buttons,.demo-color-buttons { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }.demo-chip { padding:7px 10px;border:1px solid #ffffff15;border-radius:7px;background:#111922;color:#9db0bc;font:9px 'Segoe UI',sans-serif;cursor:pointer;transition:.2s; }.demo-chip:hover,.demo-chip.active { border-color:color-mix(in srgb,var(--demo-led) 58%,transparent);color:#e7ffff;background:color-mix(in srgb,var(--demo-led) 12%,#111922); }
+  .demo-color { width:19px;height:19px;padding:0;border:2px solid transparent;border-radius:50%;background:var(--swatch);box-shadow:0 0 10px color-mix(in srgb,var(--swatch) 54%,transparent);cursor:pointer; }.demo-color.active { outline:1px solid #e9ffff;outline-offset:3px; }
+  .demo-disclaimer { margin:12px 2px 0;color:#71818d;font-size:9px;line-height:1.6; }
+  .demo-stage[data-state="focus"] .demo-eye { height:9px;border-radius:3px; }.demo-stage[data-state="focus"] .demo-mouth { width:15px;height:3px;border-radius:0; }
+  .demo-stage[data-state="music"] .demo-eye { animation:demo-beat .55s ease-in-out infinite alternate; }.demo-stage[data-state="music"] .demo-eye-right { animation-delay:.18s; }.demo-stage[data-state="music"] .demo-mouth { height:13px;width:15px;border:2px solid var(--demo-led);border-radius:50%; }
+  .demo-stage[data-state="dizzy"] .demo-eye { background:transparent;box-shadow:none; }.demo-stage[data-state="dizzy"] .demo-eye::after { content:'@';inset:-7px 0 0;width:28px;height:28px;background:none;color:var(--demo-led);font:800 25px/28px monospace;filter:drop-shadow(0 0 5px var(--demo-led));animation:demo-spin 1s linear infinite; }.demo-stage[data-state="dizzy"] .demo-mouth { width:12px;height:8px;border:2px solid var(--demo-led);border-radius:50%; }
+  .demo-buddy:active { animation:demo-wiggle .18s ease-in-out infinite alternate; }
+  @keyframes demo-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+  @keyframes demo-beat { to { transform:scaleY(.48); } }
+  @keyframes demo-spin { to { transform:rotate(360deg); } }
+  @keyframes demo-wiggle { to { transform:rotate(4deg) translateY(-2px); } }
+  @media(max-width:620px) { .demo-section { padding:30px 22px 0; }.demo-heading { display:block; }.demo-heading>p { margin-top:13px; }.demo-window-bar { grid-template-columns:1fr auto; }.demo-window-bar>span:nth-child(2) { display:none; }.demo-stage { min-height:265px; }.demo-visor { width:210px;height:72px; }.demo-controls { display:grid; }.demo-orbit { width:95vw; }.demo-orbit-two { width:110vw; } }
+  @media(prefers-reduced-motion:reduce) { .demo-buddy,.demo-eye,.demo-bubble { animation:none !important;transition:none; } }
+</style>
+
+<script>
+  const stage = document.querySelector('#demoStage');
+  const buddy = document.querySelector('#demoBuddy');
+  const bubble = document.querySelector('#demoBubble');
+  const status = document.querySelector('#demoStatus');
+  const eyes = document.querySelectorAll('.demo-eye');
+  const stateButtons = document.querySelectorAll('[data-demo-state]');
+  const colorButtons = document.querySelectorAll('[data-demo-color]');
+
+  const stateCopy = {
+    idle: ['Lagi santai', 'Hai! Arahkan kursor ke visor, ya 👀'],
+    focus: ['Lagi fokus', 'Oke, kita fokus bareng dulu ✨'],
+    music: ['Lagi menikmati musik', 'Lagu ini enak juga 🎵'],
+    dizzy: ['Lagi pusing', 'Jangan digoyang terus dong 😵‍💫'],
+  };
+  let bubbleTimer;
+
+  function showDemoMessage(message, duration = 2600) {
+    bubble.textContent = message;
+    bubble.classList.add('show');
+    clearTimeout(bubbleTimer);
+    if (duration) bubbleTimer = setTimeout(() => bubble.classList.remove('show'), duration);
+  }
+
+  stateButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const state = button.dataset.demoState;
+      stage.dataset.state = state;
+      status.textContent = stateCopy[state][0];
+      stateButtons.forEach((item) => item.classList.toggle('active', item === button));
+      showDemoMessage(stateCopy[state][1]);
+    });
+  });
+
+  colorButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      stage.style.setProperty('--demo-led', button.dataset.demoColor);
+      colorButtons.forEach((item) => item.classList.toggle('active', item === button));
+      showDemoMessage(`Glow ${button.getAttribute('aria-label')} dipilih ✨`, 1800);
+    });
+  });
+
+  stage.addEventListener('pointermove', (event) => {
+    const bounds = stage.getBoundingClientRect();
+    const x = Math.max(-5, Math.min(5, ((event.clientX - bounds.left) / bounds.width - 0.5) * 10));
+    const y = Math.max(-3, Math.min(3, ((event.clientY - bounds.top) / bounds.height - 0.5) * 6));
+    eyes.forEach((eye, index) => {
+      eye.style.setProperty('--gaze-x', `${x + (index ? 0.4 : -0.4)}px`);
+      eye.style.setProperty('--gaze-y', `${y}px`);
+    });
+  });
+
+  stage.addEventListener('pointerleave', () => {
+    eyes.forEach((eye) => {
+      eye.style.setProperty('--gaze-x', '0px');
+      eye.style.setProperty('--gaze-y', '0px');
+    });
+  });
+
+  buddy.addEventListener('click', () => {
+    showDemoMessage('Hehe, makasih udah nyapa! 🤖');
+  });
+</script>
