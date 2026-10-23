@@ -666,6 +666,21 @@ pub fn run() {
       get_clipboard_text
     ])
     .setup(|app| {
+      #[cfg(target_os = "windows")]
+      if let Some(window) = app.get_webview_window("main") {
+        use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, HWND_TOPMOST, SWP_NOMOVE, SWP_NOSIZE, SWP_NOACTIVATE};
+        if let Ok(hwnd) = window.hwnd() {
+          unsafe {
+            // Prevent the native resize indicator from obscuring compact UI.
+            let _ = SetWindowPos(
+              windows::Win32::Foundation::HWND(hwnd.0 as isize),
+              HWND_TOPMOST,
+              0, 0, 0, 0,
+              SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE,
+            );
+          }
+        }
+      }
       app.manage(SystemSampler::new());
       let watchers = WatcherFlags::new();
       app.manage(watchers.clone());
@@ -709,12 +724,10 @@ pub fn run() {
             "sleep" => {
               let _ = app.emit("bramo://tray-action", action);
             }
-            // Quit tetap native sebagai fallback kalau frontend tidak merespon.
+            // Aksi Quit di menu tray harus selesai dalam satu klik. Jangan
+            // menunggu konfirmasi frontend karena pengguna tidak sedang di panel.
             "quit" => {
-              let delivered = app.emit("bramo://tray-action", action.clone()).is_ok();
-              if !delivered {
-                app.exit(0);
-              }
+              app.exit(0);
             }
             _ => {}
           }

@@ -604,7 +604,11 @@ html, body {
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.72), 0 0 18px rgba(0, 240, 255, 0.08);
 }
 
-#powerPanel { max-height: none; overflow: visible; }
+#powerPanel {
+  max-height: 320px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
 .widget-card {
   background: var(--bg-widget);
@@ -1191,6 +1195,20 @@ html, body {
   justify-content: center;
   margin-top: 10px;
 }
+
+.settings-group {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 10px;
+  padding: 8px;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 240, 255, 0.045);
+}
+
+.settings-group > strong { color: var(--led-cyan); font-size: 9px; }
+.settings-group .fullscreen-toggle { justify-content: flex-start; margin-top: 2px; color: #d4e0ea; font-size: 9px; }
+.settings-group small { color: #8293a5; font-size: 7px; line-height: 1.4; }
 
 .fullscreen-toggle input {
   accent-color: var(--led-cyan);

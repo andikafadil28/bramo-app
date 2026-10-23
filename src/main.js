@@ -121,6 +121,10 @@ let dragStartClientX = 0;
 let dragStartClientY = 0;
 let nativeDragPromise = Promise.resolve();
 let nativeDragMode = false;
+let dragStartScreenX = 0;
+let dragStartScreenY = 0;
+let dragWindowStartX = 0;
+let dragWindowStartY = 0;
 let statsTimer = null;
 let batteryManager = null;
 let prayerSchedule = null;
@@ -862,6 +866,9 @@ async function updateGamingFocus() {
     gamingFocusActive = shouldShowGamingFocus;
     gamingMetrics.hidden = !shouldShowGamingFocus;
     gamingPing.textContent = Number.isFinite(networkRtt) ? `NET ${networkRtt}ms` : 'NET —';
+    if (shouldShowGamingFocus && bramoContainer.classList.contains('expanded')) {
+      dropdownToggle.click();
+    }
     if (shouldShowGamingFocus && !wasGamingFocus) {
       leftEye.style.removeProperty('transform');
       rightEye.style.removeProperty('transform');
@@ -1322,11 +1329,16 @@ themePicker?.addEventListener('click', event => {
 fullscreenToggle.checked = hideInFullscreen;
 
 async function syncFullscreenVisibility() {
-  if (!hideInFullscreen || !window.__TAURI__?.window) return;
+  if (!window.__TAURI__?.window) return;
   try {
     const win = window.__TAURI__.window.getCurrentWindow();
-    if (document.fullscreenElement) await win.hide();
-    else await win.show();
+    if (hideInFullscreen && document.fullscreenElement && !hiddenByFullscreen) {
+      hiddenByFullscreen = true;
+      await win.hide();
+    } else if (hiddenByFullscreen && !document.fullscreenElement) {
+      hiddenByFullscreen = false;
+      await win.show();
+    }
   } catch (error) {
     console.warn('Fullscreen visibility error:', error);
   }
@@ -1335,6 +1347,10 @@ async function syncFullscreenVisibility() {
 fullscreenToggle.addEventListener('change', () => {
   hideInFullscreen = fullscreenToggle.checked;
   localStorage.setItem('bramo.hide.fullscreen', String(hideInFullscreen));
+  if (!hideInFullscreen && hiddenByFullscreen) {
+    hiddenByFullscreen = false;
+    window.__TAURI__?.window?.getCurrentWindow().show().catch(error => console.warn('Show BRAMO error:', error));
+  }
   syncFullscreenVisibility();
 updateFullscreenMonitor();
 
@@ -1373,10 +1389,17 @@ syncAutostartState();
 document.addEventListener('fullscreenchange', syncFullscreenVisibility);
 
 async function pollWindowsFullscreen() {
-  if (!hideInFullscreen || !window.__TAURI__?.core?.invoke) return;
+  if (!window.__TAURI__?.core?.invoke) return;
   try {
-    const active = await window.__TAURI__.core.invoke('is_other_window_fullscreen');
     const win = window.__TAURI__.window.getCurrentWindow();
+    if (!hideInFullscreen) {
+      if (hiddenByFullscreen) {
+        hiddenByFullscreen = false;
+        await win.show();
+      }
+      return;
+    }
+    const active = await window.__TAURI__.core.invoke('is_other_window_fullscreen');
     if (active && !hiddenByFullscreen) {
       hiddenByFullscreen = true;
       await win.hide();
@@ -1391,8 +1414,8 @@ async function pollWindowsFullscreen() {
 
 function updateFullscreenMonitor() {
   if (fullscreenMonitorTimer) clearInterval(fullscreenMonitorTimer);
-  fullscreenMonitorTimer = hideInFullscreen ? setInterval(pollWindowsFullscreen, 700) : null;
-  if (hideInFullscreen) pollWindowsFullscreen();
+  fullscreenMonitorTimer = setInterval(pollWindowsFullscreen, 700);
+  pollWindowsFullscreen();
 }
 
 updateFullscreenMonitor();
@@ -2209,7 +2232,7 @@ function computeTargetWindowSize(options = {}) {
   return { ...COMPACT_WINDOW_SIZE };
 }
 
-async function applyWindowLayout({ anchor, size } = {}) {
+async function applyWindowLayout({ anchor, size, skipAdaptive = false } = {}) {
   if (isActivelyDragging || isDragCandidate || !window.__TAURI__?.window) return;
   try {
     const win = window.__TAURI__.window.getCurrentWindow();
@@ -2235,7 +2258,7 @@ async function applyWindowLayout({ anchor, size } = {}) {
     if (anchor) {
       await win.setPosition({ type: 'Physical', x: anchor.x, y: anchor.y });
     }
-    await updateAdaptivePositioning();
+    if (!skipAdaptive) await updateAdaptivePositioning();
   } catch (error) {
     console.warn('Window layout error:', error);
   }
@@ -2340,9 +2363,18 @@ async function restoreWindowPosition() {
     await resizeNativeWindow(win, COMPACT_WINDOW_SIZE);
     bramoContainer.classList.remove('expanded');
     if (saved && revisionAtStart === windowPositionRevision) {
-      await win.setPosition({ type: 'Physical', x: saved.x, y: saved.y });
+      const size = await win.outerSize();
+      const workArea = await getWorkArea(win, saved, size);
+      const maxX = Math.max(workArea.left, workArea.left + workArea.width - size.width);
+      const maxY = Math.max(workArea.top, workArea.top + workArea.height - size.height);
+      await win.setPosition({
+        type: 'Physical',
+        x: Math.min(maxX, Math.max(workArea.left, saved.x)),
+        y: Math.min(maxY, Math.max(workArea.top, saved.y))
+      });
     }
     await updateAdaptivePositioning();
+    await win.show();
   } catch (err) {
     console.warn('Position restore error:', err);
   }
@@ -2698,7 +2730,7 @@ bramoCapsule.addEventListener('mousedown', async (e) => {
 });
 
 // --- 2. MOUSE MOVE ---
-function beginNativeDrag() {
+async function beginNativeDrag(event) {
   if (!isDragCandidate) return;
   isDragCandidate = false;
   isActivelyDragging = true;
@@ -2720,18 +2752,22 @@ function beginNativeDrag() {
   }
 
   const win = window.__TAURI__?.window?.getCurrentWindow();
-  if (win && typeof win.startDragging === 'function') {
-    // Let the OS own the move loop so monitor transitions and mixed-DPI
-    // coordinate changes cannot race our JavaScript setPosition calls.
+  if (win) {
+    // Avoid native startDragging: Windows Aero Shake would minimize all other
+    // windows when BRAMO is moved rapidly.
     nativeDragMode = true;
     const invoke = window.__TAURI__?.core?.invoke;
     nativeDragPromise = (async () => {
+      const pos = await win.outerPosition();
+      dragStartScreenX = event.screenX;
+      dragStartScreenY = event.screenY;
+      dragWindowStartX = pos.x;
+      dragWindowStartY = pos.y;
       if (invoke) await invoke('set_drag_watcher', { enabled: true });
-      await win.startDragging();
     })().catch(error => {
       nativeDragMode = false;
       invoke?.('set_drag_watcher', { enabled: false }).catch(() => {});
-      console.warn('Native window drag failed:', error);
+      console.warn('Controlled window drag failed:', error);
     });
   }
 }
@@ -2742,6 +2778,8 @@ function registerDragShake(position) {
     return false;
   }
   if (!position || !Number.isFinite(position.x) || !Number.isFinite(position.y)) return false;
+  // Position is handled by the WebView mousemove path. This native hook only
+  // supplies global samples for shake detection.
   const now = Date.now();
   shakeSamples = shakeSamples.filter(sample => now - sample.time < 2000);
   const previous = shakeSamples.at(-1);
@@ -2797,7 +2835,17 @@ window.addEventListener('mousemove', (e) => {
     const dx = e.clientX - dragStartClientX;
     const dy = e.clientY - dragStartClientY;
     if (Math.hypot(dx, dy) < 5) return;
-    beginNativeDrag();
+    beginNativeDrag(e);
+  }
+  if (isActivelyDragging && nativeDragMode && window.__TAURI__?.window) {
+    nativeDragPromise.then(async () => {
+      if (!isActivelyDragging) return;
+      const win = window.__TAURI__.window.getCurrentWindow();
+      const scale = await win.scaleFactor();
+      const x = Math.round(dragWindowStartX + (e.screenX - dragStartScreenX) * scale);
+      const y = Math.round(dragWindowStartY + (e.screenY - dragStartScreenY) * scale);
+      await win.setPosition({ type: 'Physical', x, y });
+    }).catch(error => console.warn('Controlled window drag move failed:', error));
   }
 });
 
@@ -2963,6 +3011,19 @@ document.querySelectorAll('.dropdown-panel, .utility-tab, .dropdown-panel button
 dropdownToggle.addEventListener('click', async (e) => {
   e.stopPropagation();
   if (isBramoSleeping) return;
+  if (gamingFocusActive || bramoContainer.classList.contains('gaming-focus')) {
+    if (bramoContainer.classList.contains('expanded')) {
+      bramoContainer.classList.remove('expanded');
+      capsuleWrapper.classList.remove('is-expanded');
+      stopStatsPolling();
+      if (dropdownIdleTimer) {
+        clearTimeout(dropdownIdleTimer);
+        dropdownIdleTimer = null;
+      }
+      applyWindowLayout({ size: computeTargetWindowSize({ ignoreSleep: true }) });
+    }
+    return;
+  }
 
   await updateAdaptivePositioning();
 
@@ -2993,21 +3054,25 @@ dropdownToggle.addEventListener('click', async (e) => {
       const widthDiff = Math.round((EXPANDED_WINDOW_SIZE.width - COMPACT_WINDOW_SIZE.width) * scale);
 
       if (isExpanding) {
-        wasFlipped = bramoContainer.classList.contains('flip-dropdown');
         savedCompactY = pos.y;
-
-        let targetY = pos.y;
-        if (wasFlipped) {
-          // Sisakan ruang aman agar sisi atas panel yang di-flip tidak
-          // menempel/terpotong oleh batas viewport.
-          targetY = pos.y - heightDiff + 8;
-        }
+        const workArea = await getWorkArea(win, pos, await win.outerSize());
+        const roomAbove = pos.y - workArea.top;
+        const roomBelow = workArea.top + workArea.height - (pos.y + COMPACT_H * scale);
+        wasFlipped = roomBelow < heightDiff && roomAbove > roomBelow;
+        bramoContainer.classList.toggle('flip-dropdown', wasFlipped);
+        capsuleWrapper.classList.toggle('align-bottom', wasFlipped);
+        bramoContainer.classList.toggle('flip-bubble', wasFlipped);
+        const targetY = wasFlipped ? pos.y - heightDiff + 8 : pos.y;
 
         const targetX = Math.round(pos.x - widthDiff / 2);
         await applyWindowLayout({
           size: { ...EXPANDED_WINDOW_SIZE },
-          anchor: { x: targetX, y: targetY }
+          anchor: { x: targetX, y: targetY },
+          skipAdaptive: true
         });
+        // Preserve the orientation picked from the compact window's available
+        // room. Re-running adaptive positioning here would use the expanded
+        // window's shifted origin and could flip the panel a second time.
         saveWindowPosition({ x: targetX, y: targetY });
       } else {
         const currentFlip = bramoContainer.classList.contains('flip-dropdown');

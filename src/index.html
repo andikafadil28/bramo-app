@@ -170,6 +170,14 @@
 
           <div class="utility-panel" id="powerPanel" role="tabpanel" aria-labelledby="tabPower">
             <div class="panel-heading"><strong>Pengaturan</strong><span>Tampilan dan perilaku BRAMO</span></div>
+            <section class="settings-group" aria-labelledby="windowSettingsTitle">
+              <strong id="windowSettingsTitle">Pengaturan Jendela</strong>
+              <label class="fullscreen-toggle">
+                <input type="checkbox" id="fullscreenToggle" />
+                <span>Sembunyikan BRAMO saat fullscreen</span>
+              </label>
+              <small>BRAMO akan muncul kembali setelah aplikasi fullscreen ditutup.</small>
+            </section>
             <div class="power-actions">
               <button class="power-action interactive" id="sleepBramo" type="button">Sleep</button>
               <button class="power-action interactive" id="quitBramo" type="button">Quit</button>
@@ -194,10 +202,6 @@
               <div><input id="gameProcessInput" class="launcher-input" type="text" maxlength="64" placeholder="contoh: game.exe" autocomplete="off"/><button id="addGameProcess" class="power-action interactive" type="button">Tambah</button></div>
               <div id="gameProcessList" aria-live="polite"></div>
             </div>
-            <label class="fullscreen-toggle">
-              <input type="checkbox" id="fullscreenToggle" />
-              <span>Hide in Fullscreen</span>
-            </label>
             <label class="fullscreen-toggle">
               <input type="checkbox" id="autostartToggle" />
               <span>Start with Windows</span>
