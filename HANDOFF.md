@@ -4,8 +4,8 @@
 
 ## Kondisi sekarang
 
-- Source/build metadata BRAMO saat ini **1.0.1**. GitHub Release `v1.0.0` adalah rilis stabil terakhir yang tercatat terbit; build lokal 1.0.1 tidak otomatis berarti release GitHub sudah dibuat.
-- GitHub Release `v1.0.0` sudah terbit, lengkap dengan installer NSIS `.exe` dan MSI.
+- Source/build metadata BRAMO saat ini **1.0.1**. Installer source ini belum ditandatangani digital; lihat RELEASE_NOTES.md untuk detail SmartScreen.
+- GitHub Release `v1.0.1` berisi installer NSIS `.exe` dan MSI.
 - Situs promo Astro ada di `promo-site/`, menjelaskan fitur BRAMO, dan tombol unduh mengarah ke release terbaru.
 - Halaman Astro punya demo buddy interaktif di `#demo`: gaze mengikuti pointer, pilihan ekspresi/warna. Ini simulasi visual browser, bukan runtime desktop penuh.
 - Node build Cloudflare Pages dipin ke `22.19.0` lewat `promo-site/.nvmrc`.

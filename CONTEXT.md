@@ -267,7 +267,7 @@ endAdhanSession()                 // idempotent
 ## 8. Handoff Historis (2026-10-22)
 
 - **Versi stabil:** BRAMO **1.0.0**. Metadata root `package.json`, `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, dan `src-tauri/tauri.conf.json` sudah diselaraskan.
-- **GitHub Release:** `v1.0.0` sudah dipublikasikan dengan `BRAMO_1.0.0_x64-setup.exe` dan `BRAMO_1.0.0_x64_en-US.msi`. Tombol unduh promo menuju `/releases/latest`.
+- **GitHub Release:** `v1.0.1` dipublikasikan dengan `BRAMO_1.0.1_x64-setup.exe` dan `BRAMO_1.0.1_x64_en-US.msi`. Installer belum code-signed; rilis mencantumkan catatan SmartScreen. Tombol unduh promo menuju `/releases/latest`.
 - **Aksesibilitas kontrol azan:** bubble azan sekarang menampilkan tombol **Matikan azan** tepat di bawah pesan saat audio aktif. Tombol menghentikan playback dan mengakhiri sesi dengan alur resume media yang sama seperti kontrol Mute di panel Prayer.
 - **Situs promo:** Astro di `promo-site/`, menjelaskan 11 kelompok fitur BRAMO 1.0. Deploy Cloudflare Pages otomatis hanya berlaku jika project Pages sudah tersambung ke repo, branch `main`, root `promo-site`, build `npm run build`, output `dist`. Node dipin ke 22.19.0 melalui `.nvmrc`; subdomain tujuan `bramo.dikadevit.my.id`.
 - **Demo browser Astro:** `promo-site/src/components/BramoDemo.astro` menampilkan visor interaktif dengan gaze pointer, empat ekspresi, empat warna, dan bubble. Ini simulasi visual browser; fungsi native desktop tidak berjalan di browser.

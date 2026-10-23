@@ -61,7 +61,7 @@ Untuk menjalankan preview Astro secara lokal, gunakan Node.js **22.19.0 atau leb
 
 ## Versi dan dokumentasi
 
-Versi source/build saat ini: **1.0.1**. GitHub Release stabil terakhir yang tercatat terbit adalah `v1.0.0`.
+Versi source/build saat ini: **1.0.1**. Installer Windows terbaru dan catatan rilis tersedia di [GitHub Releases](https://github.com/andikafadil28/bramo-app/releases/latest).
 
 - [`CONTEXT.md`](CONTEXT.md): arsitektur, inventaris fitur, dan status proyek.
 - [`todo.md`](todo.md): checklist dan tindak lanjut.
