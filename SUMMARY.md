@@ -1,6 +1,6 @@
-# BRAMO 1.0 — Interactive Cyberpunk Desktop Companion
+# BRAMO 1.0.1 — Interactive Cyberpunk Desktop Companion
 
-BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Linux, powered by **Tauri v2**. Designed with an LED visor capsule aesthetic, BRAMO combines system utilities, productivity tracking, prayer reminders, and expressive mascot interactions.
+BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows, powered by **Tauri v2**. Designed with an LED visor capsule aesthetic, BRAMO combines system utilities, productivity tracking, prayer reminders, and expressive mascot interactions.
 
 > Status proyek dan arsitektur terbaru ada di `CONTEXT.md`. Langkah pindah komputer ada di `HANDOFF.md`.
 
@@ -28,7 +28,8 @@ BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Lin
 
 ## Status
 
-- Versi source/build saat ini: **1.0.1**; GitHub Release stabil terakhir yang tercatat terbit: **1.0.0**.
-- GitHub Release: https://github.com/andikafadil28/bramo-app/releases/latest (installer EXE dan MSI tersedia).
-- Situs promo Astro: `promo-site/`; panduan menjalankannya ada di `promo-site/README.md`.
-- Detail fitur, arsitektur, dan pengujian manual yang tersisa ada di `CONTEXT.md`.
+- Versi source/build dan GitHub Release stabil terbaru: **1.0.1**.
+- GitHub Release: [v1.0.1](https://github.com/andikafadil28/bramo-app/releases/tag/v1.0.1) (installer EXE dan MSI tersedia); situs promo mengarah ke release terbaru.
+- Situs promo Astro: [bramo.dikadevit.my.id](https://bramo.dikadevit.my.id), sumbernya di `promo-site/`. Demo mencakup buddy yang bisa diseret dan 10 tab; interaksi di situs hanya simulasi browser, bukan integrasi native desktop.
+- Installer belum ditandatangani digital, sehingga Windows dapat menampilkan SmartScreen. Hash SHA-256 installer ada di `RELEASE_NOTES.md`.
+- Panduan menjalankan Astro ada di `promo-site/README.md`; detail arsitektur dan pengujian manual tersisa ada di `CONTEXT.md`.

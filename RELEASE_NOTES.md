@@ -15,6 +15,11 @@ Pemeliharaan dan penyempurnaan desktop companion sejak rilis stabil 1.0.0.
 - `BRAMO_1.0.1_x64-setup.exe` — installer NSIS, disarankan untuk kebanyakan pengguna.
 - `BRAMO_1.0.1_x64_en-US.msi` — installer MSI.
 
+SHA-256:
+
+- EXE: `2546D46616A44DCAB79404386F6EA5CB7C081DCF52763B41E2B8CD734C8CA086`
+- MSI: `994899B61558D3AC662ABFF3AE09EA0248BCE5F299CC0CC1215DD355D83B51E5`
+
 Installer ini **belum ditandatangani secara digital**. Windows dapat menampilkan peringatan SmartScreen untuk aplikasi/penerbit yang belum dikenal. Peringatan reputasi berbeda dari deteksi malware; jika antivirus menampilkan nama ancaman spesifik, jangan abaikan—laporkan ke maintainer untuk diperiksa.
 
 Installer resmi boleh dibagikan gratis. Penggunaan dan distribusi mengikuti [LICENSE](https://github.com/andikafadil28/bramo-app/blob/main/LICENSE).

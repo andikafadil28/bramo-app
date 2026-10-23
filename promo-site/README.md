@@ -2,6 +2,8 @@
 
 Static Astro website for BRAMO, deployed on Cloudflare Pages.
 
+Situs: [bramo.dikadevit.my.id](https://bramo.dikadevit.my.id). Demo menampilkan buddy yang bisa diseret dan sepuluh tab fitur. Kontrol di demo hanya simulasi di browser: tidak menjalankan integrasi desktop BRAMO atau mengirim data dari komputer.
+
 ## Local development
 
 Pastikan Node.js versi **22.19.0 atau lebih baru** sudah terpasang. Buka terminal di folder `promo-site`, lalu jalankan:

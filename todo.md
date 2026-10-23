@@ -3,7 +3,7 @@
 > Rujukan eksekusi sprint aktif ada di `CONTEXT.md` Section 7 ("Rencana Sprint: Polish & Stabilisasi").
 > Checklist di bawah adalah versi ringkas — detail + lokasi file ada di `CONTEXT.md`.
 
-> **Status sekarang (2026-10-23):** Source/build metadata 1.0.1; GitHub Release 1.0.0 tercatat terbit. Build lokal 1.0.1 ada di `src-tauri/target/release/bundle/`. Ikuti `HANDOFF.md` untuk melanjutkan dari komputer lain.
+> **Status sekarang (2026-10-23):** BRAMO 1.0.1 sudah dirilis di [GitHub Releases](https://github.com/andikafadil28/bramo-app/releases/tag/v1.0.1), dengan installer EXE dan MSI. Situs promo Astro sudah tayang di [bramo.dikadevit.my.id](https://bramo.dikadevit.my.id) dan demo browser menampilkan buddy interaktif serta 10 tab fitur. Uji manual installer dan perilaku desktop di Windows masih perlu dilakukan; lihat checklist di bawah dan `HANDOFF.md`.
 
 ## Perbaikan desktop terbaru
 - [x] Pulihkan posisi startup ke work area monitor dan tampilkan window setelah restore.
