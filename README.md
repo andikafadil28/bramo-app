@@ -9,6 +9,7 @@ BRAMO adalah pendamping desktop Windows berbentuk visor LED yang menggabungkan u
 - BRAMO Journey dengan XP, level, koleksi aksesori, dan kosmetik.
 - Tema Cyan, Matrix, Pink, Amber, RGB Cycle, dan Red Alert.
 - Gaming Focus di Windows: mendeteksi game yang dikenal atau executable tambahan yang ditentukan pengguna.
+- Dropdown dikunci saat Gaming Focus aktif agar tidak mengganggu permainan.
 
 ### Produktivitas
 - Pomodoro dengan durasi fokus/istirahat yang bisa diatur dan sisa sesi yang tersimpan.
@@ -24,6 +25,7 @@ BRAMO adalah pendamping desktop Windows berbentuk visor LED yang menggabungkan u
 - Pengingat sholat dengan jadwal, audio azan, dan prioritas bubble.
 - Pembersih cache BRAMO, system tray, autostart, fullscreen hide, dan efek suara 8-bit.
 - Jendela transparan always-on-top, snap, penyimpanan posisi, serta penyesuaian monitor dan DPI.
+- Dropdown berukuran `300x520`, flip ke atas dekat bagian bawah layar; panel Settings memakai scroll internal. Posisi startup dipulihkan dalam area monitor yang valid.
 
 ## Persyaratan
 
@@ -59,7 +61,7 @@ Untuk menjalankan preview Astro secara lokal, gunakan Node.js **22.19.0 atau leb
 
 ## Versi dan dokumentasi
 
-Versi aplikasi saat ini: **1.0.0**.
+Versi source/build saat ini: **1.0.1**. GitHub Release stabil terakhir yang tercatat terbit adalah `v1.0.0`.
 
 - [`CONTEXT.md`](CONTEXT.md): arsitektur, inventaris fitur, dan status proyek.
 - [`todo.md`](todo.md): checklist dan tindak lanjut.

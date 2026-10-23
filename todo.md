@@ -3,7 +3,14 @@
 > Rujukan eksekusi sprint aktif ada di `CONTEXT.md` Section 7 ("Rencana Sprint: Polish & Stabilisasi").
 > Checklist di bawah adalah versi ringkas — detail + lokasi file ada di `CONTEXT.md`.
 
-> **Status sekarang (2026-10-22):** BRAMO 1.0.0 sudah dirilis; promo Astro ada di `promo-site/`. Untuk melanjutkan dari komputer rumah, ikuti `HANDOFF.md`. Checklist sprint lama di bawah ini adalah riwayat implementasi dan tidak berarti seluruh item masih backlog.
+> **Status sekarang (2026-10-23):** Source/build metadata 1.0.1; GitHub Release 1.0.0 tercatat terbit. Build lokal 1.0.1 ada di `src-tauri/target/release/bundle/`. Ikuti `HANDOFF.md` untuk melanjutkan dari komputer lain.
+
+## Perbaikan desktop terbaru
+- [x] Pulihkan posisi startup ke work area monitor dan tampilkan window setelah restore.
+- [x] Pertahankan dropdown `300x520`, flip ke atas dekat bawah, dan scroll internal Settings.
+- [x] Kunci dropdown saat Gaming Focus aktif; tutup panel jika game mulai terdeteksi.
+- [x] Drag terkontrol dengan pointer delta untuk menghindari Aero Shake.
+- [ ] Uji manual installer: startup/visibilitas, seluruh 10 tab, Settings sampai bawah, flip dropdown, Gaming Focus, drag, monitor/DPI.
 
 ## Phase 1: Core Interaction & "Aliveness"
 - [x] **Chat Bubble / Speech Dialog System:** Elemen balon teks melayang di atas kepala BRAMO untuk sapaan, status, dan komentar acak.

@@ -4,7 +4,7 @@
 - **Nama Proyek:** BRAMO (Cyberpunk Desktop Companion / Interactive Top-Bar Widget)
 - **Target Platform:** Desktop (Windows / macOS / Linux via Tauri v2)
 - **Konsep Utama:** Asisten kapsul desktop interaktif bertema cyberpunk yang dilengkapi wajah visor LED hidup, gelembung dialog komik (speech bubble), fisika drag-and-drop, serta panel dropdown utilitas yang bisa dilipat.
-- **Tantangan Arsitektur Utama:** Menyeimbangkan transparansi penuh pada window OS dan kemampuan *click-through* (`pointer-events: none` pada background) dengan elemen interaktif (`pointer-events: auto`), serta melakukan *resize* ukuran window secara dinamis (`win.setSize`) antara **Mode Compact** (`220x90`), **Mode Music** (`220x162`), dan **Mode Expanded** (`280x470`) tanpa menembus batas layar atau taskbar.
+- **Tantangan Arsitektur Utama:** Menyeimbangkan transparansi penuh pada window OS dan kemampuan *click-through* (`pointer-events: none` pada background) dengan elemen interaktif (`pointer-events: auto`), serta melakukan *resize* ukuran window secara dinamis (`win.setSize`) antara **Mode Compact** (`220x90`), **Mode Music** (`220x162`), dan **Mode Expanded** (`300x520`) tanpa menembus batas layar atau taskbar.
 
 ---
 
@@ -58,8 +58,8 @@
 4. **Double-Click Snap**:
    - Klik 2x pada `#hatTrigger` menghitung dimensi layar dan langsung melakukan *snap* BRAMO ke posisi tengah atas layar (`targetX = (screenWidth - windowWidth) / 2`, `targetY = 20`), sekaligus mereset state ke compact.
    5. **Dual-Mode Dynamic Window Sizing & State Management (Kunci Logika Aktif)**:
-    - Menekan `#dropdownToggle` beralih antara **Mode Compact** (`220x90`) dan **Mode Expanded** (`280x470`), dengan retry/verifikasi `outerSize()` setelah `setSize()`.
-    - Ukuran native kini punya satu sumber: `computeTargetWindowSize()` (expanded `280x470` > media+pomodoro `220x210` > media `220x162` > pomodoro `220x140` > compact `220x90`, dengan override sleep) dan `applyWindowLayout({ anchor })`. Fungsi ini dipakai oleh sleep, wake, toggle dropdown, sync media, sync pomodoro, dan bubble.
+   - Menekan `#dropdownToggle` beralih antara **Mode Compact** (`220x90`) dan **Mode Expanded** (`300x520`), dengan retry/verifikasi `outerSize()` setelah `setSize()`.
+   - Ukuran native punya satu sumber: `computeTargetWindowSize()` (expanded `300x520` > media+pomodoro `220x210` > media `220x162` > pomodoro `220x140` > compact `220x90`, dengan override sleep) dan `applyWindowLayout({ anchor })`.
     - Menggunakan `savedCompactY` dan `wasFlipped` untuk mencegah pergeseran kumulatif saat dropdown dibuka-tutup.
 6. **Window Position Persistence & Bubble Sizing**:
    - Posisi terakhir disimpan di `localStorage` dan dipulihkan saat startup.
@@ -141,6 +141,9 @@
 ## 6. Status Proyek (2026-10-22)
 - **Interaksi desktop:** window frameless/transparan, drag dengan tilt dan landing bounce, snap top-center lewat klik ganda topi, persist posisi, clamp per-monitor, DPI-aware sizing, tray, dan fullscreen hide.
 - **Ukuran window saat ini:** compact `220x90`, media `220x162`, Pomodoro `220x140`, media+Pomodoro `220x210`, expanded `300x520`; mode sleep memakai tinggi sesuai kombinasi media/timer. Expanded Y menjaga posisi atas/bawah dengan `savedCompactY` dan `wasFlipped`.
+- **Dropdown terbaru:** tetap expanded `300x520`; flip ke atas bila ruang bawah tidak cukup dan Settings memakai scroll internal setinggi 320px.
+- **Gaming Focus:** game yang didukung foreground mengunci dropdown; panel yang kebetulan terbuka ditutup saat mode ini aktif.
+- **Pemulihan startup:** posisi tersimpan di-clamp ke work area monitor dan window di-show setelah pemulihan selesai.
 - **Dropdown:** 10 tab aktif — Music, Stats, File, Power, Prayer, Pomodoro, Bio-rhythm, Launcher, To-do/Alarm, dan BRAMO Journey.
 - **Dropdown UI/UX:** tab horizontal scrollable dengan label aksesibilitas dan navigasi keyboard; seluruh panel memakai heading, ukuran kontrol konsisten, serta scroll internal.
 - **Buddy:** gaze/blink, typing-curious, idle peek/stretch/sigh/yawn, pusing saat digoyang, mood adaptif, sapaan pagi/malam, reaksi sukses/XP/level, musik, fokus, kaget, reuni, serta target fokus harian.
@@ -149,7 +152,7 @@
 - **Produktivitas & reminder:** Pomodoro dengan dukungan fokus tiap 8 menit dan target harian 2/4/6 sesi; bio-rhythm; to-do dengan alarm; wake alarm harian dan snooze; Prayer Reminder dengan audio dan Azan Priority Mode.
 - **Utilitas lain:** system stats CPU/RAM/baterai, file drop/history, clipboard history + watcher, typing curiosity, quick launcher, cache cleaner BRAMO, 8-bit SFX, tema visor, dan koleksi kosmetik.
 - **Pemeriksaan kode yang pernah tercatat lolos:** `npm run check`, `cargo check`, `cargo clippy`, dan `npm run build`. Hasil tersebut tidak menggantikan uji perilaku di komputer pengguna.
-- **Uji manual yang masih perlu dilakukan:** drag/snap lintas monitor dan DPI; tray/sleep/wake; pengenalan game serta fullscreen game; transisi media stop/pause/play; Pomodoro, reminder, alarm, azan, dan audio resume; watcher clipboard/typing; cache cleaner dan autostart.
+- **Uji manual yang masih perlu dilakukan:** pastikan installer menampilkan BRAMO pada konfigurasi monitor pengguna; semua 10 tab dan scroll Settings; flip dekat bawah; Gaming Focus lock; drag/snap lintas monitor dan DPI; tray/sleep/wake; media, Pomodoro, reminder/alarm/azan, clipboard/typing, cache cleaner, dan autostart.
 
 ---
 
@@ -240,8 +243,9 @@ endAdhanSession()                 // idempotent
 - Frontend debounce dua snapshot untuk perubahan active/inactive tetap dipakai agar pergantian sesi sesaat tidak membuat layout berkedip.
 - Tidak menjalankan build MSI pada perbaikan ini. Perlu uji manual di Windows untuk memastikan sesi berhenti menutup panel dan sesi pause tetap tersedia.
 
-### Refresh konteks proyek (2026-10-22)
-- Fakta arsitektur diselaraskan dengan implementasi saat ini: expanded `280x470`, 10 tab dropdown, dan pemilihan work area melalui monitor terdekat dari `availableMonitors()`.
+### Refresh konteks proyek (2026-10-23)
+- Expanded dipulihkan ke ukuran tetap `300x520` mengikuti baseline v1; Settings memakai scroll internal dan dropdown flip berdasar ruang atas/bawah.
+- Posisi startup di-clamp ke work area monitor; Gaming Focus mengunci dropdown.
 - Fitur aktif dipisahkan dari backlog. Temuan audit lama diberi status perbaikan kode atau uji manual yang masih diperlukan.
 
 ### Verifikasi Sprint
@@ -260,7 +264,7 @@ endAdhanSession()                 // idempotent
 
 ---
 
-## 8. Handoff Terbaru (2026-10-22)
+## 8. Handoff Historis (2026-10-22)
 
 - **Versi stabil:** BRAMO **1.0.0**. Metadata root `package.json`, `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, dan `src-tauri/tauri.conf.json` sudah diselaraskan.
 - **GitHub Release:** `v1.0.0` sudah dipublikasikan dengan `BRAMO_1.0.0_x64-setup.exe` dan `BRAMO_1.0.0_x64_en-US.msi`. Tombol unduh promo menuju `/releases/latest`.

@@ -4,7 +4,7 @@
 
 ## Kondisi sekarang
 
-- Aplikasi desktop BRAMO sudah berada di **versi stabil 1.0.0**.
+- Source/build metadata BRAMO saat ini **1.0.1**. GitHub Release `v1.0.0` adalah rilis stabil terakhir yang tercatat terbit; build lokal 1.0.1 tidak otomatis berarti release GitHub sudah dibuat.
 - GitHub Release `v1.0.0` sudah terbit, lengkap dengan installer NSIS `.exe` dan MSI.
 - Situs promo Astro ada di `promo-site/`, menjelaskan fitur BRAMO, dan tombol unduh mengarah ke release terbaru.
 - Versi Node di komputer kantor tercatat `v22.13.1`; kebutuhan situs promo sekarang **Node.js 22.19.0 atau lebih baru** karena dependency `undici` pada lockfile.
@@ -38,9 +38,11 @@ Output build berada di `promo-site/dist/`. Push perubahan ke `main`; Cloudflare 
 ## Konteks produk dan cara melanjutkan
 
 - BRAMO adalah buddy desktop visor LED cyberpunk berbasis Tauri v2. Fitur aktif: 10 tab dropdown; animasi/mood; Pomodoro; pengingat jeda dan fokus panjang; to-do/alarm; pengingat sholat; musik; stats; file/clipboard; launcher; Gaming Focus; XP/aksesori; tema; tray/autostart; sleep; fullscreen hide; multi-monitor dan DPI.
+- Perilaku window terbaru: dropdown `300x520`, flip ke atas dekat bagian bawah layar, Settings memakai scroll internal, dan dropdown terkunci saat Gaming Focus aktif. Posisi startup di-clamp ke work area monitor.
 - Daftar rinci dan status kode ada di `CONTEXT.md`; fitur yang tampil di situs ada di `promo-site/src/pages/index.astro`.
 - Sebelum menyebut fitur baru, cocokkan dengan kode yang ada agar tidak menjanjikan kemampuan yang belum dibuat.
 - Uji build situs dengan `npm run build`. Jangan klaim perilaku desktop sudah teruji manual tanpa mencobanya di Windows.
+- Build installer desktop dengan `npm run build` dari root; output berada di `src-tauri/target/release/bundle/`. Uji manual startup, 10 tab dropdown, Gaming Focus, dan drag sebelum menyatakan perilaku tervalidasi.
 - Lisensi proprietary: pemakaian personal dan modifikasi pribadi yang tidak dibagikan diizinkan; installer resmi boleh dibagikan gratis; penjualan, distribusi versi modifikasi/source, atau klaim kepemilikan tidak diizinkan. Lihat `LICENSE`.
 
 ## Gaya kolaborasi yang disukai Andika

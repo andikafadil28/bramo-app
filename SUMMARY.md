@@ -7,7 +7,7 @@ BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Lin
 ## Key Features & Capabilities
 
 - **Cyber-Retro LED Visor:** Dynamic LED eyes with gaze-tracking, auto-blinking, glance states, and reactive mouth animations (idle, whistle, mumble, happy).
-- **Robust Drag & Snap Mechanics:** Smooth custom `requestAnimationFrame` dragging with wiggle physics, landing bounce, and a cowboy hat double-click auto-snap to the top-center of the screen.
+- **Robust Drag & Snap Mechanics:** Controlled pointer-delta movement with wiggle physics, landing bounce, monitor clamping, and cowboy-hat double-click auto-snap.
 - **Expandable Dropdown Island:** 10 utility panels for music, stats, files/clipboard, settings, prayer, Pomodoro, bio-rhythm, launcher, to-do/alarm, and BRAMO Journey.
 - **Productivity & Health Companion:** Prayer/sholat reminders with azan audio and Azan Priority Mode; configurable Pomodoro; breaks, long-focus warnings, to-do reminders, and recurring wake alarms.
 - **System Monitor:** CPU, RAM, and battery readout with amber reaction under load.
@@ -15,6 +15,8 @@ BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Lin
 - **File Shelf:** Drag-and-drop file zone with Open, Show in Folder, and a five-item history.
 - **Customization:** Persistent visor themes (Cyan, Matrix, Pink, Amber, RGB Cycle, Red Alert), XP, levels, and unlockable cosmetics.
 - **Desktop Integration:** Clipboard watcher/history, typing curiosity, Quick Launcher, Gaming Focus (Windows), and mascot Sleep Mode.
+- **Gaming Focus:** Locks the dropdown while a supported game is foregrounded; an open dropdown closes when Gaming Focus activates.
+- **Dropdown layout:** Fixed expanded size `300x520`, flips upward near the screen bottom, and Settings scrolls internally. Startup restores saved coordinates within the monitor work area.
 - **System Tray:** Native Show/Hide/Sleep/Quit menu with an autostart plugin and an autostart toggle in the Power panel.
 - **Fullscreen & DPI Awareness:** External fullscreen hiding (with ChatGPT/Codex exclusions), Windows scale-aware native sizing, and multi-monitor aware clamping.
 
@@ -26,7 +28,7 @@ BRAMO is a sleek, retro-futuristic desktop top bar companion for Windows and Lin
 
 ## Status
 
-- Versi aplikasi: **1.0.0**, rilis stabil pertama.
+- Versi source/build saat ini: **1.0.1**; GitHub Release stabil terakhir yang tercatat terbit: **1.0.0**.
 - GitHub Release: https://github.com/andikafadil28/bramo-app/releases/latest (installer EXE dan MSI tersedia).
 - Situs promo Astro: `promo-site/`; panduan menjalankannya ada di `promo-site/README.md`.
 - Detail fitur, arsitektur, dan pengujian manual yang tersisa ada di `CONTEXT.md`.
