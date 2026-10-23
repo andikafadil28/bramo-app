@@ -268,6 +268,7 @@ endAdhanSession()                 // idempotent
 
 - **Versi stabil:** BRAMO **1.0.0**. Metadata root `package.json`, `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock`, dan `src-tauri/tauri.conf.json` sudah diselaraskan.
 - **GitHub Release:** `v1.0.0` sudah dipublikasikan dengan `BRAMO_1.0.0_x64-setup.exe` dan `BRAMO_1.0.0_x64_en-US.msi`. Tombol unduh promo menuju `/releases/latest`.
+- **Aksesibilitas kontrol azan:** bubble azan sekarang menampilkan tombol **Matikan azan** tepat di bawah pesan saat audio aktif. Tombol menghentikan playback dan mengakhiri sesi dengan alur resume media yang sama seperti kontrol Mute di panel Prayer.
 - **Situs promo:** Astro di `promo-site/`, menjelaskan 11 kelompok fitur BRAMO 1.0. Deploy Cloudflare Pages otomatis hanya berlaku jika project Pages sudah tersambung ke repo, branch `main`, root `promo-site`, build `npm run build`, output `dist`.
 - **Panduan pindah komputer:** baca `HANDOFF.md`; mulai dari `git pull origin main` di komputer rumah.
 - **Menjalankan Astro:** dari `promo-site`, gunakan Node.js **22.19.0+**, `npm ci`, lalu `npm run dev`; buka alamat localhost yang ditampilkan (biasanya `http://localhost:4321/`). `npm run build` memeriksa build statis dan membuat `dist/`.

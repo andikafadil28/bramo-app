@@ -235,6 +235,7 @@ html, body {
 }
 .speech-action:first-child { border-color: rgba(124, 255, 190, 0.42); color: #aaffd4; }
 .speech-action:hover { background: rgba(255, 255, 255, 0.12); }
+.adhan-bubble-actions .speech-action:first-child { border-color: rgba(255, 159, 67, 0.58); color: #ffd2a1; }
 
 .bramo-container.attention-reminder .speech-bubble::after {
   border-color: #ff9f43;

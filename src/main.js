@@ -14,6 +14,8 @@ const speechText = document.getElementById('speechText');
 const bioBubbleActions = document.getElementById('bioBubbleActions');
 const bioBubbleDone = document.getElementById('bioBubbleDone');
 const bioBubbleSnooze = document.getElementById('bioBubbleSnooze');
+const adhanBubbleActions = document.getElementById('adhanBubbleActions');
+const adhanBubbleMute = document.getElementById('adhanBubbleMute');
 const cpuValue = document.getElementById('cpuValue');
 const memoryValue = document.getElementById('memoryValue');
 const batteryValue = document.getElementById('batteryValue');
@@ -1640,6 +1642,11 @@ prayerMute.addEventListener('click', () => {
   setTimeout(() => { prayerMute.textContent = 'Mute Audio'; }, 1500);
 });
 
+adhanBubbleMute.addEventListener('click', () => {
+  stopAdhan();
+  endAdhanSession();
+});
+
 clipboardToggle.addEventListener('change', () => {
   awardFeatureMilestone('clipboard-watcher', 'mengaktifkan Clipboard Watcher');
   clipboardWatcherEnabled = clipboardToggle.checked;
@@ -1725,6 +1732,7 @@ async function beginAdhanSession(prayerName, withAudio) {
   clearMusicMode();
   await pauseMediaForAdhan();
   suppressMediaUntil = Date.now() + ADHAN_SUPPRESS_MS;
+  adhanBubbleActions.hidden = !withAudio;
   showBramoMessage(`Saatnya menunaikan sholat ${prayerName} 🤲`, null, true);
   if (withAudio) playAdhan();
   else adhanResumeTimer = setTimeout(endAdhanSession, 15000);
@@ -1733,6 +1741,7 @@ async function beginAdhanSession(prayerName, withAudio) {
 async function endAdhanSession() {
   if (!adhanSessionActive) return;
   adhanSessionActive = false;
+  adhanBubbleActions.hidden = true;
   if (adhanResumeTimer) {
     clearTimeout(adhanResumeTimer);
     adhanResumeTimer = null;
