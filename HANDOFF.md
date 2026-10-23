@@ -7,7 +7,7 @@
 - Source/build metadata BRAMO saat ini **1.0.1**. Installer source ini belum ditandatangani digital; lihat RELEASE_NOTES.md untuk detail SmartScreen.
 - GitHub Release `v1.0.1` berisi installer NSIS `.exe` dan MSI.
 - Situs promo Astro ada di `promo-site/`, menjelaskan fitur BRAMO, dan tombol unduh mengarah ke release terbaru.
-- Halaman Astro punya demo buddy interaktif di `#demo`: gaze mengikuti pointer, pilihan ekspresi/warna. Ini simulasi visual browser, bukan runtime desktop penuh.
+- Halaman Astro punya buddy mengambang yang muncul saat halaman dibuka, bisa diseret dan mengingat posisinya di browser. Demo `#demo` memuat sepuluh tab dropdown sesuai panel aplikasi; aksinya hanya simulasi browser.
 - Node build Cloudflare Pages dipin ke `22.19.0` lewat `promo-site/.nvmrc`.
 - Versi Node di komputer kantor tercatat `v22.13.1`; kebutuhan situs promo sekarang **Node.js 22.19.0 atau lebih baru** karena dependency `undici` pada lockfile.
 - Server Astro kantor yang menyebabkan file terkunci saat `npm ci` sudah dihentikan.
