@@ -2,8 +2,8 @@
 import BramoDemo from '../components/BramoDemo.astro';
 
 const features = [
-  { title: 'Buddy desktop yang bereaksi', description: 'BRAMO tinggal di atas desktop, bisa dipindah antar monitor, dan merespons klik serta aktivitas dengan bubble kontekstual.', image: '/images/01-bramo-buddy.svg', imageAlt: 'Ilustrasi BRAMO sebagai buddy visor LED di desktop', tag: 'DESKTOP BUDDY' },
-  { title: 'Ekspresi dan animasi hidup', description: 'Mata LED melirik, mengikuti kursor, berkedip, atau berubah jadi spiral saat digoyang. Mulut dan badan ikut bereaksi saat idle, mengetik, fokus, tidur, dan mendengarkan musik.', image: '/images/07-living-animations.svg', imageAlt: 'Ilustrasi animasi dan ekspresi BRAMO', tag: 'ANIMASI & MOOD' },
+  { title: 'Buddy desktop yang bereaksi', description: 'BRAMO tinggal di atas desktop, bisa dipindah antar monitor, dan merespons klik serta aktivitas dengan bubble kontekstual.', image: '/images/features/buddy-reactive.jpg', imageAlt: 'BRAMO menemani desktop dan merespons interaksi', tag: 'DESKTOP BUDDY' },
+  { title: 'Ekspresi dan animasi hidup', description: 'Mata LED melirik, mengikuti kursor, berkedip, atau berubah jadi spiral saat digoyang. Mulut dan badan ikut bereaksi saat idle, mengetik, fokus, tidur, dan mendengarkan musik.', image: '/images/features/animations.jpg', imageAlt: 'Berbagai ekspresi dan animasi BRAMO', tag: 'ANIMASI & MOOD' },
   { title: 'Pomodoro yang bisa diatur', description: 'Pilih sesi fokus 15, 25, 45, atau 60 menit dan jeda 5, 10, atau 15 menit. Timer mini tetap terlihat; BRAMO memberi dukungan dan merayakan sesi yang selesai.', image: '/images/features/pomodoro.jpg', imageAlt: 'Tampilan fitur Pomodoro BRAMO dengan timer fokus dan istirahat', tag: 'FOKUS' },
   { title: 'Pengingat jeda dan fokus panjang', description: 'Atur pengingat istirahat tiap 30–90 menit, tunda atau tandai sudah jeda, dan aktifkan peringatan jika akumulasi fokus harian terlalu lama.', image: '/images/features/pengingat-jeda.jpg', imageAlt: 'Tampilan pengingat jeda bio-rhythm BRAMO', tag: 'KESEIMBANGAN' },
   { title: 'To-do dan alarm bangun', description: 'Catat tugas dengan pengingat sekali jalan. Atur alarm berulang pada jam dan hari pilihan; alarm dapat membangunkan BRAMO dari Sleep Mode, tetapi PC harus tetap menyala.', image: '/images/features/todo-alarm.jpg', imageAlt: 'Tampilan daftar tugas dan alarm BRAMO', tag: 'PENGINGAT' },
@@ -12,7 +12,7 @@ const features = [
   { title: 'Pantau kondisi perangkat', description: 'Lihat penggunaan CPU dan RAM serta persentase baterai dan status pengisian daya. Tracker produktivitas opsional dapat menghitung durasi Pomodoro atau Gaming Focus.', image: '/images/features/statistik.jpg', imageAlt: 'Tampilan statistik CPU, RAM, baterai, dan tracker BRAMO', tag: 'STATISTIK' },
   { title: 'Launcher aplikasi dan situs', description: 'Simpan pintasan dengan nama sendiri untuk membuka aplikasi lokal atau situs web langsung dari panel BRAMO.', image: '/images/features/launcher.jpg', imageAlt: 'Tampilan Quick Launcher BRAMO', tag: 'QUICK LAUNCHER' },
   { title: 'File drop dan clipboard', description: 'Lempar file ke BRAMO untuk membuka atau menemukan lokasinya, lihat lima file terakhir, simpan lima item clipboard terbaru, dan atur watcher clipboard serta reaksi saat mengetik.', image: '/images/features/file-clipboard.jpg', imageAlt: 'Tampilan fitur file drop dan riwayat clipboard BRAMO', tag: 'FILE & CLIPBOARD' },
-  { title: 'Gaming Focus', description: 'Di Windows, BRAMO mendeteksi game yang didukung atau executable tambahan pilihanmu, lalu memakai ekspresi dan aksesori gaming. Indikator RTT adalah perkiraan koneksi internet, bukan ping server game.', image: '/images/08-control-and-sleep.svg', imageAlt: 'Ilustrasi Gaming Focus BRAMO', tag: 'GAMING' },
+  { title: 'Gaming Focus', description: 'Di Windows, BRAMO mendeteksi game yang didukung atau executable tambahan pilihanmu, lalu memakai ekspresi dan aksesori gaming. Indikator RTT adalah perkiraan koneksi internet, bukan ping server game.', image: '/images/features/gaming-focus.jpg', imageAlt: 'Tampilan Gaming Focus BRAMO', tag: 'GAMING' },
   { title: 'XP, koleksi, dan kustomisasi', description: 'Dapatkan XP dari penggunaan, naik level, lalu buka dan pilih aksesori kosmetik. Ubah warna visor ke Cyan, Matrix Green, Neon Pink, Amber, RGB, atau Red Alert.', image: '/images/features/bramo-journey.jpg', imageAlt: 'Tampilan BRAMO Journey, XP, level, dan koleksi aksesori', tag: 'BRAMO JOURNEY' },
   { title: 'Pengaturan dan kenyamanan', description: 'Pilih mulai bersama Windows, sembunyikan saat aplikasi fullscreen, aktifkan efek suara 8-bit, bersihkan cache BRAMO, atau tidurkan buddy saat ingin fokus.', image: '/images/features/pengaturan.jpg', imageAlt: 'Tampilan pengaturan tema dan perilaku BRAMO', tag: 'KONTROL' },
 ];
@@ -30,7 +30,7 @@ const downloadUrl = 'https://github.com/andikafadil28/bramo-app/releases/latest'
     <meta property="og:type" content="website" />
     <meta property="og:title" content="BRAMO — Teman kecil yang tinggal di desktop" />
     <meta property="og:description" content="Buddy visor LED yang nemenin kamu fokus, istirahat, dan menjalani hari." />
-    <meta property="og:image" content="/images/01-bramo-buddy.svg" />
+    <meta property="og:image" content="/images/features/desktop-buddy.jpg" />
     <title>BRAMO — Teman kecil yang tinggal di desktop</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
@@ -61,7 +61,7 @@ const downloadUrl = 'https://github.com/andikafadil28/bramo-app/releases/latest'
         <div class="hero-art" aria-label="Ilustrasi BRAMO sebagai buddy desktop">
           <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
           <div class="hero-glow"></div>
-          <img src="/images/01-bramo-buddy.svg" alt="Ilustrasi BRAMO, kapsul visor LED cyberpunk di desktop" />
+          <img src="/images/features/desktop-buddy.jpg" alt="BRAMO tampil sebagai buddy di desktop" />
           <div class="floating-chip chip-top"><span class="chip-dot"></span> READY TO HANG OUT</div>
           <div class="floating-chip chip-bottom">✦ <span>YOUR DESKTOP BUDDY</span></div>
         </div>

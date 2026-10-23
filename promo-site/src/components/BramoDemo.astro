@@ -1,158 +1,74 @@
 <section class="demo-section section-wrap" id="demo" aria-labelledby="demo-title">
   <div class="demo-heading">
-    <div>
-      <div class="section-kicker">COBA LANGSUNG</div>
-      <h2 id="demo-title">Lihat BRAMO <span>bereaksi.</span></h2>
-    </div>
-    <p>Gerakkan kursor di dekat visor, lalu coba ekspresi dan warna glow-nya.</p>
+    <div><div class="section-kicker">COBA LANGSUNG</div><h2 id="demo-title">Lihat BRAMO <span>bereaksi.</span></h2></div>
+    <p>Gerakkan kursor untuk melihat matanya mengikuti. Buka panel BRAMO untuk mencoba isi dropdown-nya.</p>
   </div>
 
   <div class="demo-window">
-    <div class="demo-window-bar">
-      <span class="demo-window-lights"><i></i><i></i><i></i></span>
-      <span>BRAMO · LIVE PREVIEW</span>
-      <span class="demo-live"><i></i> ONLINE</span>
-    </div>
+    <div class="demo-window-bar"><span class="demo-window-lights"><i></i><i></i><i></i></span><span>BRAMO · LIVE PREVIEW</span><span class="demo-live"><i></i> DEMO</span></div>
     <div class="demo-stage" id="demoStage">
-      <div class="demo-orbit demo-orbit-one"></div>
-      <div class="demo-orbit demo-orbit-two"></div>
+      <div class="demo-orbit demo-orbit-one"></div><div class="demo-orbit demo-orbit-two"></div>
       <div class="demo-bubble" id="demoBubble" aria-live="polite">Hai! Arahkan kursor ke visor, ya 👀</div>
-      <button class="demo-buddy" id="demoBuddy" type="button" aria-label="Sapa BRAMO di demo">
-        <span class="demo-hat"><i></i></span>
-        <span class="demo-visor">
-          <span class="demo-eye demo-eye-left"></span>
-          <span class="demo-mouth"></span>
-          <span class="demo-eye demo-eye-right"></span>
-        </span>
-        <span class="demo-visor-glow"></span>
-      </button>
+      <button class="demo-buddy" id="demoBuddy" type="button" aria-label="Sapa BRAMO di demo"><span class="demo-hat"><i></i></span><span class="demo-visor"><span class="demo-eye demo-eye-left"></span><span class="demo-mouth"></span><span class="demo-eye demo-eye-right"></span></span><span class="demo-visor-glow"></span></button>
       <div class="demo-status"><span class="demo-status-dot"></span><span id="demoStatus">Lagi santai</span></div>
     </div>
+    <div class="demo-panel-wrap">
+      <button class="panel-toggle" id="panelToggle" type="button" aria-expanded="true" aria-controls="demoPanel"><span><i>▦</i> Panel BRAMO</span><span class="toggle-state" id="toggleState">Tutup panel⌃</span></button>
+      <div class="demo-panel" id="demoPanel">
+        <div class="panel-tabs" role="tablist" aria-label="Menu dropdown BRAMO">
+          <button class="panel-tab active" type="button" role="tab" id="tab-music" aria-selected="true" aria-controls="panel-music" data-panel-tab="music"><span>♫</span> Musik</button>
+          <button class="panel-tab" type="button" role="tab" id="tab-focus" aria-selected="false" aria-controls="panel-focus" data-panel-tab="focus"><span>◷</span> Fokus</button>
+          <button class="panel-tab" type="button" role="tab" id="tab-tools" aria-selected="false" aria-controls="panel-tools" data-panel-tab="tools"><span>⌘</span> Utilitas</button>
+          <button class="panel-tab" type="button" role="tab" id="tab-journey" aria-selected="false" aria-controls="panel-journey" data-panel-tab="journey"><span>✦</span> Journey</button>
+        </div>
+        <div class="panel-content" id="panel-music" role="tabpanel" aria-labelledby="tab-music" data-panel-content="music">
+          <div class="panel-content-head"><div><span class="panel-eyebrow">SEKARANG DIPUTAR</span><strong>Demo track · BRAMO radio</strong></div><span class="track-note">♫ ♪ ♫</span></div>
+          <div class="music-controls"><button type="button" aria-label="Lagu sebelumnya" data-music-action="previous">◀◀</button><button class="play-button" type="button" aria-label="Putar musik demo" data-music-action="play">▶</button><button type="button" aria-label="Lagu berikutnya" data-music-action="next">▶▶</button><span id="musicMessage">Preview kontrol musik</span></div>
+        </div>
+        <div class="panel-content" id="panel-focus" role="tabpanel" aria-labelledby="tab-focus" data-panel-content="focus" hidden>
+          <div class="focus-row"><div><span class="panel-eyebrow">SESI FOKUS</span><strong class="focus-time" id="focusTime">25:00</strong></div><span class="focus-badge">FOKUS</span></div>
+          <div class="focus-progress"><i id="focusProgress"></i></div>
+          <div class="focus-actions"><button class="panel-action primary-action" id="focusStart" type="button">Mulai sesi</button><button class="panel-action" id="focusReset" type="button">Atur ulang</button><span id="focusMessage">Simulasi Pomodoro</span></div>
+        </div>
+        <div class="panel-content tools-panel" id="panel-tools" role="tabpanel" aria-labelledby="tab-tools" data-panel-content="tools" hidden>
+          <div class="panel-content-head"><div><span class="panel-eyebrow">AKSES CEPAT</span><strong>Semua alat dekat</strong></div><span class="tool-count">3 pintasan</span></div>
+          <div class="tool-shortcuts"><button type="button" data-tool="To-do">☑<span>To-do</span></button><button type="button" data-tool="Launcher">▣<span>Launcher</span></button><button type="button" data-tool="Jeda">☕<span>Jeda</span></button></div>
+        </div>
+        <div class="panel-content" id="panel-journey" role="tabpanel" aria-labelledby="tab-journey" data-panel-content="journey" hidden>
+          <div class="journey-top"><div><span class="panel-eyebrow">BRAMO JOURNEY</span><strong>Buddy makin kenal kamu</strong></div><span class="level-badge">LV 4</span></div>
+          <div class="journey-xp"><div><span>XP DEMO</span><b><span id="xpCount">280</span> / 400 XP</b></div><i><span id="xpBar"></span></i></div>
+          <button class="panel-action xp-action" id="xpEarn" type="button">Selesaikan aktivitas <span>+10 XP</span></button>
+        </div>
+      </div>
+      <p class="panel-note">Tampilan dan kontrol ini simulasi browser; perangkat, musik, dan progres aslimu tidak berubah.</p>
+    </div>
     <div class="demo-controls">
-      <div class="demo-control-group" role="group" aria-label="Coba ekspresi BRAMO">
-        <span class="demo-control-label">EKSPRESI</span>
-        <div class="demo-state-buttons">
-          <button class="demo-chip active" type="button" data-demo-state="idle">Santai</button>
-          <button class="demo-chip" type="button" data-demo-state="focus">Fokus</button>
-          <button class="demo-chip" type="button" data-demo-state="music">Musik</button>
-          <button class="demo-chip" type="button" data-demo-state="dizzy">Pusing</button>
-        </div>
-      </div>
-      <div class="demo-control-group" role="group" aria-label="Pilih warna visor demo">
-        <span class="demo-control-label">WARNA GLOW</span>
-        <div class="demo-color-buttons">
-          <button class="demo-color active" type="button" data-demo-color="#51f7e4" aria-label="Cyan" style="--swatch:#51f7e4"></button>
-          <button class="demo-color" type="button" data-demo-color="#70ed9b" aria-label="Matrix Green" style="--swatch:#70ed9b"></button>
-          <button class="demo-color" type="button" data-demo-color="#ff65d4" aria-label="Neon Pink" style="--swatch:#ff65d4"></button>
-          <button class="demo-color" type="button" data-demo-color="#ffad52" aria-label="Amber" style="--swatch:#ffad52"></button>
-        </div>
-      </div>
+      <div class="demo-control-group" role="group" aria-label="Coba ekspresi BRAMO"><span class="demo-control-label">EKSPRESI</span><div class="demo-state-buttons"><button class="demo-chip active" type="button" data-demo-state="idle">Santai</button><button class="demo-chip" type="button" data-demo-state="focus">Fokus</button><button class="demo-chip" type="button" data-demo-state="music">Musik</button><button class="demo-chip" type="button" data-demo-state="dizzy">Pusing</button></div></div>
+      <div class="demo-control-group" role="group" aria-label="Pilih warna visor demo"><span class="demo-control-label">WARNA GLOW</span><div class="demo-color-buttons"><button class="demo-color active" type="button" data-demo-color="#51f7e4" aria-label="Cyan" style="--swatch:#51f7e4"></button><button class="demo-color" type="button" data-demo-color="#70ed9b" aria-label="Matrix Green" style="--swatch:#70ed9b"></button><button class="demo-color" type="button" data-demo-color="#ff65d4" aria-label="Neon Pink" style="--swatch:#ff65d4"></button><button class="demo-color" type="button" data-demo-color="#ffad52" aria-label="Amber" style="--swatch:#ffad52"></button></div></div>
     </div>
   </div>
-  <p class="demo-disclaimer">Demo visual untuk browser. Fitur desktop seperti Pomodoro aktif, kontrol musik, dan statistik perangkat tersedia di aplikasi BRAMO.</p>
+  <p class="demo-disclaimer">Demo visual dan interaksi ringan untuk browser. Integrasi Windows seperti kontrol musik sistem, pemantauan perangkat, dan fitur desktop tersedia di aplikasi BRAMO.</p>
 </section>
 
 <style>
-  .demo-section { max-width:1160px;margin:0 auto;padding:48px 26px 0; }
-  .demo-section .section-kicker { color:#6adfdc;font:10px 'DM Mono',monospace;letter-spacing:2px; }
-  .demo-heading { display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:24px; }
-  .demo-heading h2 { margin:13px 0 0;font-size:clamp(32px,4vw,47px);line-height:1.12;letter-spacing:-2px; }
-  .demo-heading h2 span { color:#6cf3e5; }
-  .demo-heading>p { max-width:260px;margin:0;color:#91a5b4;font-size:12px;line-height:1.8; }
-  .demo-window { overflow:hidden;border:1px solid rgba(113,207,215,.2);border-radius:17px;background:#0c121a;box-shadow:0 26px 80px #0005,0 0 55px #00dcd21c; }
-  .demo-window-bar { height:40px;padding:0 15px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-bottom:1px solid #ffffff10;background:#111923;color:#718694;font:8px 'DM Mono',monospace;letter-spacing:1.2px; }
-  .demo-window-lights { display:flex;gap:5px; }.demo-window-lights i { width:6px;height:6px;border-radius:50%;background:#ff6a78; }.demo-window-lights i:nth-child(2) { background:#f6c65e; }.demo-window-lights i:nth-child(3) { background:#58df9b; }
-  .demo-live { justify-self:end;color:#8ba49f;font-size:7px; }.demo-live i,.demo-status-dot { display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:#67e8b2;box-shadow:0 0 9px #67e8b2; }
-  .demo-stage { --demo-led:#51f7e4; min-height:300px;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at center, color-mix(in srgb,var(--demo-led) 12%,transparent),transparent 42%),linear-gradient(145deg,#0d151f,#080d13 72%); }
-  .demo-stage::before { content:'';position:absolute;inset:0;opacity:.2;background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:34px 34px;mask-image:radial-gradient(ellipse at center,#000,transparent 76%); }
-  .demo-orbit { position:absolute;width:min(56vw,470px);height:170px;border:1px solid color-mix(in srgb,var(--demo-led) 21%,transparent);border-radius:50%;transform:rotate(-12deg);pointer-events:none; }.demo-orbit-two { width:min(64vw,540px);height:220px;border-style:dashed;opacity:.45;transform:rotate(17deg); }
-  .demo-buddy { width:260px;height:112px;position:relative;z-index:1;display:grid;place-items:center;padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation;animation:demo-float 4s ease-in-out infinite; }
-  .demo-visor { width:235px;height:78px;position:relative;z-index:2;display:flex;align-items:center;justify-content:space-evenly;padding:0 28px;border:3px solid color-mix(in srgb,var(--demo-led) 85%,white);border-radius:48px;background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--demo-led) 25%,#0a141b),#061016 72%);box-shadow:0 0 8px var(--demo-led),0 0 22px color-mix(in srgb,var(--demo-led) 66%,transparent),0 0 54px color-mix(in srgb,var(--demo-led) 24%,transparent),inset 0 0 19px color-mix(in srgb,var(--demo-led) 21%,transparent);transition:border-color .3s,box-shadow .3s,background .3s; }
-  .demo-visor::before { content:'';position:absolute;inset:7px 10px;border:1px solid color-mix(in srgb,var(--demo-led) 13%,transparent);border-radius:40px;background:repeating-linear-gradient(to bottom,transparent 0 4px,color-mix(in srgb,var(--demo-led) 8%,transparent) 5px);pointer-events:none; }
-  .demo-eye { width:28px;height:20px;position:relative;z-index:1;border-radius:50%;background:var(--demo-led);box-shadow:0 0 8px var(--demo-led),0 0 17px color-mix(in srgb,var(--demo-led) 75%,transparent);transform:translate(var(--gaze-x,0px),var(--gaze-y,0px));transition:transform .14s ease-out; }
-  .demo-eye::after { content:'';position:absolute;inset:5px 8px;border-radius:50%;background:#effffb;opacity:.85;filter:blur(1px); }
-  .demo-mouth { width:21px;height:7px;position:relative;z-index:1;border-bottom:2px solid var(--demo-led);border-radius:0 0 50% 50%;filter:drop-shadow(0 0 4px var(--demo-led));transition:all .22s ease; }
-  .demo-hat { width:34px;height:11px;position:absolute;z-index:3;top:7px;left:50%;transform:translateX(-50%);border-bottom:4px solid #a84f08;border-radius:10px 10px 2px 2px;background:linear-gradient(to bottom,#ffd26b 0 55%,#f18a12 56%);box-shadow:0 0 9px #ff9e27; }
-  .demo-hat::before { content:'';position:absolute;width:24px;height:5px;left:5px;top:-5px;border-radius:3px 3px 0 0;background:#ff9b19;border:1px solid #7d3d08; }.demo-hat i { position:absolute;left:-7px;right:-7px;bottom:-5px;height:3px;border-radius:50%;background:#f2a126; }
-  .demo-visor-glow { width:185px;height:30px;position:absolute;z-index:0;bottom:10px;left:50%;transform:translateX(-50%);border-radius:50%;background:var(--demo-led);filter:blur(22px);opacity:.43;transition:background .3s; }
-  .demo-status { position:absolute;z-index:2;bottom:18px;padding:7px 11px;border:1px solid #ffffff12;border-radius:999px;background:#080d13bd;color:#91a3b2;font:8px 'DM Mono',monospace;letter-spacing:.4px; }
-  .demo-bubble { min-width:130px;max-width:min(280px,75%);position:absolute;z-index:4;top:28px;left:50%;padding:10px 14px;transform:translate(-50%,8px);border:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);border-radius:10px;background:#111b25ed;color:#dce9ee;box-shadow:0 8px 28px #0006,0 0 20px color-mix(in srgb,var(--demo-led) 12%,transparent);font-size:11px;text-align:center;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none; }
-  .demo-bubble.show { transform:translate(-50%,0);opacity:1; }.demo-bubble::after { content:'';position:absolute;left:50%;bottom:-5px;width:8px;height:8px;transform:translateX(-50%) rotate(45deg);border-right:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);background:#111b25; }
-  .demo-controls { display:flex;justify-content:space-between;gap:22px;padding:17px 20px 19px;border-top:1px solid #ffffff0d;background:#0c121a; }.demo-control-group { display:grid;gap:9px; }.demo-control-label { color:#718593;font:7px 'DM Mono',monospace;letter-spacing:1.4px; }.demo-state-buttons,.demo-color-buttons { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }.demo-chip { padding:7px 10px;border:1px solid #ffffff15;border-radius:7px;background:#111922;color:#9db0bc;font:9px 'Segoe UI',sans-serif;cursor:pointer;transition:.2s; }.demo-chip:hover,.demo-chip.active { border-color:color-mix(in srgb,var(--demo-led) 58%,transparent);color:#e7ffff;background:color-mix(in srgb,var(--demo-led) 12%,#111922); }
-  .demo-color { width:19px;height:19px;padding:0;border:2px solid transparent;border-radius:50%;background:var(--swatch);box-shadow:0 0 10px color-mix(in srgb,var(--swatch) 54%,transparent);cursor:pointer; }.demo-color.active { outline:1px solid #e9ffff;outline-offset:3px; }
-  .demo-disclaimer { margin:12px 2px 0;color:#71818d;font-size:9px;line-height:1.6; }
-  .demo-stage[data-state="focus"] .demo-eye { height:9px;border-radius:3px; }.demo-stage[data-state="focus"] .demo-mouth { width:15px;height:3px;border-radius:0; }
-  .demo-stage[data-state="music"] .demo-eye { animation:demo-beat .55s ease-in-out infinite alternate; }.demo-stage[data-state="music"] .demo-eye-right { animation-delay:.18s; }.demo-stage[data-state="music"] .demo-mouth { height:13px;width:15px;border:2px solid var(--demo-led);border-radius:50%; }
-  .demo-stage[data-state="dizzy"] .demo-eye { background:transparent;box-shadow:none; }.demo-stage[data-state="dizzy"] .demo-eye::after { content:'@';inset:-7px 0 0;width:28px;height:28px;background:none;color:var(--demo-led);font:800 25px/28px monospace;filter:drop-shadow(0 0 5px var(--demo-led));animation:demo-spin 1s linear infinite; }.demo-stage[data-state="dizzy"] .demo-mouth { width:12px;height:8px;border:2px solid var(--demo-led);border-radius:50%; }
-  .demo-buddy:active { animation:demo-wiggle .18s ease-in-out infinite alternate; }
-  @keyframes demo-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
-  @keyframes demo-beat { to { transform:scaleY(.48); } }
-  @keyframes demo-spin { to { transform:rotate(360deg); } }
-  @keyframes demo-wiggle { to { transform:rotate(4deg) translateY(-2px); } }
-  @media(max-width:620px) { .demo-section { padding:30px 22px 0; }.demo-heading { display:block; }.demo-heading>p { margin-top:13px; }.demo-window-bar { grid-template-columns:1fr auto; }.demo-window-bar>span:nth-child(2) { display:none; }.demo-stage { min-height:265px; }.demo-visor { width:210px;height:72px; }.demo-controls { display:grid; }.demo-orbit { width:95vw; }.demo-orbit-two { width:110vw; } }
-  @media(prefers-reduced-motion:reduce) { .demo-buddy,.demo-eye,.demo-bubble { animation:none !important;transition:none; } }
+  .demo-section{max-width:1160px;margin:0 auto;padding:48px 26px 0}.demo-section .section-kicker{color:#6adfdc;font:10px 'DM Mono',monospace;letter-spacing:2px}.demo-heading{display:flex;align-items:end;justify-content:space-between;gap:28px;margin-bottom:24px}.demo-heading h2{margin:13px 0 0;font-size:clamp(32px,4vw,47px);line-height:1.12;letter-spacing:-2px}.demo-heading h2 span{color:#6cf3e5}.demo-heading>p{max-width:280px;margin:0;color:#91a5b4;font-size:12px;line-height:1.8}.demo-window{overflow:hidden;border:1px solid rgba(113,207,215,.2);border-radius:17px;background:#0c121a;box-shadow:0 26px 80px #0005,0 0 55px #00dcd21c}.demo-window-bar{height:40px;padding:0 15px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-bottom:1px solid #ffffff10;background:#111923;color:#718694;font:8px 'DM Mono',monospace;letter-spacing:1.2px}.demo-window-lights{display:flex;gap:5px}.demo-window-lights i{width:6px;height:6px;border-radius:50%;background:#ff6a78}.demo-window-lights i:nth-child(2){background:#f6c65e}.demo-window-lights i:nth-child(3){background:#58df9b}.demo-live{justify-self:end;color:#8ba49f;font-size:7px}.demo-live i,.demo-status-dot{display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:#67e8b2;box-shadow:0 0 9px #67e8b2}.demo-stage{--demo-led:#51f7e4;min-height:250px;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--demo-led) 12%,transparent),transparent 42%),linear-gradient(145deg,#0d151f,#080d13 72%)}.demo-stage::before{content:'';position:absolute;inset:0;opacity:.2;background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:34px 34px;mask-image:radial-gradient(ellipse at center,#000,transparent 76%)}.demo-orbit{position:absolute;width:min(56vw,470px);height:145px;border:1px solid color-mix(in srgb,var(--demo-led) 21%,transparent);border-radius:50%;transform:rotate(-12deg);pointer-events:none}.demo-orbit-two{width:min(64vw,540px);height:190px;border-style:dashed;opacity:.45;transform:rotate(17deg)}.demo-buddy{width:260px;height:112px;position:relative;z-index:1;display:grid;place-items:center;padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation;animation:demo-float 4s ease-in-out infinite}.demo-visor{width:235px;height:78px;position:relative;z-index:2;display:flex;align-items:center;justify-content:space-evenly;padding:0 28px;border:3px solid color-mix(in srgb,var(--demo-led) 85%,white);border-radius:48px;background:radial-gradient(ellipse at 50% 48%,color-mix(in srgb,var(--demo-led) 25%,#0a141b),#061016 72%);box-shadow:0 0 8px var(--demo-led),0 0 22px color-mix(in srgb,var(--demo-led) 66%,transparent),0 0 54px color-mix(in srgb,var(--demo-led) 24%,transparent),inset 0 0 19px color-mix(in srgb,var(--demo-led) 21%,transparent);transition:border-color .3s,box-shadow .3s,background .3s}.demo-visor::before{content:'';position:absolute;inset:7px 10px;border:1px solid color-mix(in srgb,var(--demo-led) 13%,transparent);border-radius:40px;background:repeating-linear-gradient(to bottom,transparent 0 4px,color-mix(in srgb,var(--demo-led) 8%,transparent) 5px);pointer-events:none}.demo-eye{width:28px;height:20px;position:relative;z-index:1;border-radius:50%;background:var(--demo-led);box-shadow:0 0 8px var(--demo-led),0 0 17px color-mix(in srgb,var(--demo-led) 75%,transparent);transform:translate(var(--gaze-x,0px),var(--gaze-y,0px));transition:transform .14s ease-out}.demo-eye::after{content:'';position:absolute;inset:5px 8px;border-radius:50%;background:#effffb;opacity:.85;filter:blur(1px)}.demo-mouth{width:21px;height:7px;position:relative;z-index:1;border-bottom:2px solid var(--demo-led);border-radius:0 0 50% 50%;filter:drop-shadow(0 0 4px var(--demo-led));transition:all .22s ease}.demo-hat{width:34px;height:11px;position:absolute;z-index:3;top:7px;left:50%;transform:translateX(-50%);border-bottom:4px solid #a84f08;border-radius:10px 10px 2px 2px;background:linear-gradient(to bottom,#ffd26b 0 55%,#f18a12 56%);box-shadow:0 0 9px #ff9e27}.demo-hat::before{content:'';position:absolute;width:24px;height:5px;left:5px;top:-5px;border-radius:3px 3px 0 0;background:#ff9b19;border:1px solid #7d3d08}.demo-hat i{position:absolute;left:-7px;right:-7px;bottom:-5px;height:3px;border-radius:50%;background:#f2a126}.demo-visor-glow{width:185px;height:30px;position:absolute;z-index:0;bottom:10px;left:50%;transform:translateX(-50%);border-radius:50%;background:var(--demo-led);filter:blur(22px);opacity:.43;transition:background .3s}.demo-status{position:absolute;z-index:2;bottom:15px;padding:7px 11px;border:1px solid #ffffff12;border-radius:999px;background:#080d13bd;color:#91a3b2;font:8px 'DM Mono',monospace;letter-spacing:.4px}.demo-bubble{min-width:130px;max-width:min(280px,75%);position:absolute;z-index:4;top:20px;left:50%;padding:10px 14px;transform:translate(-50%,8px);border:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);border-radius:10px;background:#111b25ed;color:#dce9ee;box-shadow:0 8px 28px #0006,0 0 20px color-mix(in srgb,var(--demo-led) 12%,transparent);font-size:11px;text-align:center;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none}.demo-bubble.show{transform:translate(-50%,0);opacity:1}.demo-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;width:8px;height:8px;transform:translateX(-50%) rotate(45deg);border-right:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);border-bottom:1px solid color-mix(in srgb,var(--demo-led) 50%,transparent);background:#111b25}.demo-panel-wrap{padding:0 20px 15px;background:#0b1119}.panel-toggle{width:100%;min-height:43px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;border:1px solid #ffffff12;border-radius:9px;background:#111923;color:#d9e7ec;font:600 11px 'Segoe UI',sans-serif;cursor:pointer}.panel-toggle>span:first-child{display:flex;align-items:center;gap:9px}.panel-toggle i{color:#62eee2;font-style:normal;font-size:16px}.toggle-state{color:#8ca1ad;font-size:9px}.demo-panel{margin-top:9px;overflow:hidden;border:1px solid #ffffff12;border-radius:11px;background:linear-gradient(145deg,#111923,#0e151e);animation:panel-in .2s ease-out}.demo-panel[hidden]{display:none}.panel-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:8px;border-bottom:1px solid #ffffff0e}.panel-tab{min-height:37px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;border-radius:7px;background:transparent;color:#8da0ad;font:10px 'Segoe UI',sans-serif;cursor:pointer;transition:.18s}.panel-tab span{font-size:13px}.panel-tab:hover,.panel-tab.active{border-color:color-mix(in srgb,var(--demo-led) 30%,transparent);background:color-mix(in srgb,var(--demo-led) 9%,#111923);color:#bffff9}.panel-content{min-height:112px;padding:15px 17px}.panel-content[hidden]{display:none}.panel-content-head,.focus-row,.journey-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.panel-content-head>div,.journey-top>div,.focus-row>div{display:grid;gap:5px}.panel-eyebrow{color:#50dcd5;font:7px 'DM Mono',monospace;letter-spacing:1.3px}.panel-content strong{color:#dce8ed;font-size:11px}.track-note{color:#65eee2;font-size:17px;animation:music-pulse .6s ease-in-out infinite alternate}.music-controls{display:flex;align-items:center;gap:9px;margin-top:14px}.music-controls button{width:29px;height:27px;border:1px solid #ffffff14;border-radius:6px;background:#151f29;color:#a8c0c9;font-size:9px;cursor:pointer}.music-controls button.play-button{border-color:#51e3da;background:#143337;color:#a4fff4;font-size:11px}.music-controls span{margin-left:auto;color:#718693;font-size:9px}.focus-time{font:700 22px 'DM Mono',monospace!important;letter-spacing:1px}.focus-badge,.level-badge{padding:5px 8px;border:1px solid #4adcd355;border-radius:6px;color:#70eee5;font:8px 'DM Mono',monospace}.focus-progress,.journey-xp>i{height:5px;margin-top:12px;overflow:hidden;border-radius:9px;background:#25303a}.focus-progress i,.journey-xp>i span{height:100%;width:0;display:block;border-radius:9px;background:linear-gradient(90deg,#28bdbd,#6dffe4);transition:width .3s}.focus-actions{display:flex;align-items:center;gap:8px;margin-top:11px}.panel-action{min-height:29px;padding:0 10px;border:1px solid #ffffff17;border-radius:6px;background:#151e28;color:#a9bbc5;font:9px 'Segoe UI',sans-serif;cursor:pointer}.primary-action{border-color:#45d7d177;background:#123238;color:#a8fff5}.focus-actions>span{margin-left:auto;color:#718693;font-size:9px}.tools-panel{min-height:112px}.tool-count{color:#82949f;font-size:9px}.tool-shortcuts{display:flex;gap:8px;margin-top:13px}.tool-shortcuts button{min-width:88px;min-height:43px;display:flex;align-items:center;gap:9px;padding:0 10px;border:1px solid #ffffff12;border-radius:7px;background:#141e28;color:#67e8df;font-size:13px;cursor:pointer}.tool-shortcuts button span{color:#bac9d1;font-size:9px}.journey-top .level-badge{color:#f4d27b;border-color:#d8b95655}.journey-xp{margin-top:13px}.journey-xp>div{display:flex;justify-content:space-between;color:#83949f;font:7px 'DM Mono',monospace}.journey-xp b{color:#b4c3cc;font-weight:400}.xp-action{margin-top:10px}.xp-action span{margin-left:7px;color:#68f3df}.panel-note{margin:9px 2px 0;color:#647681;font-size:8px;line-height:1.5}.demo-controls{display:flex;justify-content:space-between;gap:22px;padding:17px 20px 19px;border-top:1px solid #ffffff0d;background:#0c121a}.demo-control-group{display:grid;gap:9px}.demo-control-label{color:#718593;font:7px 'DM Mono',monospace;letter-spacing:1.4px}.demo-state-buttons,.demo-color-buttons{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.demo-chip{padding:7px 10px;border:1px solid #ffffff15;border-radius:7px;background:#111922;color:#9db0bc;font:9px 'Segoe UI',sans-serif;cursor:pointer;transition:.2s}.demo-chip:hover,.demo-chip.active{border-color:color-mix(in srgb,var(--demo-led) 58%,transparent);color:#e7ffff;background:color-mix(in srgb,var(--demo-led) 12%,#111922)}.demo-color{width:19px;height:19px;padding:0;border:2px solid transparent;border-radius:50%;background:var(--swatch);box-shadow:0 0 10px color-mix(in srgb,var(--swatch) 54%,transparent);cursor:pointer}.demo-color.active{outline:1px solid #e9ffff;outline-offset:3px}.demo-disclaimer{margin:12px 2px 0;color:#71818d;font-size:9px;line-height:1.6}.demo-stage[data-state="focus"] .demo-eye{height:9px;border-radius:3px}.demo-stage[data-state="focus"] .demo-mouth{width:15px;height:3px;border-radius:0}.demo-stage[data-state="music"] .demo-eye{animation:demo-beat .55s ease-in-out infinite alternate}.demo-stage[data-state="music"] .demo-eye-right{animation-delay:.18s}.demo-stage[data-state="music"] .demo-mouth{height:13px;width:15px;border:2px solid var(--demo-led);border-radius:50%}.demo-stage[data-state="dizzy"] .demo-eye{background:transparent;box-shadow:none}.demo-stage[data-state="dizzy"] .demo-eye::after{content:'@';inset:-7px 0 0;width:28px;height:28px;background:none;color:var(--demo-led);font:800 25px/28px monospace;filter:drop-shadow(0 0 5px var(--demo-led));animation:demo-spin 1s linear infinite}.demo-stage[data-state="dizzy"] .demo-mouth{width:12px;height:8px;border:2px solid var(--demo-led);border-radius:50%}.demo-buddy:active{animation:demo-wiggle .18s ease-in-out infinite alternate}@keyframes demo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes demo-beat{to{transform:scaleY(.48)}}@keyframes demo-spin{to{transform:rotate(360deg)}}@keyframes demo-wiggle{to{transform:rotate(4deg) translateY(-2px)}}@keyframes panel-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}@keyframes music-pulse{to{opacity:.5;transform:scale(.9)}}
+  @media(max-width:620px){.demo-section{padding:30px 22px 0}.demo-heading{display:block}.demo-heading>p{margin-top:13px}.demo-window-bar{grid-template-columns:1fr auto}.demo-window-bar>span:nth-child(2){display:none}.demo-stage{min-height:230px}.demo-visor{width:210px;height:72px}.demo-controls{display:grid;padding-inline:15px}.demo-orbit{width:95vw}.demo-orbit-two{width:110vw}.demo-panel-wrap{padding-inline:11px}.panel-tabs{gap:2px;padding:6px 4px}.panel-tab{gap:3px;font-size:9px}.panel-content{padding-inline:12px}.music-controls{gap:6px}.music-controls span{font-size:8px}.tool-shortcuts button{min-width:0;flex:1;justify-content:center;padding-inline:6px}.focus-actions{flex-wrap:wrap}.focus-actions>span{margin-left:0}.toggle-state{font-size:8px}}
+  @media(prefers-reduced-motion:reduce){.demo-buddy,.demo-eye,.demo-bubble,.track-note,.demo-panel{animation:none!important;transition:none}}
 </style>
 
 <script>
-  const stage = document.querySelector('#demoStage');
-  const buddy = document.querySelector('#demoBuddy');
-  const bubble = document.querySelector('#demoBubble');
-  const status = document.querySelector('#demoStatus');
-  const eyes = document.querySelectorAll('.demo-eye');
-  const stateButtons = document.querySelectorAll('[data-demo-state]');
-  const colorButtons = document.querySelectorAll('[data-demo-color]');
-
-  const stateCopy = {
-    idle: ['Lagi santai', 'Hai! Arahkan kursor ke visor, ya 👀'],
-    focus: ['Lagi fokus', 'Oke, kita fokus bareng dulu ✨'],
-    music: ['Lagi menikmati musik', 'Lagu ini enak juga 🎵'],
-    dizzy: ['Lagi pusing', 'Jangan digoyang terus dong 😵‍💫'],
-  };
-  let bubbleTimer;
-
-  function showDemoMessage(message, duration = 2600) {
-    bubble.textContent = message;
-    bubble.classList.add('show');
-    clearTimeout(bubbleTimer);
-    if (duration) bubbleTimer = setTimeout(() => bubble.classList.remove('show'), duration);
-  }
-
-  stateButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const state = button.dataset.demoState;
-      stage.dataset.state = state;
-      status.textContent = stateCopy[state][0];
-      stateButtons.forEach((item) => item.classList.toggle('active', item === button));
-      showDemoMessage(stateCopy[state][1]);
-    });
-  });
-
-  colorButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      stage.style.setProperty('--demo-led', button.dataset.demoColor);
-      colorButtons.forEach((item) => item.classList.toggle('active', item === button));
-      showDemoMessage(`Glow ${button.getAttribute('aria-label')} dipilih ✨`, 1800);
-    });
-  });
-
-  stage.addEventListener('pointermove', (event) => {
-    const bounds = stage.getBoundingClientRect();
-    const x = Math.max(-5, Math.min(5, ((event.clientX - bounds.left) / bounds.width - 0.5) * 10));
-    const y = Math.max(-3, Math.min(3, ((event.clientY - bounds.top) / bounds.height - 0.5) * 6));
-    eyes.forEach((eye, index) => {
-      eye.style.setProperty('--gaze-x', `${x + (index ? 0.4 : -0.4)}px`);
-      eye.style.setProperty('--gaze-y', `${y}px`);
-    });
-  });
-
-  stage.addEventListener('pointerleave', () => {
-    eyes.forEach((eye) => {
-      eye.style.setProperty('--gaze-x', '0px');
-      eye.style.setProperty('--gaze-y', '0px');
-    });
-  });
-
-  buddy.addEventListener('click', () => {
-    showDemoMessage('Hehe, makasih udah nyapa! 🤖');
-  });
+  const stage=document.querySelector('#demoStage');const buddy=document.querySelector('#demoBuddy');const bubble=document.querySelector('#demoBubble');const status=document.querySelector('#demoStatus');const eyes=document.querySelectorAll('.demo-eye');const stateButtons=document.querySelectorAll('[data-demo-state]');const colorButtons=document.querySelectorAll('[data-demo-color]');const panelToggle=document.querySelector('#panelToggle');const panel=document.querySelector('#demoPanel');const toggleState=document.querySelector('#toggleState');const tabButtons=document.querySelectorAll('[data-panel-tab]');const panelContents=document.querySelectorAll('[data-panel-content]');
+  const stateCopy={idle:['Lagi santai','Hai! Arahkan kursor ke visor, ya 👀'],focus:['Lagi fokus','Oke, kita fokus bareng dulu ✨'],music:['Lagi menikmati musik','Lagu ini enak juga 🎵'],dizzy:['Lagi pusing','Jangan digoyang terus dong 😵‍💫']};let bubbleTimer;let focusTimer;let seconds=25*60;let playing=false;let xp=280;
+  function showDemoMessage(message,duration=2600){bubble.textContent=message;bubble.classList.add('show');clearTimeout(bubbleTimer);if(duration)bubbleTimer=setTimeout(()=>bubble.classList.remove('show'),duration)}
+  stateButtons.forEach(button=>button.addEventListener('click',()=>{const state=button.dataset.demoState;stage.dataset.state=state;status.textContent=stateCopy[state][0];stateButtons.forEach(item=>item.classList.toggle('active',item===button));showDemoMessage(stateCopy[state][1])}));
+  colorButtons.forEach(button=>button.addEventListener('click',()=>{stage.style.setProperty('--demo-led',button.dataset.demoColor);colorButtons.forEach(item=>item.classList.toggle('active',item===button));showDemoMessage(`Glow ${button.getAttribute('aria-label')} dipilih ✨`,1800)}));
+  stage.addEventListener('pointermove',event=>{const bounds=stage.getBoundingClientRect();const x=Math.max(-5,Math.min(5,((event.clientX-bounds.left)/bounds.width-.5)*10));const y=Math.max(-3,Math.min(3,((event.clientY-bounds.top)/bounds.height-.5)*6));eyes.forEach((eye,index)=>{eye.style.setProperty('--gaze-x',`${x+(index?0.4:-0.4)}px`);eye.style.setProperty('--gaze-y',`${y}px`)})});stage.addEventListener('pointerleave',()=>eyes.forEach(eye=>{eye.style.setProperty('--gaze-x','0px');eye.style.setProperty('--gaze-y','0px')}));buddy.addEventListener('click',()=>showDemoMessage('Hehe, makasih udah nyapa! 🤖'));
+  panelToggle.addEventListener('click',()=>{const open=panelToggle.getAttribute('aria-expanded')==='true';panelToggle.setAttribute('aria-expanded',String(!open));panel.hidden=open;toggleState.textContent=open?'Buka panel⌄':'Tutup panel⌃'});
+  tabButtons.forEach(button=>button.addEventListener('click',()=>{tabButtons.forEach(tab=>{const active=tab===button;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active))});panelContents.forEach(content=>{content.hidden=content.dataset.panelContent!==button.dataset.panelTab})}));
+  document.querySelectorAll('[data-music-action]').forEach(button=>button.addEventListener('click',()=>{const action=button.dataset.musicAction;const message=document.querySelector('#musicMessage');if(action==='play'){playing=!playing;button.textContent=playing?'Ⅱ':'▶';button.setAttribute('aria-label',playing?'Jeda musik demo':'Putar musik demo');message.textContent=playing?'Memutar demo track':'Musik dijeda'}else message.textContent=action==='next'?'Demo track berikutnya':'Demo track sebelumnya';stage.dataset.state='music';status.textContent='Lagi menikmati musik'}));
+  function renderFocus(){const min=Math.floor(seconds/60).toString().padStart(2,'0');const sec=(seconds%60).toString().padStart(2,'0');document.querySelector('#focusTime').textContent=`${min}:${sec}`;document.querySelector('#focusProgress').style.width=`${((25*60-seconds)/(25*60))*100}%`}
+  document.querySelector('#focusStart').addEventListener('click',event=>{if(focusTimer){clearInterval(focusTimer);focusTimer=null;event.currentTarget.textContent='Lanjutkan';document.querySelector('#focusMessage').textContent='Sesi dijeda'}else{event.currentTarget.textContent='Jeda sesi';document.querySelector('#focusMessage').textContent='Timer simulasi berjalan';focusTimer=setInterval(()=>{seconds=Math.max(0,seconds-1);renderFocus();if(seconds===0){clearInterval(focusTimer);focusTimer=null;event.currentTarget.textContent='Mulai lagi';document.querySelector('#focusMessage').textContent='Sesi demo selesai ✨'}},1000)}});
+  document.querySelector('#focusReset').addEventListener('click',()=>{clearInterval(focusTimer);focusTimer=null;seconds=25*60;document.querySelector('#focusStart').textContent='Mulai sesi';document.querySelector('#focusMessage').textContent='Simulasi Pomodoro';renderFocus()});
+  document.querySelectorAll('[data-tool]').forEach(button=>button.addEventListener('click',()=>showDemoMessage(`Pintasan ${button.dataset.tool} di demo ✨`)));
+  document.querySelector('#xpEarn').addEventListener('click',()=>{xp=Math.min(400,xp+10);document.querySelector('#xpCount').textContent=String(xp);document.querySelector('#xpBar').style.width=`${xp/4}%`;if(xp===400)document.querySelector('#xpEarn').disabled=true;showDemoMessage('+10 XP buat BRAMO! ✨')});
 </script>
